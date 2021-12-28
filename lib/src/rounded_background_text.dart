@@ -1,0 +1,743 @@
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
+const kDefaultRoundedTextBackgroundColor = Colors.blue;
+
+Color? foregroundColor(Color? backgroundColor) {
+  return backgroundColor == null || backgroundColor.alpha == 0
+      ? null
+      : backgroundColor.computeLuminance() >= 0.5
+          ? Colors.black
+          : Colors.white;
+}
+
+double calculateHeight(final fontSize) {
+  // fontSize * x = fontSize + 14
+  // x = (fontSize + 14) / fontSize
+  return (fontSize + 14) / fontSize;
+}
+
+const singleLinePadding = EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0);
+const firstLinePadding = EdgeInsets.only(
+  left: 8.0,
+  right: 8.0,
+  top: 8.0,
+  bottom: 0,
+);
+const innerLinePadding = EdgeInsets.only(
+  left: 8.0,
+  right: 8.0,
+  top: 2.0,
+  bottom: 4.0,
+);
+const lastLinePadding = EdgeInsets.only(
+  left: 8.0,
+  right: 8.0,
+  bottom: 8.0,
+  top: 4.0,
+);
+
+/// Creates a paragraph with rounded background text
+///
+/// See also:
+///
+///  * [RichText], which this widget uses to render text
+///  * [TextPainter], which is used to calculate the line metrics
+///  * [TextStyle], used to customize the text look and feel
+class RoundedBackgroundText extends StatelessWidget {
+  /// Creates a rounded background text with a single style.
+  RoundedBackgroundText(
+    String text, {
+    Key? key,
+    TextStyle? style,
+    this.textDirection,
+    this.textAlign,
+    this.backgroundColor,
+    this.textWidthBasis,
+    this.ellipsis,
+    this.locale,
+    this.strutStyle,
+    this.textScaleFactor = 1.0,
+    this.maxLines,
+    this.textHeightBehavior,
+  })  : text = TextSpan(text: text, style: style),
+        super(key: key);
+
+  /// Creates a rounded background text based on an [InlineSpan], that can have
+  /// multiple styles
+  const RoundedBackgroundText.rich({
+    Key? key,
+    required this.text,
+    this.textDirection,
+    this.backgroundColor,
+    this.textAlign,
+    this.textWidthBasis,
+    this.ellipsis,
+    this.locale,
+    this.strutStyle,
+    this.textScaleFactor = 1.0,
+    this.maxLines,
+    this.textHeightBehavior,
+  }) : super(key: key);
+
+  /// The text to display in this widget.
+  final InlineSpan text;
+
+  /// The directionality of the text.
+  final TextDirection? textDirection;
+
+  /// {@template rounded_background_text.background_color}
+  /// The text background color.
+  ///
+  /// If null, [kDefaultRoundedTextBackgroundColor] will be used.
+  /// {@end-template}
+  final Color? backgroundColor;
+
+  /// How the text should be aligned horizontally.
+  final TextAlign? textAlign;
+
+  /// {@macro flutter.painting.textPainter.textWidthBasis}
+  final TextWidthBasis? textWidthBasis;
+
+  /// An optional maximum number of lines for the text to span, wrapping if necessary.
+  /// If the text exceeds the given number of lines, it will be truncated.
+  ///
+  /// If this is 1, text will not wrap. Otherwise, text will be wrapped at the
+  /// edge of the box.
+  final int? maxLines;
+
+  /// {@macro flutter.dart:ui.textHeightBehavior}
+  final TextHeightBehavior? textHeightBehavior;
+
+  /// The string used to ellipsize overflowing text.
+  final String? ellipsis;
+
+  /// Used to select a font when the same Unicode character can
+  /// be rendered differently, depending on the locale.
+  ///
+  /// It's rarely necessary to set this property. By default its value
+  /// is inherited from the enclosing app with `Localizations.localeOf(context)`.
+  ///
+  /// See [RenderParagraph.locale] for more information.
+  final Locale? locale;
+
+  /// {@macro flutter.painting.textPainter.strutStyle}
+  final StrutStyle? strutStyle;
+
+  /// The number of font pixels for each logical pixel.
+  ///
+  /// For example, if the text scale factor is 1.5, text will be 50% larger than
+  /// the specified font size.
+  final double textScaleFactor;
+
+  @override
+  Widget build(BuildContext context) {
+    final defaultTextStyle = DefaultTextStyle.of(context);
+    final style = text.style ?? defaultTextStyle.style;
+    return _RoundedBackgroundText(
+      text: TextSpan(
+        children: [text],
+        style: TextStyle(
+          color: foregroundColor(backgroundColor),
+          leadingDistribution: TextLeadingDistribution.proportional,
+          height: calculateHeight(style.fontSize ?? 16),
+          fontSize: style.fontSize ?? 16.0,
+        ).merge(text.style),
+      ),
+      textDirection:
+          textDirection ?? Directionality.maybeOf(context) ?? TextDirection.ltr,
+      textAlign: textAlign ?? defaultTextStyle.textAlign ?? TextAlign.start,
+      backgroundColor: backgroundColor ?? Colors.transparent,
+      textWidthBasis: textWidthBasis ?? defaultTextStyle.textWidthBasis,
+      maxLines: maxLines ?? defaultTextStyle.maxLines,
+      textHeightBehavior:
+          textHeightBehavior ?? defaultTextStyle.textHeightBehavior,
+      ellipsis: ellipsis,
+      locale: locale,
+      strutStyle: strutStyle,
+      textScaleFactor: textScaleFactor,
+    );
+  }
+}
+
+class _RoundedBackgroundText extends StatefulWidget {
+  const _RoundedBackgroundText({
+    Key? key,
+    required this.text,
+    required this.textDirection,
+    this.backgroundColor = kDefaultRoundedTextBackgroundColor,
+    this.maxLines,
+    this.textAlign = TextAlign.center,
+    this.textWidthBasis = TextWidthBasis.parent,
+    this.textScaleFactor = 1,
+    this.strutStyle,
+    this.locale,
+    this.textHeightBehavior,
+    this.ellipsis,
+  }) : super(key: key);
+
+  final InlineSpan text;
+  final TextDirection textDirection;
+
+  final Color backgroundColor;
+  final int? maxLines;
+  final TextAlign textAlign;
+  final TextWidthBasis? textWidthBasis;
+  final double textScaleFactor;
+  final StrutStyle? strutStyle;
+  final Locale? locale;
+  final TextHeightBehavior? textHeightBehavior;
+  final String? ellipsis;
+
+  @override
+  __RoundedBackgroundTextState createState() => __RoundedBackgroundTextState();
+}
+
+class __RoundedBackgroundTextState extends State<_RoundedBackgroundText> {
+  final parentKey = GlobalKey();
+
+  List<List<LineMetricsHelper>> lineInfos = [];
+
+  Size requiredSize = Size.zero;
+  double lastMaxWidth = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    generate();
+  }
+
+  @override
+  void didUpdateWidget(_RoundedBackgroundText oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.text != widget.text ||
+        oldWidget.textAlign != widget.textAlign ||
+        oldWidget.textDirection != widget.textDirection ||
+        oldWidget.textWidthBasis != widget.textWidthBasis) {
+      generate();
+    }
+  }
+
+  void generate() {
+    // debugPrint('generating on $lastMaxWidth w');
+    final painter = TextPainter(
+      text: widget.text,
+      textDirection: widget.textDirection,
+      maxLines: widget.maxLines,
+      textAlign: widget.textAlign,
+      textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
+      textScaleFactor: widget.textScaleFactor,
+      strutStyle: widget.strutStyle,
+      locale: widget.locale,
+      textHeightBehavior: widget.textHeightBehavior,
+      ellipsis: widget.ellipsis,
+    )..layout(maxWidth: lastMaxWidth);
+
+    requiredSize = painter.size;
+
+    final metrics = painter.computeLineMetrics();
+
+    final helpers = metrics.map((e) {
+      return LineMetricsHelper(e, metrics.length);
+    });
+
+    final List<List<LineMetricsHelper>> lineInfos = [[]];
+
+    for (final line in helpers) {
+      if (line.isEmpty) {
+        lineInfos.add([]);
+      } else {
+        lineInfos.last.add(line);
+      }
+    }
+
+    this.lineInfos = lineInfos;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, size) {
+      final maxWidth = size.maxWidth;
+      if (lastMaxWidth != maxWidth) {
+        lastMaxWidth = maxWidth;
+        generate();
+      }
+      return SizedBox(
+        // width: maxWidth,
+        width: requiredSize.width == 0 || requiredSize.width.isInfinite
+            ? maxWidth
+            : requiredSize.width,
+        child: Stack(
+          // alignment: widget.textAlign.alignment,
+          fit: StackFit.passthrough,
+          children: [
+            Positioned.fill(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: lineInfos.map(
+                  (info) {
+                    return CustomPaint(
+                      isComplex: true,
+                      willChange: true,
+                      painter: _HighlightPainter(info, widget.backgroundColor),
+                    );
+                  },
+                ).toList(),
+              ),
+            ),
+            RichText(
+              text: widget.text,
+              textAlign: widget.textAlign,
+              textDirection: widget.textDirection,
+              maxLines: widget.maxLines,
+              overflow: TextOverflow.clip,
+              softWrap: true,
+              textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
+              locale: widget.locale,
+              strutStyle: widget.strutStyle,
+              textHeightBehavior: widget.textHeightBehavior,
+              textScaleFactor: widget.textScaleFactor,
+            ),
+          ],
+        ),
+      );
+    });
+  }
+}
+
+class _HighlightPainter extends CustomPainter {
+  final List<LineMetricsHelper> lineInfos;
+  final Color backgroundColor;
+
+  const _HighlightPainter(this.lineInfos, this.backgroundColor);
+
+  static const double innerFactor = 5.0;
+  static const double outterFactor = 10.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (lineInfos.isEmpty) return;
+    if (lineInfos.length == 1) {
+      final info = lineInfos.first;
+      if (!info.isEmpty) {
+        canvas.drawRRect(
+          RRect.fromLTRBR(
+            info.x,
+            info.y,
+            info.fullWidth,
+            info.fullHeight,
+            const Radius.circular(outterFactor),
+          ),
+          Paint()..color = backgroundColor,
+        );
+      }
+      return;
+    }
+
+    final path = Path();
+    final firstInfo = lineInfos.elementAt(0);
+    final lastInfo = lineInfos.elementAt(lineInfos.length - 1);
+
+    path.moveTo(firstInfo.x + outterFactor, firstInfo.y);
+
+    LineMetricsHelper lastUsedInfo = firstInfo;
+    int _currentIndex = -1;
+
+    for (final info in lineInfos) {
+      _currentIndex++;
+
+      LineMetricsHelper? nextElement() {
+        try {
+          return lineInfos.elementAt(_currentIndex + 1);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      final next = nextElement();
+
+      if (next != null) {
+        final difference = () {
+          final width = (info.width - next.width);
+          if (width.isNegative) return -width;
+          return width;
+        }()
+            .toInt();
+        final differenceBigger = difference > outterFactor + 1;
+        // print('$differenceBigger $difference/$outterFactor');
+        if (!differenceBigger) {
+          next.overridenX = info.x;
+          next.overridenWidth = info.fullWidth;
+        }
+      }
+
+      void drawTopLeftCorner(LineMetricsHelper info) {
+        final outterFactor = lastUsedInfo == info
+            ? _HighlightPainter.outterFactor
+            : (lastUsedInfo.x - info.x)
+                .clamp(0, _HighlightPainter.outterFactor);
+        final controlPoint = Offset(
+          info.x,
+          info.y,
+        );
+        final endPoint = Offset(info.x, info.y + outterFactor);
+
+        path.lineTo(info.x + outterFactor, info.y);
+        path.quadraticBezierTo(
+          controlPoint.dx,
+          controlPoint.dy,
+          endPoint.dx,
+          endPoint.dy,
+        );
+      }
+
+      void drawBottomLeftCorner(LineMetricsHelper info) {
+        path.lineTo(info.x, info.fullHeight - outterFactor);
+
+        final iControlPoint = Offset(
+          info.x,
+          info.fullHeight,
+        );
+        final iEndPoint = Offset(info.x + outterFactor, info.fullHeight);
+
+        path.quadraticBezierTo(
+          iControlPoint.dx,
+          iControlPoint.dy,
+          iEndPoint.dx,
+          iEndPoint.dy,
+        );
+      }
+
+      void drawInnerCorner(LineMetricsHelper info, [bool toLeft = true]) {
+        if (toLeft) {
+          final innerFactor =
+              (info.x - next!.x).clamp(0, _HighlightPainter.innerFactor);
+          path.lineTo(info.x, info.fullHeight - innerFactor);
+          final iControlPoint = Offset(
+            info.x,
+            info.fullHeight,
+          );
+          final iEndPoint = Offset(
+            info.x - innerFactor,
+            info.fullHeight,
+          );
+
+          path.quadraticBezierTo(
+            iControlPoint.dx,
+            iControlPoint.dy,
+            iEndPoint.dx,
+            iEndPoint.dy,
+          );
+        } else {
+          final innerFactor =
+              (next!.x - info.x).clamp(0, _HighlightPainter.innerFactor);
+          path.lineTo(next.x - innerFactor, next.y);
+          final iControlPoint = Offset(
+            next.x,
+            next.y,
+          );
+          final iEndPoint = Offset(
+            next.x,
+            next.y + innerFactor,
+          );
+
+          path.quadraticBezierTo(
+            iControlPoint.dx,
+            iControlPoint.dy,
+            iEndPoint.dx,
+            iEndPoint.dy,
+          );
+        }
+      }
+
+      if (next != null) {
+        if (info == firstInfo || info.x < lastUsedInfo.x) {
+          drawTopLeftCorner(info);
+        }
+        if (info.x > next.x) {
+          // If the current one is less than the next, draw the inner corner
+          drawInnerCorner(info);
+          // drawBottomLeftCorner(info);
+        }
+        // If the next one is more to the right, draw the bottom left
+        if (info.x < next.x) {
+          // Draw bottom right corner
+          drawBottomLeftCorner(info);
+
+          // Otherwise draw the inverse inner corner
+          drawInnerCorner(info, false);
+        }
+      } else {
+        // If it's in the last one, draw the top and bottom corners
+        drawTopLeftCorner(info);
+        drawBottomLeftCorner(info);
+      }
+
+      lastUsedInfo = info;
+    }
+
+    // Draw the last line only to the half of it
+    path.lineTo(lastInfo.fullWidth / 2, lastInfo.fullHeight);
+
+    final reversedInfo = lineInfos.reversed;
+    _currentIndex = -1;
+    lastUsedInfo = reversedInfo.first;
+
+    // !Goes horizontal and up
+    for (final info in reversedInfo) {
+      _currentIndex++;
+      LineMetricsHelper? nextElement() {
+        try {
+          return reversedInfo.elementAt(_currentIndex + 1);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      final next = nextElement();
+
+      void drawTopRightCorner(
+        LineMetricsHelper info, [
+        double factor = outterFactor,
+      ]) {
+        final controlPoint = Offset(
+          info.fullWidth,
+          info.y,
+        );
+        final endPoint = Offset(info.fullWidth - factor, info.y);
+
+        path.lineTo(info.fullWidth, info.y + factor);
+        path.quadraticBezierTo(
+          controlPoint.dx,
+          controlPoint.dy,
+          endPoint.dx,
+          endPoint.dy,
+        );
+      }
+
+      void drawBottomRightCorner(LineMetricsHelper info) {
+        path.lineTo(info.fullWidth - outterFactor, info.fullHeight);
+
+        final iControlPoint = Offset(
+          info.fullWidth,
+          info.fullHeight,
+        );
+        final iEndPoint = Offset(
+          info.fullWidth,
+          info.fullHeight - outterFactor,
+        );
+
+        path.quadraticBezierTo(
+          iControlPoint.dx,
+          iControlPoint.dy,
+          iEndPoint.dx,
+          iEndPoint.dy,
+        );
+      }
+
+      void drawInnerCorner(LineMetricsHelper info, [bool toRight = true]) {
+        // To left
+        if (!toRight) {
+          path.lineTo(info.fullWidth + innerFactor, info.fullHeight);
+
+          final controlPoint = Offset(
+            info.fullWidth,
+            info.fullHeight,
+          );
+          final endPoint = Offset(
+            info.fullWidth,
+            info.fullHeight - innerFactor,
+          );
+
+          path.quadraticBezierTo(
+            controlPoint.dx,
+            controlPoint.dy,
+            endPoint.dx,
+            endPoint.dy,
+          );
+        } else {
+          path.lineTo(
+            info.fullWidth,
+            info.y + innerFactor,
+          );
+
+          final controlPoint = Offset(
+            info.fullWidth,
+            info.y,
+          );
+          final endPoint = Offset(
+            info.fullWidth + innerFactor,
+            info.y,
+          );
+
+          path.quadraticBezierTo(
+            controlPoint.dx,
+            controlPoint.dy,
+            endPoint.dx,
+            endPoint.dy,
+          );
+        }
+      }
+
+      if (next != null) {
+        final differenceBigger = info == lastUsedInfo ||
+            info.fullWidth - lastUsedInfo.fullWidth >= outterFactor;
+        // If it's the first info or it's bigger than the last one
+        if ((info == lastInfo || info.fullWidth > lastUsedInfo.fullWidth) &&
+            differenceBigger) {
+          drawBottomRightCorner(info);
+        }
+
+        if (info.fullWidth > next.fullWidth) {
+          final factor = info.fullWidth - next.fullWidth;
+          if (factor >= outterFactor) {
+            drawTopRightCorner(info);
+            drawInnerCorner(next, false);
+          } else {
+            drawTopRightCorner(info, factor);
+          }
+        }
+
+        if (info.fullWidth < next.fullWidth) {
+          // If the current one is less than the next, draw the inner corner
+          drawInnerCorner(info, true);
+          drawBottomRightCorner(next);
+        }
+      } else {
+        if (lastUsedInfo.fullWidth < info.fullWidth) {
+          drawBottomRightCorner(info);
+        }
+        drawTopRightCorner(info);
+      }
+
+      lastUsedInfo = info;
+    }
+
+    // First line horizontal
+    path
+      ..lineTo(firstInfo.fullWidth / 2, firstInfo.y)
+      ..close();
+    canvas.drawPath(path, Paint()..color = backgroundColor);
+  }
+
+  @override
+  bool shouldRepaint(covariant _HighlightPainter oldDelegate) {
+    // If we're debugging, update everytime
+    if (kDebugMode) return true;
+
+    return oldDelegate.backgroundColor != backgroundColor ||
+        oldDelegate.lineInfos != lineInfos;
+  }
+
+  @override
+  bool shouldRebuildSemantics(_HighlightPainter oldDelegate) => false;
+}
+
+class LineMetricsHelper {
+  /// The original line metrics, which stores the measurements and statistics of
+  /// a single line in the paragraph.
+  final LineMetrics metrics;
+
+  /// The amount of lines in the text.
+  ///
+  /// See also:
+  ///
+  ///  * [isLast], which uses this property to check the amount of lines
+  final int length;
+
+  double? overridenWidth;
+  double? overridenX;
+
+  LineMetricsHelper(this.metrics, this.length);
+
+  /// Whether this line has no content
+  bool get isEmpty => metrics.width == 0.0;
+
+  /// Whether this line is the last line in the paragraph
+  bool get isLast => metrics.lineNumber == length - 1;
+
+  double get x {
+    if (overridenX != null) return overridenX!;
+    final result = metrics.left;
+
+    if (metrics.lineNumber == 0) {
+      return result - firstLinePadding.left;
+    } else if (isLast) {
+      return result - lastLinePadding.left;
+    } else {
+      return result - innerLinePadding.left;
+    }
+  }
+
+  double get y {
+    final result = metrics.lineNumber * metrics.height + innerLinePadding.top;
+    if (metrics.lineNumber == 0) {
+      // return result - firstLinePadding.top;
+    } else if (isLast) {
+      return result + lastLinePadding.top / 2;
+    } else {
+      return result + innerLinePadding.top;
+    }
+    return result;
+  }
+
+  double get fullWidth {
+    if (overridenWidth != null) return overridenWidth!;
+    final result = x + width;
+
+    if (!isEmpty) {
+      if (metrics.lineNumber == 0) {
+        return result + firstLinePadding.left;
+      } else if (isLast) {
+        return result + lastLinePadding.left;
+      } else {
+        return result + innerLinePadding.left;
+      }
+    }
+    return x + metrics.width;
+  }
+
+  double get fullHeight {
+    final result = metrics.lineNumber * metrics.height + height;
+
+    // if (isLast) {
+    //   // return result + lastLinePadding.bottom;
+    // } else {
+    return result + innerLinePadding.bottom;
+    // }
+  }
+
+  double get height => metrics.height;
+
+  double get width {
+    final result = metrics.width;
+
+    if (metrics.lineNumber == 0) {
+      return result + firstLinePadding.right;
+    } else if (isLast) {
+      return result + lastLinePadding.right;
+    } else {
+      return result + innerLinePadding.right;
+    }
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+    return other is LineMetricsHelper &&
+        other.metrics == metrics &&
+        other.length == length;
+  }
+
+  @override
+  int get hashCode => hashValues(metrics, length);
+
+  @override
+  String toString() {
+    return 'LineMetricsHelper(x: $x, y: $y, w: $fullWidth, h: $fullHeight)';
+  }
+}
