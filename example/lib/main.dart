@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:rounded_background_text/rounded_background_text.dart';
 
+final _primaryAndAccentColors =
+    (<ColorSwatch>[...Colors.primaries]).followedBy(Colors.accents);
+
 void main() {
   runApp(const MyApp());
 }
@@ -87,16 +90,21 @@ class _MyAppState extends State<MyApp> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
-                child: HighlightTextField(
-                  controller: controller,
-                  backgroundColor: selectedColor,
-                  textAlign: textAlign,
-                  hint: 'Type your text here',
-                  style: TextStyle(
-                    fontSize: fontSize,
-                    fontWeight: fontWeight,
-                  ),
+                child: RoundedBackgroundText(
+                  'A cool text to be highlighted\nWith two lines or more',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  backgroundColor: Colors.amber,
                 ),
+                // child: RoundedBackgroundTextField(
+                //   controller: controller,
+                //   backgroundColor: selectedColor,
+                //   textAlign: textAlign,
+                //   hint: 'Type your text here',
+                //   style: TextStyle(
+                //     fontSize: fontSize,
+                //     fontWeight: fontWeight,
+                //   ),
+                // ),
               ),
             ),
             Padding(
@@ -105,7 +113,7 @@ class _MyAppState extends State<MyApp> {
                 runSpacing: 10.0,
                 spacing: 10.0,
                 alignment: WrapAlignment.center,
-                children: Colors.primaries.map((color) {
+                children: _primaryAndAccentColors.map((color) {
                   return MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: GestureDetector(

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'rounded_background_text.dart';
 
 /// A wrapper around [RoundedBackgroundText] and [TextField]
-class HighlightTextField extends StatefulWidget {
-  const HighlightTextField({
+class RoundedBackgroundTextField extends StatefulWidget {
+  const RoundedBackgroundTextField({
     Key? key,
     required this.controller,
     this.style,
@@ -58,10 +58,12 @@ class HighlightTextField extends StatefulWidget {
   final String? hint;
 
   @override
-  _HighlightTextFieldState createState() => _HighlightTextFieldState();
+  _RoundedBackgroundTextFieldState createState() =>
+      _RoundedBackgroundTextFieldState();
 }
 
-class _HighlightTextFieldState extends State<HighlightTextField> {
+class _RoundedBackgroundTextFieldState
+    extends State<RoundedBackgroundTextField> {
   @override
   void initState() {
     super.initState();
