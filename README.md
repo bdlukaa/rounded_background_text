@@ -1,16 +1,3 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
-
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
-
 <div>
   <h1 align="center">rounded_background_text</h1>
   <p align="center" >
@@ -73,16 +60,22 @@ RoundedBackgroundText(
 
 ### Highlight a TextField:
 
+You must use a `TextEditingController`
+
 ```dart
 final controller = TextEditingController();
 
 RoundedBackgroundTextField(
-  controller: controller,
-  backgroundColor: Colors.amber,
+  controller: controller, // required
+  backgroundColor: Colors.blue,
+  style: const TextStyle(fontWeight: FontWeight.bold),
+  textAlign: TextAlign.center,
 ),
 ```
 
 The text will be highlighted as the user types
+
+![TextField Preview](/assets/textfield_preview.gif)
 
 ## Additional information
 

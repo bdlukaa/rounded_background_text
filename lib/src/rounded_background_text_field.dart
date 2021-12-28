@@ -71,6 +71,10 @@ class _RoundedBackgroundTextFieldState
   }
 
   void _handleTextChange() {
+    final text = widget.controller;
+    if (!text.text.contains('\n')) {
+      widget.controller.text += '\n';
+    }
     if (mounted) setState(() {});
   }
 

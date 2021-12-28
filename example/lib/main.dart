@@ -90,21 +90,16 @@ class _MyAppState extends State<MyApp> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
-                child: RoundedBackgroundText(
-                  'A cool text to be highlighted\nWith two lines or more',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  backgroundColor: Colors.amber,
+                child: RoundedBackgroundTextField(
+                  controller: controller,
+                  backgroundColor: selectedColor,
+                  textAlign: textAlign,
+                  hint: 'Type your text here',
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: fontWeight,
+                  ),
                 ),
-                // child: RoundedBackgroundTextField(
-                //   controller: controller,
-                //   backgroundColor: selectedColor,
-                //   textAlign: textAlign,
-                //   hint: 'Type your text here',
-                //   style: TextStyle(
-                //     fontSize: fontSize,
-                //     fontWeight: fontWeight,
-                //   ),
-                // ),
               ),
             ),
             Padding(
