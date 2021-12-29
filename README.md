@@ -44,7 +44,7 @@ RoundedBackgroundText(
 ),
 ```
 
-![Simple Text](/assets/simple_text.png)
+![Simple Text](assets/simple_text.png)
 
 Multiline text is also supported
 
@@ -56,7 +56,7 @@ RoundedBackgroundText(
 ),
 ```
 
-![Two Lines Text](/assets/two_lines_text.png)
+![Two Lines Text](assets/two_lines_text.png)
 
 ### Highlight a TextField:
 
@@ -75,7 +75,7 @@ RoundedBackgroundTextField(
 
 The text will be highlighted as the user types
 
-![TextField Preview](/assets/textfield_preview.gif)
+![TextField Preview](assets/textfield_preview.gif)
 
 ### Highlight a text span:
 
@@ -94,9 +94,25 @@ RichText(
 ),
 ```
 
-![TextSpan Highlight Preview](/assets/highlight_text_span.png)
+![TextSpan Highlight Preview](assets/highlight_text_span.png)
 
-## Additional information
+## You may like to know:
+
+You can change the radius of the corners by setting `innerRadius` and `outerRadius`:
+
+```dart
+RoundedBackgroundText(
+  'A cool text to be highlighted',
+  style: const TextStyle(fontWeight: FontWeight.bold),
+  backgroundColor: Colors.white,
+  innerRadius: 15.0,
+  outerRadius: 10.0,
+),
+```
+
+The max allowed value is `20.0`. The min is `0.0`
+
+## Contribution
 
 Feel free to [file an issue](https://github.com/bdlukaa/rounded_background_text/issues/new) if you find a problem or [make pull requests](https://github.com/bdlukaa/rounded_background_text/pulls).
 

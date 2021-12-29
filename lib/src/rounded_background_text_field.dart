@@ -17,6 +17,8 @@ class RoundedBackgroundTextField extends StatefulWidget {
     this.cursorRadius,
     this.keyboardType,
     this.hint,
+    this.innerRadius = kDefaultInnerFactor,
+    this.outerRadius = kDefaultOuterFactor,
   }) : super(key: key);
 
   final TextEditingController controller;
@@ -56,6 +58,12 @@ class RoundedBackgroundTextField extends StatefulWidget {
 
   /// The text hint
   final String? hint;
+
+  /// {@macro rounded_background_text.innerRadius}
+  final double innerRadius;
+
+  /// {@macro rounded_background_text.outerRadius}
+  final double outerRadius;
 
   @override
   _RoundedBackgroundTextFieldState createState() =>
@@ -102,6 +110,8 @@ class _RoundedBackgroundTextFieldState
                 style: widget.style,
                 textAlign: widget.textAlign,
                 backgroundColor: widget.backgroundColor,
+                innerRadius: widget.innerRadius,
+                outerRadius: widget.outerRadius,
               ),
             ),
           Positioned(
