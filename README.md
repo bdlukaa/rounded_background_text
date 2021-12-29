@@ -20,7 +20,7 @@
 
 - ✅ Highlight Text
 - ✅ Highlight Text Field
-- 🚧 Highlight Text Span
+- ✅ Highlight Text Span
 
 ![Showcase](assets/showcase.png)
 
@@ -76,6 +76,25 @@ RoundedBackgroundTextField(
 The text will be highlighted as the user types
 
 ![TextField Preview](/assets/textfield_preview.gif)
+
+### Highlight a text span:
+
+```dart
+RichText(
+  text: TextSpan(
+    text: 'Start your text and ',
+    children: [
+      RoundedBackgroundTextSpan(
+        text: 'highlight something',
+        backgroundColor: Colors.blue,
+      ),
+      const TextSpan(text: ' when necessary'),
+    ],
+  ),
+),
+```
+
+![TextSpan Highlight Preview](/assets/highlight_text_span.png)
 
 ## Additional information
 
