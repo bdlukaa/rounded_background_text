@@ -20,6 +20,9 @@ class _MyAppState extends State<MyApp> {
   final controller = TextEditingController();
 
   double fontSize = 20.0;
+  double innerRadius = kDefaultInnerFactor;
+  double outerRadius = kDefaultOuterFactor;
+
   TextAlign textAlign = TextAlign.center;
   FontWeight fontWeight = FontWeight.bold;
 
@@ -99,6 +102,8 @@ class _MyAppState extends State<MyApp> {
                     fontSize: fontSize,
                     fontWeight: fontWeight,
                   ),
+                  innerRadius: innerRadius,
+                  outerRadius: outerRadius,
                 ),
               ),
             ),
@@ -135,11 +140,37 @@ class _MyAppState extends State<MyApp> {
                 }).toList(),
               ),
             ),
-            Slider(
-              onChanged: (v) => setState(() => fontSize = v),
-              value: fontSize,
-              min: 10,
-              max: 20,
+            Row(
+              children: [
+                Expanded(
+                  child: Slider(
+                    onChanged: (v) => setState(() => fontSize = v),
+                    value: fontSize,
+                    min: 10,
+                    max: 20,
+                  ),
+                ),
+                Expanded(
+                  child: Slider(
+                    onChanged: (v) => setState(() => innerRadius = v),
+                    value: innerRadius,
+                    min: 0,
+                    max: 20,
+                    label: '${innerRadius.toInt()}',
+                    divisions: 20,
+                  ),
+                ),
+                Expanded(
+                  child: Slider(
+                    onChanged: (v) => setState(() => outerRadius = v),
+                    value: outerRadius,
+                    min: 0,
+                    max: 20,
+                    label: '${outerRadius.toInt()}',
+                    divisions: 20,
+                  ),
+                ),
+              ],
             ),
           ]),
         ),
