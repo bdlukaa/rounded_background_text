@@ -4,9 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 const Color kDefaultRoundedTextBackgroundColor = Colors.blue;
-const double kDefaultInnerFactor = 10.0;
+const double kDefaultInnerFactor = 8.0;
 const double kDefaultOuterFactor = 10.0;
 
+/// Gets the foreground color based on [backgroundColor]
 Color? foregroundColor(Color? backgroundColor) {
   return backgroundColor == null || backgroundColor.alpha == 0
       ? null
@@ -15,7 +16,8 @@ Color? foregroundColor(Color? backgroundColor) {
           : Colors.white;
 }
 
-double calculateHeight(final fontSize) {
+/// Calculates the line height based on [fontSize]
+double calculateHeight(double fontSize) {
   // fontSize * x = fontSize + 14
   // x = (fontSize + 14) / fontSize
   return (fontSize + 14) / fontSize;
