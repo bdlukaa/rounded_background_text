@@ -20,7 +20,7 @@ class RoundedBackgroundTextSpan extends WidgetSpan {
     double? outerRadius,
   }) : super(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            padding: EdgeInsets.symmetric(horizontal: singleLinePadding.left),
             child: RoundedBackgroundText(
               text,
               style: style,

@@ -22,6 +22,10 @@ class RoundedBackgroundTextField extends StatefulWidget {
   }) : super(key: key);
 
   final TextEditingController controller;
+
+  /// The final text style
+  ///
+  /// The font size will be reduced if there isn't enough space for the text
   final TextStyle? style;
 
   /// How the text should be aligned horizontally.
@@ -72,6 +76,8 @@ class RoundedBackgroundTextField extends StatefulWidget {
 
 class _RoundedBackgroundTextFieldState
     extends State<RoundedBackgroundTextField> {
+  double finalScale = 1.0;
+
   @override
   void initState() {
     super.initState();
@@ -79,10 +85,15 @@ class _RoundedBackgroundTextFieldState
   }
 
   void _handleTextChange() {
-    final text = widget.controller;
-    if (!text.text.contains('\n')) {
-      widget.controller.text += '\n';
-    }
+    // final text = widget.controller;
+    // if (!text.text.contains('\n')) {
+    //   widget.controller.text += '\n';
+    // }
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      if (mounted) {
+        scale();
+      }
+    });
     if (mounted) setState(() {});
   }
 
@@ -92,14 +103,55 @@ class _RoundedBackgroundTextFieldState
     super.dispose();
   }
 
+  Size getSize() {
+    RenderBox box = context.findRenderObject() as RenderBox;
+    return box.size;
+  }
+
+  double scale() {
+    final size = getSize();
+
+    final painter = TextPainter(
+      text: TextSpan(
+          text: widget.controller.text,
+          style: widget.style?.copyWith(
+            height: calculateHeight(
+              (widget.style?.fontSize ?? 16) * finalScale,
+            ),
+          )),
+      textDirection: TextDirection.ltr,
+      maxLines: widget.maxLines,
+      textAlign: widget.textAlign,
+      // textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
+      // textScaleFactor: widget.textScaleFactor,
+      // strutStyle: widget.strutStyle,
+      // locale: widget.locale,
+      // textHeightBehavior: widget.textHeightBehavior,
+      // ellipsis: widget.ellipsis,
+    )..layout(maxWidth: size.width);
+
+    final scale = (size.height / painter.size.height).clamp(0.0, 1.0);
+    // debugPrint('${size.height}/${painter.size.height} - $scale');
+
+    if (finalScale != scale && mounted) {
+      setState(() => finalScale = scale);
+    }
+
+    return finalScale;
+  }
+
   @override
   Widget build(BuildContext context) {
     final defaultTextStyle = DefaultTextStyle.of(context);
 
+    final fontSize =
+        (widget.style?.fontSize ?? defaultTextStyle.style.fontSize ?? 16) *
+            finalScale;
+
     return Center(
       child: Stack(
         alignment: Alignment.topCenter,
-        clipBehavior: Clip.none,
+        // clipBehavior: Clip.none,
         children: [
           const Positioned.fill(child: SizedBox.expand()),
           if (widget.controller.text.isNotEmpty)
@@ -107,7 +159,7 @@ class _RoundedBackgroundTextFieldState
               padding: const EdgeInsets.only(right: 3.0),
               child: RoundedBackgroundText(
                 widget.controller.text,
-                style: widget.style,
+                style: widget.style?.copyWith(fontSize: fontSize),
                 textAlign: widget.textAlign,
                 backgroundColor: widget.backgroundColor,
                 innerRadius: widget.innerRadius,
@@ -118,17 +170,19 @@ class _RoundedBackgroundTextFieldState
             top: 3.0,
             left: 0,
             right: 0,
+            bottom: 0.0,
             child: TextField(
               autofocus: true,
               controller: widget.controller,
+
+              /// The text field can't be scrollable because
+              /// [RoundedBackgroundText] can't follow the scroll
+              scrollPhysics: const NeverScrollableScrollPhysics(),
               style: widget.style?.copyWith(
                 color: Colors.transparent,
                 // color: Colors.black,
-                height: calculateHeight(
-                  widget.style?.fontSize ??
-                      defaultTextStyle.style.fontSize ??
-                      16,
-                ),
+                fontSize: fontSize,
+                height: calculateHeight(fontSize),
               ),
               textAlign: widget.textAlign,
               maxLines: widget.maxLines,

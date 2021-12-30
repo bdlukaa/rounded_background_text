@@ -77,6 +77,8 @@ The text will be highlighted as the user types
 
 ![TextField Preview](assets/textfield_preview.gif)
 
+The font size of the text will be reduced if there isn't enough space to fit the text. The text field can't be scrollable
+
 ### Highlight a text span:
 
 ```dart
