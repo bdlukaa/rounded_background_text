@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'rounded_background_text.dart';
@@ -19,6 +20,9 @@ class RoundedBackgroundTextField extends StatefulWidget {
     this.hint,
     this.innerRadius = kDefaultInnerFactor,
     this.outerRadius = kDefaultOuterFactor,
+    this.autofocus = false,
+    this.focusNode,
+    this.keyboardAppearance = Brightness.light,
   }) : super(key: key);
 
   final TextEditingController controller;
@@ -69,6 +73,56 @@ class RoundedBackgroundTextField extends StatefulWidget {
   /// {@macro rounded_background_text.outerRadius}
   final double outerRadius;
 
+  /// Defines the keyboard focus for this widget.
+  ///
+  /// The [focusNode] is a long-lived object that's typically managed by a
+  /// [StatefulWidget] parent. See [FocusNode] for more information.
+  ///
+  /// To give the keyboard focus to this widget, provide a [focusNode] and then
+  /// use the current [FocusScope] to request the focus:
+  ///
+  /// ```dart
+  /// FocusScope.of(context).requestFocus(myFocusNode);
+  /// ```
+  ///
+  /// This happens automatically when the widget is tapped.
+  ///
+  /// To be notified when the widget gains or loses the focus, add a listener
+  /// to the [focusNode]:
+  ///
+  /// ```dart
+  /// focusNode.addListener(() { print(myFocusNode.hasFocus); });
+  /// ```
+  ///
+  /// If null, this widget will create its own [FocusNode].
+  ///
+  /// ## Keyboard
+  ///
+  /// Requesting the focus will typically cause the keyboard to be shown
+  /// if it's not showing already.
+  ///
+  /// On Android, the user can hide the keyboard - without changing the focus -
+  /// with the system back button. They can restore the keyboard's visibility
+  /// by tapping on a text field.  The user might hide the keyboard and
+  /// switch to a physical keyboard, or they might just need to get it
+  /// out of the way for a moment, to expose something it's
+  /// obscuring. In this case requesting the focus again will not
+  /// cause the focus to change, and will not make the keyboard visible.
+  ///
+  /// This widget builds an [EditableText] and will ensure that the keyboard is
+  /// showing when it is tapped by calling [EditableTextState.requestKeyboard()].
+  final FocusNode? focusNode;
+
+  /// {@macro flutter.widgets.editableText.autofocus}
+  final bool autofocus;
+
+  /// The appearance of the keyboard.
+  ///
+  /// This setting is only honored on iOS devices.
+  ///
+  /// Defaults to [Brightness.light].
+  final Brightness keyboardAppearance;
+
   @override
   _RoundedBackgroundTextFieldState createState() =>
       _RoundedBackgroundTextFieldState();
@@ -77,6 +131,10 @@ class RoundedBackgroundTextField extends StatefulWidget {
 class _RoundedBackgroundTextFieldState
     extends State<RoundedBackgroundTextField> {
   double finalScale = 1.0;
+
+  FocusNode? _focusNode;
+  FocusNode get _effectiveFocusNode =>
+      widget.focusNode ?? (_focusNode ??= FocusNode());
 
   @override
   void initState() {
@@ -142,6 +200,8 @@ class _RoundedBackgroundTextFieldState
 
   @override
   Widget build(BuildContext context) {
+    final TextSelectionThemeData selectionTheme =
+        TextSelectionTheme.of(context);
     final defaultTextStyle = DefaultTextStyle.of(context);
 
     final fontSize =
@@ -156,7 +216,7 @@ class _RoundedBackgroundTextFieldState
           const Positioned.fill(child: SizedBox.expand()),
           if (widget.controller.text.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(right: 3.0),
+              padding: const EdgeInsets.only(right: 2.0, left: 1.0),
               child: RoundedBackgroundText(
                 widget.controller.text,
                 style: widget.style?.copyWith(fontSize: fontSize),
@@ -167,18 +227,18 @@ class _RoundedBackgroundTextFieldState
               ),
             ),
           Positioned(
-            top: 3.0,
+            top: 0.0,
             left: 0,
             right: 0,
             bottom: 0.0,
-            child: TextField(
-              autofocus: true,
+            child: EditableText(
+              autofocus: widget.autofocus,
               controller: widget.controller,
-
-              /// The text field can't be scrollable because
-              /// [RoundedBackgroundText] can't follow the scroll
+              focusNode: _effectiveFocusNode,
+              // The text field can't be scrollable because
+              // [RoundedBackgroundText] can't follow the scroll
               scrollPhysics: const NeverScrollableScrollPhysics(),
-              style: widget.style?.copyWith(
+              style: (widget.style ?? const TextStyle()).copyWith(
                 color: Colors.transparent,
                 // color: Colors.black,
                 fontSize: fontSize,
@@ -187,19 +247,18 @@ class _RoundedBackgroundTextFieldState
               textAlign: widget.textAlign,
               maxLines: widget.maxLines,
               keyboardType: widget.keyboardType,
+              backgroundCursorColor: CupertinoColors.inactiveGray,
               cursorColor: widget.cursorColor ??
                   widget.style?.color ??
-                  foregroundColor(widget.backgroundColor),
+                  foregroundColor(widget.backgroundColor) ??
+                  selectionTheme.cursorColor ??
+                  Colors.black,
               cursorWidth: widget.cursorWidth,
               cursorHeight: widget.cursorHeight,
               cursorRadius: widget.cursorRadius,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.zero,
-                hintText: widget.hint,
-              ),
+              scrollPadding: EdgeInsets.zero,
               textCapitalization: TextCapitalization.sentences,
-              keyboardAppearance: Brightness.dark,
+              keyboardAppearance: widget.keyboardAppearance,
             ),
           ),
         ],

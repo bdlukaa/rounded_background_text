@@ -1,7 +1,8 @@
-## 0.1.2
+## [unreleased]
 
 * `RoundedBackgroundTextField` now scales down to fit the text
 * `RoundedBackgroundTextField` now can't be scrollable
+* `RoundedBackgroundTextField` now uses `EditableText` instead of `TextField` in order to get the best positioning
 
 ## 0.1.1
 
