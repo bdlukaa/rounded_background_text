@@ -166,10 +166,6 @@ class _RoundedBackgroundTextFieldState
   }
 
   void _handleTextChange() {
-    // final text = widget.controller;
-    // if (!text.text.contains('\n')) {
-    //   widget.controller.text += '\n';
-    // }
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       if (mounted) {
         scale();

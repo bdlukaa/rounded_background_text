@@ -17,6 +17,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final colorsController = ScrollController();
   final controller = TextEditingController();
 
   double fontSize = 20.0;
@@ -31,6 +32,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void dispose() {
     controller.dispose();
+    colorsController.dispose();
     super.dispose();
   }
 
@@ -107,8 +109,33 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
             ),
-            Padding(
+            Row(children: [
+              GestureDetector(
+                onTap: () {
+                  colorsController.animateTo(
+                    (colorsController.position.pixels - 40),
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                  );
+                },
+                child: const Icon(Icons.chevron_left),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: () {
+                  colorsController.animateTo(
+                    (colorsController.position.pixels + 40),
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                  );
+                },
+                child: const Icon(Icons.chevron_right),
+              ),
+            ]),
+            SingleChildScrollView(
+              controller: colorsController,
               padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
+              scrollDirection: Axis.horizontal,
               child: Wrap(
                 runSpacing: 10.0,
                 spacing: 10.0,

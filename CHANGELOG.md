@@ -4,6 +4,7 @@
 * `RoundedBackgroundTextField` now can't be scrollable
 * `RoundedBackgroundTextField` now uses `EditableText` instead of `TextField` in order to get the best positioning
 * Expose more text field properties
+* Update example app
 
 ## 0.1.1
 
