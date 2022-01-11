@@ -9,8 +9,11 @@ class RoundedBackgroundTextField extends StatefulWidget {
     Key? key,
     required this.controller,
     this.style,
-    this.textAlign = TextAlign.start,
     this.backgroundColor,
+    this.textAlign = TextAlign.start,
+    this.textDirection,
+    this.textScaleFactor,
+    this.textCapitalization = TextCapitalization.none,
     this.maxLines,
     this.cursorWidth = 2.0,
     this.cursorColor,
@@ -23,6 +26,8 @@ class RoundedBackgroundTextField extends StatefulWidget {
     this.autofocus = false,
     this.focusNode,
     this.keyboardAppearance = Brightness.light,
+    this.enableInteractiveSelection = true,
+    this.selectionControls,
   }) : super(key: key);
 
   final TextEditingController controller;
@@ -34,6 +39,15 @@ class RoundedBackgroundTextField extends StatefulWidget {
 
   /// How the text should be aligned horizontally.
   final TextAlign textAlign;
+
+  /// {@macro flutter.widgets.editableText.textDirection}
+  final TextDirection? textDirection;
+
+  /// {@macro flutter.widgets.editableText.textCapitalization}
+  final TextCapitalization textCapitalization;
+
+  /// {@macro flutter.widgets.editableText.textScaleFactor}
+  final double? textScaleFactor;
 
   /// {@macro rounded_background_text.background_color}
   final Color? backgroundColor;
@@ -123,6 +137,15 @@ class RoundedBackgroundTextField extends StatefulWidget {
   /// Defaults to [Brightness.light].
   final Brightness keyboardAppearance;
 
+  /// {@macro flutter.widgets.editableText.enableInteractiveSelection}
+  final bool enableInteractiveSelection;
+
+  /// {@macro flutter.widgets.editableText.selectionControls}
+  final TextSelectionControls? selectionControls;
+
+  /// {@macro flutter.widgets.editableText.selectionEnabled}
+  bool get selectionEnabled => enableInteractiveSelection;
+
   @override
   _RoundedBackgroundTextFieldState createState() =>
       _RoundedBackgroundTextFieldState();
@@ -200,6 +223,7 @@ class _RoundedBackgroundTextFieldState
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final TextSelectionThemeData selectionTheme =
         TextSelectionTheme.of(context);
     final defaultTextStyle = DefaultTextStyle.of(context);
@@ -207,6 +231,66 @@ class _RoundedBackgroundTextFieldState
     final fontSize =
         (widget.style?.fontSize ?? defaultTextStyle.style.fontSize ?? 16) *
             finalScale;
+
+    TextSelectionControls? textSelectionControls = widget.selectionControls;
+    final bool paintCursorAboveText;
+    final bool cursorOpacityAnimates;
+    Offset? cursorOffset;
+    Color? cursorColor = widget.cursorColor;
+    final Color selectionColor;
+    Color? autocorrectionTextRectColor;
+    Radius? cursorRadius = widget.cursorRadius;
+
+    switch (theme.platform) {
+      case TargetPlatform.iOS:
+        final CupertinoThemeData cupertinoTheme = CupertinoTheme.of(context);
+        textSelectionControls ??= cupertinoTextSelectionControls;
+        paintCursorAboveText = true;
+        cursorOpacityAnimates = true;
+        cursorColor ??=
+            selectionTheme.cursorColor ?? cupertinoTheme.primaryColor;
+        selectionColor = selectionTheme.selectionColor ??
+            cupertinoTheme.primaryColor.withOpacity(0.40);
+        cursorRadius ??= const Radius.circular(2.0);
+        cursorOffset = Offset(
+            iOSHorizontalOffset / MediaQuery.of(context).devicePixelRatio, 0);
+        autocorrectionTextRectColor = selectionColor;
+        break;
+
+      case TargetPlatform.macOS:
+        final CupertinoThemeData cupertinoTheme = CupertinoTheme.of(context);
+        textSelectionControls ??= cupertinoDesktopTextSelectionControls;
+        paintCursorAboveText = true;
+        cursorOpacityAnimates = true;
+        cursorColor ??=
+            selectionTheme.cursorColor ?? cupertinoTheme.primaryColor;
+        selectionColor = selectionTheme.selectionColor ??
+            cupertinoTheme.primaryColor.withOpacity(0.40);
+        cursorRadius ??= const Radius.circular(2.0);
+        cursorOffset = Offset(
+            iOSHorizontalOffset / MediaQuery.of(context).devicePixelRatio, 0);
+        break;
+
+      case TargetPlatform.android:
+      case TargetPlatform.fuchsia:
+        textSelectionControls ??= materialTextSelectionControls;
+        paintCursorAboveText = false;
+        cursorOpacityAnimates = false;
+        cursorColor ??= selectionTheme.cursorColor ?? theme.colorScheme.primary;
+        selectionColor = selectionTheme.selectionColor ??
+            theme.colorScheme.primary.withOpacity(0.40);
+        break;
+
+      case TargetPlatform.linux:
+      case TargetPlatform.windows:
+        textSelectionControls ??= desktopTextSelectionControls;
+        paintCursorAboveText = false;
+        cursorOpacityAnimates = false;
+        cursorColor ??= selectionTheme.cursorColor ?? theme.colorScheme.primary;
+        selectionColor = selectionTheme.selectionColor ??
+            theme.colorScheme.primary.withOpacity(0.40);
+        break;
+    }
 
     return Center(
       child: Stack(
@@ -226,11 +310,7 @@ class _RoundedBackgroundTextFieldState
                 outerRadius: widget.outerRadius,
               ),
             ),
-          Positioned(
-            top: 0.0,
-            left: 0,
-            right: 0,
-            bottom: 0.0,
+          Positioned.fill(
             child: EditableText(
               autofocus: widget.autofocus,
               controller: widget.controller,
@@ -238,6 +318,8 @@ class _RoundedBackgroundTextFieldState
               // The text field can't be scrollable because
               // [RoundedBackgroundText] can't follow the scroll
               scrollPhysics: const NeverScrollableScrollPhysics(),
+              scrollBehavior: const ScrollBehavior(),
+
               style: (widget.style ?? const TextStyle()).copyWith(
                 color: Colors.transparent,
                 // color: Colors.black,
@@ -256,9 +338,18 @@ class _RoundedBackgroundTextFieldState
               cursorWidth: widget.cursorWidth,
               cursorHeight: widget.cursorHeight,
               cursorRadius: widget.cursorRadius,
+              paintCursorAboveText: paintCursorAboveText,
+              cursorOpacityAnimates: cursorOpacityAnimates,
+              cursorOffset: cursorOffset,
+              autocorrectionTextRectColor: autocorrectionTextRectColor,
               scrollPadding: EdgeInsets.zero,
-              textCapitalization: TextCapitalization.sentences,
+              textCapitalization: widget.textCapitalization,
               keyboardAppearance: widget.keyboardAppearance,
+              textScaleFactor: widget.textScaleFactor,
+              enableInteractiveSelection: widget.enableInteractiveSelection,
+              selectionColor: selectionColor,
+              selectionControls:
+                  widget.selectionEnabled ? textSelectionControls : null,
             ),
           ),
         ],
