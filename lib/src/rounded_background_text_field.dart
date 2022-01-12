@@ -196,7 +196,7 @@ class _RoundedBackgroundTextFieldState
               (widget.style?.fontSize ?? 16) * finalScale,
             ),
           )),
-      textDirection: TextDirection.ltr,
+      textDirection: widget.textDirection ?? TextDirection.ltr,
       maxLines: widget.maxLines,
       textAlign: widget.textAlign,
       // textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
@@ -290,8 +290,7 @@ class _RoundedBackgroundTextFieldState
 
     return Center(
       child: Stack(
-        alignment: Alignment.topCenter,
-        // clipBehavior: Clip.none,
+        alignment: Alignment.center,
         children: [
           const Positioned.fill(child: SizedBox.expand()),
           if (widget.controller.text.isNotEmpty)
@@ -304,6 +303,8 @@ class _RoundedBackgroundTextFieldState
                 backgroundColor: widget.backgroundColor,
                 innerRadius: widget.innerRadius,
                 outerRadius: widget.outerRadius,
+                textDirection: widget.textDirection,
+                textScaleFactor: widget.textScaleFactor ?? 1.0,
               ),
             ),
           Positioned.fill(
@@ -346,6 +347,7 @@ class _RoundedBackgroundTextFieldState
               selectionColor: selectionColor,
               selectionControls:
                   widget.selectionEnabled ? textSelectionControls : null,
+              textDirection: widget.textDirection,
             ),
           ),
         ],

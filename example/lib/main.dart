@@ -5,6 +5,8 @@ import 'package:rounded_background_text/rounded_background_text.dart';
 final _primaryAndAccentColors =
     (<ColorSwatch>[...Colors.primaries]).followedBy(Colors.accents);
 
+enum _HighlightTextType { field, text, span }
+
 void main() {
   runApp(const MyApp());
 }
@@ -26,6 +28,7 @@ class _MyAppState extends State<MyApp> {
 
   TextAlign textAlign = TextAlign.center;
   FontWeight fontWeight = FontWeight.bold;
+  _HighlightTextType type = _HighlightTextType.text;
 
   Color selectedColor = Colors.blue;
 
@@ -58,7 +61,7 @@ class _MyAppState extends State<MyApp> {
                     icon: const Icon(Icons.font_download),
                     items: FontWeight.values.map((e) {
                       return DropdownMenuItem(
-                        child: Text(e.toString()),
+                        child: Text('$e'.replaceAll('FontWeight.', '')),
                         value: e,
                       );
                     }).toList(),
@@ -90,22 +93,96 @@ class _MyAppState extends State<MyApp> {
                   ),
                 ),
                 const VerticalDivider(),
+                Expanded(
+                  child: DropdownButton<_HighlightTextType>(
+                    value: type,
+                    onChanged: (t) => setState(
+                      () => type = t ?? _HighlightTextType.field,
+                    ),
+                    icon: const Icon(Icons.text_fields),
+                    isExpanded: true,
+                    items: const [
+                      DropdownMenuItem(
+                        child: Text('Field'),
+                        value: _HighlightTextType.field,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('Text'),
+                        value: _HighlightTextType.text,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('Span'),
+                        value: _HighlightTextType.span,
+                      ),
+                    ],
+                  ),
+                ),
+                const VerticalDivider(),
               ],
             ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
-                child: RoundedBackgroundTextField(
-                  controller: controller,
-                  backgroundColor: selectedColor,
-                  textAlign: textAlign,
-                  hint: 'Type your text here',
-                  style: TextStyle(
-                    fontSize: fontSize,
-                    fontWeight: fontWeight,
-                  ),
-                  innerRadius: innerRadius,
-                  outerRadius: outerRadius,
+                child: Center(
+                  child: () {
+                    switch (type) {
+                      case _HighlightTextType.field:
+                        return RoundedBackgroundTextField(
+                          controller: controller,
+                          backgroundColor: selectedColor,
+                          textAlign: textAlign,
+                          hint: 'Type your text here',
+                          style: TextStyle(
+                            fontSize: fontSize,
+                            fontWeight: fontWeight,
+                          ),
+                          innerRadius: innerRadius,
+                          outerRadius: outerRadius,
+                        );
+                      case _HighlightTextType.text:
+                        return RoundedBackgroundText(
+                          '''Rounded Background Text Showcase
+                          
+It handles well all font sizes and weights, as well as text alignments
+
+Contributions are welcome!
+Done with so much <3 by @bdlukaa
+                          ''',
+                          backgroundColor: selectedColor,
+                          textAlign: textAlign,
+                          style: TextStyle(
+                            fontSize: fontSize,
+                            fontWeight: fontWeight,
+                          ),
+                          innerRadius: innerRadius,
+                          outerRadius: outerRadius,
+                        );
+                      case _HighlightTextType.span:
+                        return RichText(
+                          textAlign: textAlign,
+                          text: TextSpan(
+                            text: 'You can use this to ',
+                            style: TextStyle(
+                              fontSize: fontSize,
+                              fontWeight: fontWeight,
+                            ),
+                            children: [
+                              RoundedBackgroundTextSpan(
+                                text: 'highlight text inside of another text',
+                                backgroundColor: selectedColor,
+                                innerRadius: innerRadius,
+                                outerRadius: outerRadius,
+                                textAlign: textAlign,
+                                style: TextStyle(
+                                  fontSize: fontSize,
+                                  fontWeight: fontWeight,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                    }
+                  }(),
                 ),
               ),
             ),

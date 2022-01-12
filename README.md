@@ -16,10 +16,23 @@
   </p>
 </div>
 
+## Content
+
+- [Features](#features)
+- [Getting started](#getting-started)
+- [Usage](#usage)
+  - [Highlight a simple text](#highlight-a-simple-text)
+  - [Highlight a text field](#highlight-a-text-field)
+  - [Highlight a text span](#highlight-a-text-span)
+- [You may like to know](#you-may-like-to-know)
+  - [Change the corner radius](#change-the-corner-radius)
+  - [Known issues with the text field](#known-issues-with-the-text-field),
+- [Contribution](#contribution)
+
 ## Features
 
 - ✅ Highlight Text
-- ✅ Highlight Text Field
+- ✅ Highlight Text Field [beta]
 - ✅ Highlight Text Span
 
 ![Showcase](assets/showcase.png)
@@ -58,7 +71,7 @@ RoundedBackgroundText(
 
 ![Two Lines Text](assets/two_lines_text.png)
 
-### Highlight a TextField:
+### Highlight a text field:
 
 You must use a `TextEditingController`
 
@@ -81,6 +94,8 @@ The font size of the text will be reduced if there isn't enough space to fit the
 
 ### Highlight a text span:
 
+Highlight a small part of a text
+
 ```dart
 RichText(
   text: TextSpan(
@@ -100,6 +115,8 @@ RichText(
 
 ## You may like to know:
 
+### Change the corner radius
+
 You can change the radius of the corners by setting `innerRadius` and `outerRadius`:
 
 ```dart
@@ -113,6 +130,10 @@ RoundedBackgroundText(
 ```
 
 The max allowed value is `20.0`. The min is `0.0`
+
+### Known issues with the text field
+
+- It can't be scrollable. Instead, as a workaround, the text is scaled down to fit the available space
 
 ## Contribution
 
