@@ -288,26 +288,27 @@ class _RoundedBackgroundTextFieldState
         break;
     }
 
-    return Center(
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          const Positioned.fill(child: SizedBox.expand()),
-          if (widget.controller.text.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(right: 2.0, left: 1.0),
-              child: RoundedBackgroundText(
-                widget.controller.text,
-                style: widget.style?.copyWith(fontSize: fontSize),
-                textAlign: widget.textAlign,
-                backgroundColor: widget.backgroundColor,
-                innerRadius: widget.innerRadius,
-                outerRadius: widget.outerRadius,
-                textDirection: widget.textDirection,
-                textScaleFactor: widget.textScaleFactor ?? 1.0,
-              ),
+    return Stack(
+      alignment: Alignment.center,
+      clipBehavior: Clip.none,
+      children: [
+        const Positioned.fill(child: SizedBox.expand()),
+        if (widget.controller.text.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(right: 2.0, left: 1.0),
+            child: RoundedBackgroundText(
+              widget.controller.text,
+              style: widget.style?.copyWith(fontSize: fontSize),
+              textAlign: widget.textAlign,
+              backgroundColor: widget.backgroundColor,
+              innerRadius: widget.innerRadius,
+              outerRadius: widget.outerRadius,
+              textDirection: widget.textDirection,
+              textScaleFactor: widget.textScaleFactor ?? 1.0,
             ),
-          Positioned.fill(
+          ),
+        Positioned.fill(
+          child: Center(
             child: EditableText(
               autofocus: widget.autofocus,
               controller: widget.controller,
@@ -319,7 +320,7 @@ class _RoundedBackgroundTextFieldState
 
               style: (widget.style ?? const TextStyle()).copyWith(
                 color: Colors.transparent,
-                // color: Colors.black,
+                // color: Colors.amber,
                 fontSize: fontSize,
                 height: calculateHeight(fontSize),
               ),
@@ -348,10 +349,12 @@ class _RoundedBackgroundTextFieldState
               selectionControls:
                   widget.selectionEnabled ? textSelectionControls : null,
               textDirection: widget.textDirection,
+              showSelectionHandles: true,
+              textWidthBasis: TextWidthBasis.parent,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

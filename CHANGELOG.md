@@ -1,3 +1,7 @@
+## 0.1.3
+
+* Do not center the whole stack. It was causing clipping on the text field
+
 ## 0.1.2
 
 * `RoundedBackgroundTextField` now scales down to fit the text
