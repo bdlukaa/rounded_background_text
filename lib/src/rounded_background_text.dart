@@ -23,6 +23,30 @@ double calculateHeight(double fontSize) {
   return (fontSize + 14) / fontSize;
 }
 
+List<List<LineMetricsHelper>> generateLineInfosForPainter(
+  TextPainter painter, [
+  double maxWidth = double.infinity,
+]) {
+  painter.layout(maxWidth: maxWidth);
+  final metrics = painter.computeLineMetrics();
+
+  final helpers = metrics.map((lineMetric) {
+    return LineMetricsHelper(lineMetric, metrics.length);
+  });
+
+  final List<List<LineMetricsHelper>> lineInfos = [[]];
+
+  for (final line in helpers) {
+    if (line.isEmpty) {
+      lineInfos.add([]);
+    } else {
+      lineInfos.last.add(line);
+    }
+  }
+
+  return lineInfos;
+}
+
 const singleLinePadding = EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0);
 const firstLinePadding = EdgeInsets.only(
   left: 8.0,
@@ -251,9 +275,11 @@ class __RoundedBackgroundTextState extends State<_RoundedBackgroundText> {
     }
   }
 
+  late TextPainter painter;
+
   void generate() {
     // debugPrint('generating on $lastMaxWidth w');
-    final painter = TextPainter(
+    painter = TextPainter(
       text: widget.text,
       textDirection: widget.textDirection,
       maxLines: widget.maxLines,
@@ -264,27 +290,10 @@ class __RoundedBackgroundTextState extends State<_RoundedBackgroundText> {
       locale: widget.locale,
       textHeightBehavior: widget.textHeightBehavior,
       ellipsis: widget.ellipsis,
-    )..layout(maxWidth: lastMaxWidth);
+    );
 
+    lineInfos = generateLineInfosForPainter(painter, lastMaxWidth);
     requiredSize = painter.size;
-
-    final metrics = painter.computeLineMetrics();
-
-    final helpers = metrics.map((e) {
-      return LineMetricsHelper(e, metrics.length);
-    });
-
-    final List<List<LineMetricsHelper>> lineInfos = [[]];
-
-    for (final line in helpers) {
-      if (line.isEmpty) {
-        lineInfos.add([]);
-      } else {
-        lineInfos.last.add(line);
-      }
-    }
-
-    this.lineInfos = lineInfos;
   }
 
   @override
@@ -296,48 +305,20 @@ class __RoundedBackgroundTextState extends State<_RoundedBackgroundText> {
         generate();
       }
       return SizedBox(
-        // width: maxWidth,
         width: requiredSize.width == 0 || requiredSize.width.isInfinite
             ? maxWidth
             : requiredSize.width,
-        child: Stack(
-          // alignment: widget.textAlign.alignment,
-          fit: StackFit.passthrough,
-          children: [
-            Positioned.fill(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: lineInfos.map(
-                  (info) {
-                    return CustomPaint(
-                      isComplex: true,
-                      willChange: true,
-                      painter: _HighlightPainter(
-                        lineInfos: info,
-                        backgroundColor: widget.backgroundColor,
-                        innerFactor: widget.innerFactor,
-                        outerFactor: widget.outerFactor,
-                      ),
-                    );
-                  },
-                ).toList(),
-              ),
-            ),
-            RichText(
-              text: widget.text,
-              textAlign: widget.textAlign,
-              textDirection: widget.textDirection,
-              maxLines: widget.maxLines,
-              overflow: TextOverflow.clip,
-              softWrap: true,
-              textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
-              locale: widget.locale,
-              strutStyle: widget.strutStyle,
-              textHeightBehavior: widget.textHeightBehavior,
-              textScaleFactor: widget.textScaleFactor,
-            ),
-          ],
+        child: CustomPaint(
+          isComplex: true,
+          willChange: true,
+          size: Size(size.maxWidth, size.maxHeight),
+          painter: _HighlightPainter(
+            lineInfos: lineInfos,
+            backgroundColor: widget.backgroundColor,
+            text: painter,
+            innerFactor: widget.innerFactor,
+            outerFactor: widget.outerFactor,
+          ),
         ),
       );
     });
@@ -345,8 +326,9 @@ class __RoundedBackgroundTextState extends State<_RoundedBackgroundText> {
 }
 
 class _HighlightPainter extends CustomPainter {
-  final List<LineMetricsHelper> lineInfos;
+  final List<List<LineMetricsHelper>> lineInfos;
   final Color backgroundColor;
+  final TextPainter text;
 
   final double innerFactor;
   final double outerFactor;
@@ -354,12 +336,21 @@ class _HighlightPainter extends CustomPainter {
   const _HighlightPainter({
     required this.lineInfos,
     required this.backgroundColor,
+    required this.text,
     this.innerFactor = kDefaultInnerFactor,
     this.outerFactor = kDefaultOuterFactor,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    for (final lineInfo in lineInfos) {
+      paintBackground(canvas, lineInfo);
+    }
+
+    text.paint(canvas, Offset.zero);
+  }
+
+  void paintBackground(Canvas canvas, List<LineMetricsHelper> lineInfos) {
     if (lineInfos.isEmpty) return;
     if (lineInfos.length == 1) {
       final info = lineInfos.first;
@@ -712,7 +703,7 @@ class LineMetricsHelper {
   }
 
   double get y {
-    final result = metrics.lineNumber * metrics.height + innerLinePadding.top;
+    final result = metrics.lineNumber * metrics.height;
     if (metrics.lineNumber == 0) {
       // return result - firstLinePadding.top;
     } else if (isLast) {
