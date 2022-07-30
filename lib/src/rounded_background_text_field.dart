@@ -276,12 +276,7 @@ class _RoundedBackgroundTextFieldState
   }
 
   void _handleTextChange() {
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      if (mounted) {
-        scale();
-      }
-    });
-    if (mounted) setState(() {});
+    scale();
   }
 
   @override
@@ -429,7 +424,8 @@ class _RoundedBackgroundTextFieldState
                 ),
                 child: RoundedBackgroundText(
                   widget.controller.text,
-                  style: widget.style?.copyWith(fontSize: fontSize),
+                  style: (widget.style ?? const TextStyle())
+                      .copyWith(fontSize: fontSize),
                   textAlign: widget.textAlign,
                   backgroundColor: widget.backgroundColor,
                   innerRadius: widget.innerRadius,
