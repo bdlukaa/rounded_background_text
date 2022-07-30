@@ -65,8 +65,8 @@ const innerLinePadding = EdgeInsets.only(
 const lastLinePadding = EdgeInsets.only(
   left: 8.0,
   right: 8.0,
-  bottom: 8.0,
-  top: 4.0,
+  top: 0.0,
+  bottom: 4.0,
 );
 
 /// Creates a paragraph with rounded background text
@@ -225,7 +225,7 @@ class RoundedBackgroundText extends StatelessWidget {
           leadingDistribution: TextLeadingDistribution.proportional,
           height: calculateHeight(style.fontSize ?? 16),
           fontSize: style.fontSize ?? 16.0,
-        ).merge(text.style),
+        ).merge(style),
       ),
       textDirection:
           textDirection ?? Directionality.maybeOf(context) ?? TextDirection.ltr,
@@ -344,7 +344,10 @@ class __RoundedBackgroundTextState extends State<_RoundedBackgroundText> {
         child: CustomPaint(
           isComplex: true,
           willChange: true,
-          size: Size(size.maxWidth, size.maxHeight),
+          size: Size(
+            size.maxWidth,
+            size.maxHeight.isInfinite ? requiredSize.height : size.maxHeight,
+          ),
           painter: _HighlightPainter(
             lineInfos: lineInfos,
             backgroundColor: widget.backgroundColor,

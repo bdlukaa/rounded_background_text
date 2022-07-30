@@ -36,6 +36,7 @@
 - [You may like to know](#you-may-like-to-know)
   - [Change the corner radius](#change-the-corner-radius)
   - [Known issues with the text field](#known-issues-with-the-text-field),
+  - [Deep dive](#deep-dive)
 - [Contribution](#contribution)
 
 ## Features
@@ -141,6 +142,21 @@ The max allowed value is `20.0`. The min is `0.0`
 ### Known issues with the text field
 
 - It can't be scrollable. Instead, as a workaround, the text is scaled down to fit the available space
+
+### Deep dive
+
+This section explains, with details, how the background painting works.
+
+`RoundedBackgroundText` doesn't use a `Text` widget under the hood. Instead, it uses a custom text painter to paint the text above the background. As soon as the `RoundedBackgroundText` widget is initialized, the line metrics for the text is calculated (See [computeLineMetrics](https://api.flutter.dev/flutter/painting/TextPainter/computeLineMetrics.html)), and is recalculated when the text changes or when the parent width changes. This is done at built time, resulting in a smooth experience for the user.
+
+To paint the background, the line metrics generated before is used. Each line has 4 properties:
+
+- `x` - where the line starts horizontally within the size
+- `y` - where the line starts vertically within the size
+- `width` - the horizontal size of the line
+- `height` - the vertical size of the line
+
+With these values, we can generate the background for each line. The background is generated around the whole text: from top-left to bottom-left to bottom-right to top-right to top-left. This makes it easy to calculate when there is a corner, either outer or inner. 
 
 ## Contribution
 

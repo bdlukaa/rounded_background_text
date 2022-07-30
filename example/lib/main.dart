@@ -190,7 +190,7 @@ Done with so much <3 by @bdlukaa
                             ),
                             children: [
                               RoundedBackgroundTextSpan(
-                                text: 'highlight text inside of another text',
+                                text: 'highlight important stuff inside a text',
                                 backgroundColor: selectedColor,
                                 innerRadius: innerRadius,
                                 outerRadius: outerRadius,
@@ -200,6 +200,7 @@ Done with so much <3 by @bdlukaa
                                   fontWeight: fontWeight,
                                 ),
                               ),
+                              const TextSpan(text: ' and stuff like that'),
                             ],
                           ),
                         );
