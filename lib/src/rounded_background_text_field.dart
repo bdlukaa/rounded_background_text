@@ -267,22 +267,26 @@ class _RoundedBackgroundTextFieldState
   FocusNode get _effectiveFocusNode =>
       widget.focusNode ?? (_focusNode ??= FocusNode());
 
-  GlobalKey fieldKey = GlobalKey();
+  final fieldKey = GlobalKey<EditableTextState>();
+
+  final ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     widget.controller.addListener(_handleTextChange);
+    scrollController.addListener(() => setState(() {}));
   }
 
   void _handleTextChange() {
-    scale();
+    // scale();
     if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
     widget.controller.removeListener(_handleTextChange);
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -408,13 +412,18 @@ class _RoundedBackgroundTextFieldState
       }
     }();
 
+    // if (scrollController.hasClients) print(scrollController.position.pixels);
+
     return Stack(
       alignment: Alignment.center,
-      clipBehavior: Clip.none,
+      clipBehavior: Clip.hardEdge,
       children: [
         const Positioned.fill(child: SizedBox.expand()),
         if (widget.controller.text.isNotEmpty)
-          Positioned(
+          Positioned.fill(
+            top: scrollController.hasClients
+                ? -scrollController.position.pixels
+                : null,
             child: IgnorePointer(
               child: Container(
                 alignment: alignment,
@@ -423,10 +432,15 @@ class _RoundedBackgroundTextFieldState
                   left: 1.0,
                   bottom: 3.0,
                 ),
-                child: RoundedBackgroundText(
-                  widget.controller.text,
-                  style: (widget.style ?? const TextStyle())
-                      .copyWith(fontSize: fontSize),
+                child: RoundedBackgroundText.rich(
+                  // widget.controller.text,
+                  // style: (widget.style ?? const TextStyle())
+                  //     .copyWith(fontSize: fontSize),
+                  text: widget.controller.buildTextSpan(
+                    context: context,
+                    withComposing: !widget.readOnly,
+                    style: widget.style,
+                  ),
                   textAlign: widget.textAlign,
                   backgroundColor: widget.backgroundColor,
                   innerRadius: widget.innerRadius,
@@ -456,14 +470,16 @@ class _RoundedBackgroundTextFieldState
             focusNode: _effectiveFocusNode,
             // The text field can't be scrollable because
             // [RoundedBackgroundText] can't follow the scroll
-            scrollPhysics: const NeverScrollableScrollPhysics(),
-            scrollBehavior: const ScrollBehavior(),
+            // scrollPhysics: const NeverScrollableScrollPhysics(),
+            // scrollBehavior: const ScrollBehavior(),
+            scrollController: scrollController,
 
             style: (widget.style ?? const TextStyle()).copyWith(
-              color: Colors.transparent,
-              // color: Colors.amber,
+              // color: Colors.transparent,
+              color: Colors.amber,
               fontSize: fontSize,
               height: calculateHeight(fontSize),
+              leadingDistribution: TextLeadingDistribution.proportional,
             ),
             textAlign: widget.textAlign,
             maxLines: widget.maxLines,
