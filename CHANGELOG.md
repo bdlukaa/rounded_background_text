@@ -1,9 +1,11 @@
 ## [next]
 
-* `RoundedBackgroundTextField.hint` is no longer hidden. Added `.hintStyle`
-* Correctly apply padding to inner corners
-* Correctly apply size to background painter
-* Correctly inherit any `DefaultTextStyle` above
+* fix: `RoundedBackgroundTextField.hint` is no longer hidden.
+* feat: Added `RoundedBackgroundTextField.hintStyle`, which is the text style applied to `.hint`
+* fix: Correctly apply padding to inner corners
+* fix: Correctly apply size to background painter
+* fix: Correctly inherit any `DefaultTextStyle` above
+* feat: Added `RoundedBackgroundText.selectable`, a backgrounded version of `SelectableText`
 
 ## 0.1.3
 

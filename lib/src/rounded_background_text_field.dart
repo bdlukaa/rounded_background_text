@@ -50,6 +50,7 @@ class RoundedBackgroundTextField extends StatefulWidget {
     this.smartQuotesType = SmartQuotesType.enabled,
     this.textInputAction,
     this.toolbarOptions = const ToolbarOptions(),
+    this.onSelectionChanged,
   }) : super(key: key);
 
   final TextEditingController controller;
@@ -116,43 +117,6 @@ class RoundedBackgroundTextField extends StatefulWidget {
   final double outerRadius;
 
   /// Defines the keyboard focus for this widget.
-  ///
-  /// The [focusNode] is a long-lived object that's typically managed by a
-  /// [StatefulWidget] parent. See [FocusNode] for more information.
-  ///
-  /// To give the keyboard focus to this widget, provide a [focusNode] and then
-  /// use the current [FocusScope] to request the focus:
-  ///
-  /// ```dart
-  /// FocusScope.of(context).requestFocus(myFocusNode);
-  /// ```
-  ///
-  /// This happens automatically when the widget is tapped.
-  ///
-  /// To be notified when the widget gains or loses the focus, add a listener
-  /// to the [focusNode]:
-  ///
-  /// ```dart
-  /// focusNode.addListener(() { print(myFocusNode.hasFocus); });
-  /// ```
-  ///
-  /// If null, this widget will create its own [FocusNode].
-  ///
-  /// ## Keyboard
-  ///
-  /// Requesting the focus will typically cause the keyboard to be shown
-  /// if it's not showing already.
-  ///
-  /// On Android, the user can hide the keyboard - without changing the focus -
-  /// with the system back button. They can restore the keyboard's visibility
-  /// by tapping on a text field.  The user might hide the keyboard and
-  /// switch to a physical keyboard, or they might just need to get it
-  /// out of the way for a moment, to expose something it's
-  /// obscuring. In this case requesting the focus again will not
-  /// cause the focus to change, and will not make the keyboard visible.
-  ///
-  /// This widget builds an [EditableText] and will ensure that the keyboard is
-  /// showing when it is tapped by calling [EditableTextState.requestKeyboard()].
   final FocusNode? focusNode;
 
   /// {@macro flutter.widgets.editableText.autofocus}
@@ -286,6 +250,9 @@ class RoundedBackgroundTextField extends StatefulWidget {
 
   /// {@macro flutter.widgets.editableText.obscureText}
   final bool obscureText;
+
+  /// {@macro flutter.widgets.editableText.onSelectionChanged}
+  final SelectionChangedCallback? onSelectionChanged;
 
   @override
   _RoundedBackgroundTextFieldState createState() =>
@@ -547,6 +514,7 @@ class _RoundedBackgroundTextFieldState
             obscureText: widget.obscureText,
             obscuringCharacter: widget.obscuringCharacter,
             textInputAction: widget.textInputAction,
+            onSelectionChanged: widget.onSelectionChanged,
           ),
         ),
       ],

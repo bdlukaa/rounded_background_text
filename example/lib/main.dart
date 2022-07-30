@@ -150,8 +150,7 @@ class _MyAppState extends State<MyApp> {
 It handles well all font sizes and weights, as well as text alignments
 
 Contributions are welcome!
-Done with so much <3 by @bdlukaa
-                          ''',
+Done with so much <3 by @bdlukaa''',
                           backgroundColor: selectedColor,
                           textAlign: textAlign,
                           style: TextStyle(
@@ -168,8 +167,7 @@ Done with so much <3 by @bdlukaa
 It handles well all font sizes and weights, as well as text alignments
 
 Contributions are welcome!
-Done with so much <3 by @bdlukaa
-                          ''',
+Done with so much <3 by @bdlukaa''',
                           backgroundColor: selectedColor,
                           textAlign: textAlign,
                           style: TextStyle(

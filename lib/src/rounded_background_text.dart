@@ -118,26 +118,46 @@ class RoundedBackgroundText extends StatelessWidget {
         assert(outerRadius >= 0.0 && outerRadius <= 20.0),
         super(key: key);
 
+  /// Creates a selectable RoundedBackgroundText
+  ///
+  /// See also:
+  ///
+  ///   * [SelectableText], a run of selectable text with a single style.
+  ///   * [RoundedBackgroundTextField], the editable version of this widget.
   static Widget selectable(
     String text, {
+    Key? key,
+    FocusNode? focusNode,
+    bool autofocus = false,
+    ToolbarOptions toolbarOptions = const ToolbarOptions(
+      selectAll: true,
+      copy: true,
+    ),
+    TextSelectionControls? selectionControls,
     TextStyle? style,
     TextDirection? textDirection,
     Color? backgroundColor,
     TextAlign textAlign = TextAlign.start,
     TextWidthBasis? textWidthBasis,
-    String? ellipsis,
-    String? locale,
-    StrutStyle? strutStyle,
     double textScaleFactor = 1.0,
-    int? maxLines,
-    TextHeightBehavior? textHeightBehavior,
     double innerRadius = kDefaultInnerFactor,
     double outerRadius = kDefaultOuterFactor,
+    MouseCursor? mouseCursor,
+    double cursorWidth = 2.0,
+    Color? cursorColor,
+    double? cursorHeight,
+    Radius? cursorRadius,
+    SelectionChangedCallback? onSelectionChanged,
+    bool enableInteractiveSelection = true,
   }) {
     final controller = TextEditingController();
     controller.text = text;
     return RoundedBackgroundTextField(
+      key: key,
       controller: controller,
+      focusNode: focusNode,
+      autofocus: autofocus,
+      toolbarOptions: toolbarOptions,
       style: style,
       readOnly: true,
       textDirection: textDirection,
@@ -146,6 +166,15 @@ class RoundedBackgroundText extends StatelessWidget {
       textScaleFactor: textScaleFactor,
       innerRadius: innerRadius,
       outerRadius: outerRadius,
+      mouseCursor: mouseCursor,
+      autocorrect: false,
+      cursorColor: cursorColor,
+      cursorHeight: cursorHeight,
+      cursorRadius: cursorRadius,
+      cursorWidth: cursorWidth,
+      selectionControls: selectionControls,
+      onSelectionChanged: onSelectionChanged,
+      enableInteractiveSelection: enableInteractiveSelection,
     );
   }
 
