@@ -118,7 +118,7 @@ class RoundedBackgroundText extends StatelessWidget {
         assert(outerRadius >= 0.0 && outerRadius <= 20.0),
         super(key: key);
 
-  /// Creates a selectable RoundedBackgroundText
+  /// Creates a selectable [RoundedBackgroundText]
   ///
   /// See also:
   ///
@@ -152,6 +152,65 @@ class RoundedBackgroundText extends StatelessWidget {
   }) {
     final controller = TextEditingController();
     controller.text = text;
+    return RoundedBackgroundTextField(
+      key: key,
+      controller: controller,
+      focusNode: focusNode,
+      autofocus: autofocus,
+      toolbarOptions: toolbarOptions,
+      style: style,
+      readOnly: true,
+      textDirection: textDirection,
+      backgroundColor: backgroundColor,
+      textAlign: textAlign,
+      textScaleFactor: textScaleFactor,
+      innerRadius: innerRadius,
+      outerRadius: outerRadius,
+      mouseCursor: mouseCursor,
+      autocorrect: false,
+      cursorColor: cursorColor,
+      cursorHeight: cursorHeight,
+      cursorRadius: cursorRadius,
+      cursorWidth: cursorWidth,
+      selectionControls: selectionControls,
+      onSelectionChanged: onSelectionChanged,
+      enableInteractiveSelection: enableInteractiveSelection,
+    );
+  }
+
+  /// Creates a selectable [RoundedBackgroundText] that can have multiple styles
+  ///
+  /// See also:
+  ///
+  ///   * [SelectableText], a run of selectable text with a single style.
+  ///   * [RoundedBackgroundTextField], the editable version of this widget.
+  static Widget selectableRich(
+    TextSpan textSpan, {
+    Key? key,
+    FocusNode? focusNode,
+    bool autofocus = false,
+    ToolbarOptions toolbarOptions = const ToolbarOptions(
+      selectAll: true,
+      copy: true,
+    ),
+    TextSelectionControls? selectionControls,
+    TextStyle? style,
+    TextDirection? textDirection,
+    Color? backgroundColor,
+    TextAlign textAlign = TextAlign.start,
+    TextWidthBasis? textWidthBasis,
+    double textScaleFactor = 1.0,
+    double innerRadius = kDefaultInnerFactor,
+    double outerRadius = kDefaultOuterFactor,
+    MouseCursor? mouseCursor,
+    double cursorWidth = 2.0,
+    Color? cursorColor,
+    double? cursorHeight,
+    Radius? cursorRadius,
+    SelectionChangedCallback? onSelectionChanged,
+    bool enableInteractiveSelection = true,
+  }) {
+    final controller = _TextSpanEditingController(textSpan: textSpan);
     return RoundedBackgroundTextField(
       key: key,
       controller: controller,
@@ -271,6 +330,32 @@ class RoundedBackgroundText extends StatelessWidget {
       innerFactor: innerRadius,
       outerFactor: outerRadius,
     );
+  }
+}
+
+class _TextSpanEditingController extends TextEditingController {
+  _TextSpanEditingController({required TextSpan textSpan})
+      : _textSpan = textSpan,
+        super(text: textSpan.toPlainText(includeSemanticsLabels: false));
+
+  final TextSpan _textSpan;
+
+  @override
+  TextSpan buildTextSpan(
+      {required BuildContext context,
+      TextStyle? style,
+      required bool withComposing}) {
+    // This does not care about composing.
+    return TextSpan(
+      style: style,
+      children: <TextSpan>[_textSpan],
+    );
+  }
+
+  @override
+  set text(String? newText) {
+    // This should never be reached.
+    throw UnimplementedError();
   }
 }
 

@@ -1,4 +1,4 @@
-## [next]
+## 0.2.0
 
 * fix: `RoundedBackgroundTextField.hint` is no longer hidden.
 * feat: Added `RoundedBackgroundTextField.hintStyle`, which is the text style applied to `.hint`
