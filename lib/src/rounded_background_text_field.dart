@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'rounded_background_text.dart';
 
@@ -29,6 +30,26 @@ class RoundedBackgroundTextField extends StatefulWidget {
     this.keyboardAppearance = Brightness.light,
     this.enableInteractiveSelection = true,
     this.selectionControls,
+    this.autocorrect = true,
+    this.autofillClient,
+    this.autofillHints,
+    this.clipBehavior = Clip.hardEdge,
+    this.enableIMEPersonalizedLearning = true,
+    this.enableSuggestions = true,
+    this.forceLine = true,
+    this.inputFormatters,
+    this.mouseCursor,
+    this.obscureText = false,
+    this.obscuringCharacter = '*',
+    this.readOnly = false,
+    this.rendererIgnoresPointer = false,
+    this.restorationId,
+    this.showCursor = true,
+    this.showSelectionHandles = true,
+    this.smartDashesType = SmartDashesType.enabled,
+    this.smartQuotesType = SmartQuotesType.enabled,
+    this.textInputAction,
+    this.toolbarOptions = const ToolbarOptions(),
   }) : super(key: key);
 
   final TextEditingController controller;
@@ -78,6 +99,9 @@ class RoundedBackgroundTextField extends StatefulWidget {
 
   /// {@macro flutter.widgets.editableText.keyboardType}
   final TextInputType? keyboardType;
+
+  /// The type of action button to use with the soft keyboard.
+  final TextInputAction? textInputAction;
 
   /// The text hint
   final String? hint;
@@ -149,6 +173,119 @@ class RoundedBackgroundTextField extends StatefulWidget {
 
   /// {@macro flutter.widgets.editableText.selectionEnabled}
   bool get selectionEnabled => enableInteractiveSelection;
+
+  /// {@macro flutter.widgets.editableText.readOnly}
+  final bool readOnly;
+
+  /// Whether the text will take the full width regardless of the text width.
+  ///
+  /// When this is set to false, the width will be based on text width, which
+  /// will also be affected by [textWidthBasis].
+  ///
+  /// Defaults to true. Must not be null.
+  ///
+  /// See also:
+  ///
+  ///  * [textWidthBasis], which controls the calculation of text width.
+  final bool forceLine;
+
+  /// Configuration of toolbar options.
+  ///
+  /// By default, all options are enabled. If [readOnly] is true,
+  /// paste and cut will be disabled regardless.
+  final ToolbarOptions toolbarOptions;
+
+  /// Whether to show selection handles.
+  ///
+  /// When a selection is active, there will be two handles at each side of
+  /// boundary, or one handle if the selection is collapsed. The handles can be
+  /// dragged to adjust the selection.
+  ///
+  /// See also:
+  ///
+  ///  * [showCursor], which controls the visibility of the cursor.
+  final bool showSelectionHandles;
+
+  /// {@macro flutter.widgets.editableText.showCursor}
+  ///
+  /// See also:
+  ///
+  ///  * [showSelectionHandles], which controls the visibility of the selection handles.
+  final bool showCursor;
+
+  /// {@macro flutter.widgets.editableText.autocorrect}
+  final bool autocorrect;
+
+  /// {@macro flutter.services.TextInputConfiguration.smartDashesType}
+  final SmartDashesType smartDashesType;
+
+  /// {@macro flutter.services.TextInputConfiguration.smartQuotesType}
+  final SmartQuotesType smartQuotesType;
+
+  /// {@macro flutter.services.TextInputConfiguration.enableSuggestions}
+  final bool enableSuggestions;
+
+  /// {@macro flutter.widgets.editableText.autofillHints}
+  /// {@macro flutter.services.AutofillConfiguration.autofillHints}
+  final Iterable<String>? autofillHints;
+
+  /// The [AutofillClient] that controls this input field's autofill behavior.
+  ///
+  /// When null, this widget's [EditableTextState] will be used as the
+  /// [AutofillClient]. This property may override [autofillHints].
+  final AutofillClient? autofillClient;
+
+  /// {@macro flutter.material.Material.clipBehavior}
+  ///
+  /// Defaults to [Clip.hardEdge].
+  final Clip clipBehavior;
+
+  /// Restoration ID to save and restore the scroll offset of the
+  /// [EditableText].
+  ///
+  /// If a restoration id is provided, the [EditableText] will persist its
+  /// current scroll offset and restore it during state restoration.
+  ///
+  /// The scroll offset is persisted in a [RestorationBucket] claimed from
+  /// the surrounding [RestorationScope] using the provided restoration ID.
+  ///
+  /// Persisting and restoring the content of the [EditableText] is the
+  /// responsibility of the owner of the [controller], who may use a
+  /// [RestorableTextEditingController] for that purpose.
+  ///
+  /// See also:
+  ///
+  ///  * [RestorationManager], which explains how state restoration works in
+  ///    Flutter.
+  final String? restorationId;
+
+  /// {@macro flutter.services.TextInputConfiguration.enableIMEPersonalizedLearning}
+  final bool enableIMEPersonalizedLearning;
+
+  final List<TextInputFormatter>? inputFormatters;
+
+  /// The cursor for a mouse pointer when it enters or is hovering over the
+  /// widget.
+  ///
+  /// If this property is null, [SystemMouseCursors.text] will be used.
+  ///
+  /// The [mouseCursor] is the only property of [EditableText] that controls the
+  /// appearance of the mouse pointer. All other properties related to "cursor"
+  /// stands for the text cursor, which is usually a blinking vertical line at
+  /// the editing position.
+  final MouseCursor? mouseCursor;
+
+  /// If true, the [RenderEditable] created by this widget will not handle
+  /// pointer events, see [RenderEditable] and [RenderEditable.ignorePointer].
+  ///
+  /// This property is false by default.
+  final bool rendererIgnoresPointer;
+
+  /// {@macro flutter.widgets.editableText.obscuringCharacter}
+  final String obscuringCharacter;
+
+  /// {@macro flutter.widgets.editableText.obscureText}
+  final bool obscureText;
 
   @override
   _RoundedBackgroundTextFieldState createState() =>
@@ -315,22 +452,24 @@ class _RoundedBackgroundTextFieldState
         const Positioned.fill(child: SizedBox.expand()),
         if (widget.controller.text.isNotEmpty)
           Positioned(
-            child: Container(
-              alignment: alignment,
-              padding: const EdgeInsets.only(
-                right: 2.0,
-                left: 1.0,
-                bottom: 3.0,
-              ),
-              child: RoundedBackgroundText(
-                widget.controller.text,
-                style: widget.style?.copyWith(fontSize: fontSize),
-                textAlign: widget.textAlign,
-                backgroundColor: widget.backgroundColor,
-                innerRadius: widget.innerRadius,
-                outerRadius: widget.outerRadius,
-                textDirection: widget.textDirection,
-                textScaleFactor: widget.textScaleFactor ?? 1.0,
+            child: IgnorePointer(
+              child: Container(
+                alignment: alignment,
+                padding: const EdgeInsets.only(
+                  right: 2.0,
+                  left: 1.0,
+                  bottom: 3.0,
+                ),
+                child: RoundedBackgroundText(
+                  widget.controller.text,
+                  style: widget.style?.copyWith(fontSize: fontSize),
+                  textAlign: widget.textAlign,
+                  backgroundColor: widget.backgroundColor,
+                  innerRadius: widget.innerRadius,
+                  outerRadius: widget.outerRadius,
+                  textDirection: widget.textDirection,
+                  textScaleFactor: widget.textScaleFactor ?? 1.0,
+                ),
               ),
             ),
           )
@@ -387,8 +526,27 @@ class _RoundedBackgroundTextFieldState
             selectionControls:
                 widget.selectionEnabled ? textSelectionControls : null,
             textDirection: widget.textDirection,
-            showSelectionHandles: true,
+            showSelectionHandles: widget.showSelectionHandles,
+            showCursor: widget.showCursor,
             textWidthBasis: TextWidthBasis.parent,
+            autocorrect: widget.autocorrect,
+            forceLine: widget.forceLine,
+            readOnly: widget.readOnly,
+            toolbarOptions: widget.toolbarOptions,
+            smartDashesType: widget.smartDashesType,
+            smartQuotesType: widget.smartQuotesType,
+            enableSuggestions: widget.enableSuggestions,
+            autofillHints: widget.autofillHints,
+            autofillClient: widget.autofillClient,
+            clipBehavior: widget.clipBehavior,
+            restorationId: widget.restorationId,
+            enableIMEPersonalizedLearning: widget.enableIMEPersonalizedLearning,
+            inputFormatters: widget.inputFormatters,
+            mouseCursor: widget.mouseCursor,
+            rendererIgnoresPointer: widget.rendererIgnoresPointer,
+            obscureText: widget.obscureText,
+            obscuringCharacter: widget.obscuringCharacter,
+            textInputAction: widget.textInputAction,
           ),
         ),
       ],

@@ -5,7 +5,7 @@ import 'package:rounded_background_text/rounded_background_text.dart';
 final _primaryAndAccentColors =
     (<ColorSwatch>[...Colors.primaries]).followedBy(Colors.accents);
 
-enum _HighlightTextType { field, text, span }
+enum _HighlightTextType { field, text, span, selectableText }
 
 void main() {
   runApp(const MyApp());
@@ -111,6 +111,10 @@ class _MyAppState extends State<MyApp> {
                         value: _HighlightTextType.text,
                       ),
                       DropdownMenuItem(
+                        child: Text('Selectable Text'),
+                        value: _HighlightTextType.selectableText,
+                      ),
+                      DropdownMenuItem(
                         child: Text('Span'),
                         value: _HighlightTextType.span,
                       ),
@@ -142,7 +146,25 @@ class _MyAppState extends State<MyApp> {
                       case _HighlightTextType.text:
                         return RoundedBackgroundText(
                           '''Rounded Background Text Showcase
-                          
+
+It handles well all font sizes and weights, as well as text alignments
+
+Contributions are welcome!
+Done with so much <3 by @bdlukaa
+                          ''',
+                          backgroundColor: selectedColor,
+                          textAlign: textAlign,
+                          style: TextStyle(
+                            fontSize: fontSize,
+                            fontWeight: fontWeight,
+                          ),
+                          innerRadius: innerRadius,
+                          outerRadius: outerRadius,
+                        );
+                      case _HighlightTextType.selectableText:
+                        return RoundedBackgroundText.selectable(
+                          '''Rounded Background Text Showcase
+
 It handles well all font sizes and weights, as well as text alignments
 
 Contributions are welcome!

@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../rounded_background_text.dart';
+
 const Color kDefaultRoundedTextBackgroundColor = Colors.blue;
 const double kDefaultInnerFactor = 8.0;
 const double kDefaultOuterFactor = 10.0;
@@ -115,6 +117,37 @@ class RoundedBackgroundText extends StatelessWidget {
   })  : assert(innerRadius >= 0.0 && innerRadius <= 20.0),
         assert(outerRadius >= 0.0 && outerRadius <= 20.0),
         super(key: key);
+
+  static Widget selectable(
+    String text, {
+    TextStyle? style,
+    TextDirection? textDirection,
+    Color? backgroundColor,
+    TextAlign textAlign = TextAlign.start,
+    TextWidthBasis? textWidthBasis,
+    String? ellipsis,
+    String? locale,
+    StrutStyle? strutStyle,
+    double textScaleFactor = 1.0,
+    int? maxLines,
+    TextHeightBehavior? textHeightBehavior,
+    double innerRadius = kDefaultInnerFactor,
+    double outerRadius = kDefaultOuterFactor,
+  }) {
+    final controller = TextEditingController();
+    controller.text = text;
+    return RoundedBackgroundTextField(
+      controller: controller,
+      style: style,
+      readOnly: true,
+      textDirection: textDirection,
+      backgroundColor: backgroundColor,
+      textAlign: textAlign,
+      textScaleFactor: textScaleFactor,
+      innerRadius: innerRadius,
+      outerRadius: outerRadius,
+    );
+  }
 
   /// The text to display in this widget.
   final InlineSpan text;
