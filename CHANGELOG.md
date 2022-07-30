@@ -1,3 +1,7 @@
+## [next]
+
+* `RoundedBackgroundTextField.hint` is no longer hidden. Added `.hintStyle`
+
 ## 0.1.3
 
 * Do not center the whole stack. It was causing clipping on the text field
