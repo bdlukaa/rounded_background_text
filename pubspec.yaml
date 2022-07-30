@@ -1,6 +1,6 @@
 name: rounded_background_text
 description: Text and TextField highlighted with rounded corners
-version: 0.2.0
+version: 0.2.1
 repository: https://github.com/bdlukaa/rounded_background_text
 
 environment:

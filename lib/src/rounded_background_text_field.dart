@@ -277,6 +277,7 @@ class _RoundedBackgroundTextFieldState
 
   void _handleTextChange() {
     scale();
+    if (mounted) setState(() {});
   }
 
   @override

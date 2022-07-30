@@ -185,6 +185,7 @@ Done with so much <3 by @bdlukaa''',
                             style: TextStyle(
                               fontSize: fontSize,
                               fontWeight: fontWeight,
+                              color: Colors.white,
                             ),
                             children: [
                               RoundedBackgroundTextSpan(

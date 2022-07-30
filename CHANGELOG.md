@@ -1,3 +1,7 @@
+## 0.2.1
+
+* fix: `RoundedBackgroundTextField` now shows the background properly as the user types
+
 ## 0.2.0
 
 * fix: `RoundedBackgroundTextField.hint` is no longer hidden.
