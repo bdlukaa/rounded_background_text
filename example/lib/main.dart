@@ -231,43 +231,45 @@ Done with so much <3 by @bdlukaa''',
                 child: const Icon(Icons.chevron_right),
               ),
             ]),
-            SingleChildScrollView(
-              controller: colorsController,
-              padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
-              scrollDirection: Axis.horizontal,
-              child: Wrap(
-                runSpacing: 10.0,
-                spacing: 10.0,
-                alignment: WrapAlignment.center,
-                children: _primaryAndAccentColors.map((color) {
-                  return MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () => setState(() => selectedColor = color),
-                      child: AnimatedContainer(
-                        duration: kThemeChangeDuration,
-                        curve: Curves.bounceInOut,
-                        height: 30.0,
-                        width: 30.0,
-                        decoration: BoxDecoration(
-                          color: color,
-                          borderRadius: BorderRadius.circular(2.0),
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2.0,
-                            style: selectedColor == color
-                                ? BorderStyle.solid
-                                : BorderStyle.none,
+            Material(
+              child: SingleChildScrollView(
+                controller: colorsController,
+                padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
+                scrollDirection: Axis.horizontal,
+                child: Wrap(
+                  runSpacing: 10.0,
+                  spacing: 10.0,
+                  alignment: WrapAlignment.center,
+                  children: _primaryAndAccentColors.map((color) {
+                    return MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () => setState(() => selectedColor = color),
+                        child: AnimatedContainer(
+                          duration: kThemeChangeDuration,
+                          curve: Curves.bounceInOut,
+                          height: 30.0,
+                          width: 30.0,
+                          decoration: BoxDecoration(
+                            color: color,
+                            borderRadius: BorderRadius.circular(2.0),
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 2.0,
+                              style: selectedColor == color
+                                  ? BorderStyle.solid
+                                  : BorderStyle.none,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
+                ),
               ),
             ),
-            Row(
-              children: [
+            Material(
+              child: Row(children: [
                 Expanded(
                   child: Slider(
                     onChanged: (v) => setState(() => fontSize = v),
@@ -296,7 +298,7 @@ Done with so much <3 by @bdlukaa''',
                     divisions: 20,
                   ),
                 ),
-              ],
+              ]),
             ),
           ]),
         ),
