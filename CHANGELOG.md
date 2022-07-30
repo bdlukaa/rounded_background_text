@@ -1,6 +1,7 @@
 ## [next]
 
 * `RoundedBackgroundTextField.hint` is no longer hidden. Added `.hintStyle`
+* Correctly apply padding to inner corners
 
 ## 0.1.3
 

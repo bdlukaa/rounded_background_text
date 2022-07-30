@@ -59,7 +59,7 @@ const firstLinePadding = EdgeInsets.only(
 const innerLinePadding = EdgeInsets.only(
   left: 8.0,
   right: 8.0,
-  top: 2.0,
+  top: 0.0,
   bottom: 4.0,
 );
 const lastLinePadding = EdgeInsets.only(
@@ -477,15 +477,17 @@ class _HighlightPainter extends CustomPainter {
 
       void drawInnerCorner(LineMetricsHelper info, [bool toLeft = true]) {
         if (toLeft) {
+          final formattedHeight = info.fullHeight - innerLinePadding.bottom;
+
           final innerFactor = (info.x - next!.x).clamp(0, this.innerFactor);
           path.lineTo(info.x, info.fullHeight - innerFactor);
           final iControlPoint = Offset(
             info.x,
-            info.fullHeight,
+            formattedHeight,
           );
           final iEndPoint = Offset(
             info.x - innerFactor,
-            info.fullHeight,
+            formattedHeight,
           );
 
           path.quadraticBezierTo(
@@ -495,15 +497,17 @@ class _HighlightPainter extends CustomPainter {
             iEndPoint.dy,
           );
         } else {
-          final innerFactor = (next!.x - info.x).clamp(0, this.innerFactor);
-          path.lineTo(next.x - innerFactor, next.y);
+          final formattedY = next!.y + innerLinePadding.bottom;
+
+          final innerFactor = (next.x - info.x).clamp(0, this.innerFactor);
+          path.lineTo(next.x - innerFactor, formattedY);
           final iControlPoint = Offset(
             next.x,
-            next.y,
+            formattedY,
           );
           final iEndPoint = Offset(
             next.x,
-            next.y + innerFactor,
+            formattedY + innerFactor,
           );
 
           path.quadraticBezierTo(
@@ -604,11 +608,15 @@ class _HighlightPainter extends CustomPainter {
       void drawInnerCorner(LineMetricsHelper info, [bool toRight = true]) {
         // To left
         if (!toRight) {
-          path.lineTo(info.fullWidth + innerFactor, info.fullHeight);
+          final formattedHeight = info.fullHeight - innerLinePadding.bottom;
+          path.lineTo(
+            info.fullWidth + innerFactor,
+            formattedHeight,
+          );
 
           final controlPoint = Offset(
             info.fullWidth,
-            info.fullHeight,
+            formattedHeight,
           );
           final endPoint = Offset(
             info.fullWidth,
@@ -622,18 +630,19 @@ class _HighlightPainter extends CustomPainter {
             endPoint.dy,
           );
         } else {
+          final formattedY = info.y + innerLinePadding.bottom;
           path.lineTo(
             info.fullWidth,
-            info.y + innerFactor,
+            formattedY + innerFactor,
           );
 
           final controlPoint = Offset(
             info.fullWidth,
-            info.y,
+            formattedY,
           );
           final endPoint = Offset(
             info.fullWidth + innerFactor,
-            info.y,
+            formattedY,
           );
 
           path.quadraticBezierTo(
@@ -742,7 +751,7 @@ class LineMetricsHelper {
     } else if (isLast) {
       return result + lastLinePadding.top / 2;
     } else {
-      return result + innerLinePadding.top;
+      return result - innerLinePadding.top;
     }
     return result;
   }
@@ -764,13 +773,14 @@ class LineMetricsHelper {
   }
 
   double get fullHeight {
-    final result = metrics.lineNumber * metrics.height + height;
+    // final result = metrics.lineNumber * metrics.height + height;
+    final result = y + height;
 
-    // if (isLast) {
-    //   // return result + lastLinePadding.bottom;
-    // } else {
-    return result + innerLinePadding.bottom;
-    // }
+    if (isLast) {
+      return result + lastLinePadding.bottom;
+    } else {
+      return result + innerLinePadding.bottom;
+    }
   }
 
   double get height => metrics.height;
@@ -790,17 +800,24 @@ class LineMetricsHelper {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    if (other.runtimeType != runtimeType) return false;
+
     return other is LineMetricsHelper &&
         other.metrics == metrics &&
-        other.length == length;
+        other.length == length &&
+        other.overridenWidth == overridenWidth &&
+        other.overridenX == overridenX;
   }
 
   @override
-  int get hashCode => hashValues(metrics, length);
+  int get hashCode {
+    return metrics.hashCode ^
+        length.hashCode ^
+        overridenWidth.hashCode ^
+        overridenX.hashCode;
+  }
 
   @override
   String toString() {
-    return 'LineMetricsHelper(x: $x, y: $y, w: $fullWidth, h: $fullHeight)';
+    return 'LineMetricsHelper(metrics: $metrics, length: $length, overridenWidth: $overridenWidth, overridenX: $overridenX)';
   }
 }
