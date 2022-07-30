@@ -10,10 +10,19 @@
     <a title="Github License">
       <img src="https://img.shields.io/github/license/bdlukaa/rounded_background_text" />
     </a>
+    <a title="Web Example" href="https://bdlukaa.github.io/fluent_ui">
+      <img src="https://img.shields.io/badge/web-example---?style=flat-square&color=e88d0c" />
+    </a>
   </p>
   <p align="center">
   Highlight text with rounded corners
   </p>
+</div>
+
+<div align="center">
+  <a href="https://bdlukaa.github.io/rounded_background_text">
+    <img src="assets/showcase.png" />
+  </a>
 </div>
 
 ## Content
@@ -34,8 +43,6 @@
 - ✅ Highlight Text
 - ✅ Highlight Text Field [beta]
 - ✅ Highlight Text Span
-
-![Showcase](assets/showcase.png)
 
 ## Getting started
 
