@@ -10,7 +10,7 @@
     <a title="Github License">
       <img src="https://img.shields.io/github/license/bdlukaa/rounded_background_text" />
     </a>
-    <a title="Web Example" href="https://bdlukaa.github.io/fluent_ui">
+    <a title="Web Example" href="https://bdlukaa.github.io/rounded_background_text">
       <img src="https://img.shields.io/badge/web-example---?style=flat-square&color=e88d0c" />
     </a>
   </p>
