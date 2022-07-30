@@ -459,7 +459,7 @@ class __RoundedBackgroundTextState extends State<_RoundedBackgroundText> {
           isComplex: true,
           willChange: true,
           size: Size(
-            size.maxWidth - (8.0),
+            size.maxWidth,
             size.maxHeight.isInfinite ? requiredSize.height : size.maxHeight,
           ),
           painter: _HighlightPainter(

@@ -54,6 +54,7 @@ class RoundedBackgroundTextField extends StatefulWidget {
     this.scrollController,
     this.scrollPhysics,
     this.scrollBehavior,
+    this.scrollPadding = EdgeInsets.zero,
   }) : super(key: key);
 
   final TextEditingController? controller;
@@ -279,6 +280,9 @@ class RoundedBackgroundTextField extends StatefulWidget {
   /// than 1.
   final ScrollBehavior? scrollBehavior;
 
+  /// {@macro flutter.widgets.editableText.scrollPadding}
+  final EdgeInsets scrollPadding;
+
   @override
   _RoundedBackgroundTextFieldState createState() =>
       _RoundedBackgroundTextFieldState();
@@ -428,7 +432,6 @@ class _RoundedBackgroundTextFieldState
 
     return Stack(
       alignment: Alignment.center,
-      clipBehavior: Clip.hardEdge,
       children: [
         const Positioned.fill(child: SizedBox.expand()),
         if (textController.text.isNotEmpty)
@@ -484,6 +487,7 @@ class _RoundedBackgroundTextFieldState
             scrollPhysics: widget.scrollPhysics,
             scrollBehavior: widget.scrollBehavior,
             scrollController: scrollController,
+            scrollPadding: widget.scrollPadding,
             style: (widget.style ?? const TextStyle()).copyWith(
               // color: Colors.transparent,
               // color: Colors.amber,
@@ -497,8 +501,8 @@ class _RoundedBackgroundTextFieldState
             backgroundCursorColor: CupertinoColors.inactiveGray,
             cursorColor: widget.cursorColor ??
                 widget.style?.color ??
-                foregroundColor(widget.backgroundColor) ??
                 selectionTheme.cursorColor ??
+                foregroundColor(widget.backgroundColor) ??
                 Colors.black,
             cursorWidth: widget.cursorWidth,
             cursorHeight: widget.cursorHeight,
@@ -507,7 +511,6 @@ class _RoundedBackgroundTextFieldState
             cursorOpacityAnimates: cursorOpacityAnimates,
             cursorOffset: cursorOffset,
             autocorrectionTextRectColor: autocorrectionTextRectColor,
-            scrollPadding: EdgeInsets.zero,
             textCapitalization: widget.textCapitalization,
             keyboardAppearance: widget.keyboardAppearance,
             textScaleFactor: widget.textScaleFactor,

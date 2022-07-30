@@ -1,9 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import 'package:rounded_background_text/rounded_background_text.dart';
 
-final _primaryAndAccentColors =
-    (<ColorSwatch>[...Colors.primaries]).followedBy(Colors.accents);
+final _primaryAndAccentColors = [...Colors.primaries, ...Colors.accents];
 
 enum _HighlightTextType { field, text, span, selectableText }
 
@@ -19,7 +20,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final colorsController = ScrollController();
+  late final ScrollController colorsController;
   final controller = TextEditingController();
 
   double fontSize = 20.0;
@@ -30,7 +31,19 @@ class _MyAppState extends State<MyApp> {
   FontWeight fontWeight = FontWeight.bold;
   _HighlightTextType type = _HighlightTextType.text;
 
-  Color selectedColor = Colors.blue;
+  late Color selectedColor;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final initialIndex = Random().nextInt(_primaryAndAccentColors.length);
+    selectedColor = _primaryAndAccentColors[initialIndex];
+
+    colorsController = ScrollController(
+      initialScrollOffset: 40.0 * initialIndex,
+    );
+  }
 
   @override
   void dispose() {
@@ -48,8 +61,8 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         body: SafeArea(
           child: Column(children: [
-            Row(
-              children: [
+            Material(
+              child: Row(children: [
                 const VerticalDivider(),
                 Expanded(
                   child: DropdownButton<FontWeight>(
@@ -122,7 +135,7 @@ class _MyAppState extends State<MyApp> {
                   ),
                 ),
                 const VerticalDivider(),
-              ],
+              ]),
             ),
             Expanded(
               child: Padding(
@@ -139,6 +152,9 @@ class _MyAppState extends State<MyApp> {
                           style: TextStyle(
                             fontSize: fontSize,
                             fontWeight: fontWeight,
+                            color: selectedColor.computeLuminance() > 0.5
+                                ? Colors.black
+                                : Colors.white,
                           ),
                           innerRadius: innerRadius,
                           outerRadius: outerRadius,
@@ -254,8 +270,10 @@ Done with so much <3 by @bdlukaa''',
                             color: color,
                             borderRadius: BorderRadius.circular(2.0),
                             border: Border.all(
-                              color: Colors.white,
-                              width: 2.0,
+                              color: color.computeLuminance() > 0.5
+                                  ? Colors.black
+                                  : Colors.white,
+                              width: 2.5,
                               style: selectedColor == color
                                   ? BorderStyle.solid
                                   : BorderStyle.none,
