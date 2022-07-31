@@ -284,7 +284,7 @@ class RoundedBackgroundTextField extends StatefulWidget {
   final EdgeInsets scrollPadding;
 
   @override
-  _RoundedBackgroundTextFieldState createState() =>
+  State<RoundedBackgroundTextField> createState() =>
       _RoundedBackgroundTextFieldState();
 }
 

@@ -142,6 +142,9 @@ class _MyAppState extends State<MyApp> {
                 padding: const EdgeInsets.all(12.0),
                 child: Center(
                   child: () {
+                    final textColor = selectedColor.computeLuminance() > 0.5
+                        ? Colors.black
+                        : Colors.white;
                     switch (type) {
                       case _HighlightTextType.field:
                         return RoundedBackgroundTextField(
@@ -152,9 +155,7 @@ class _MyAppState extends State<MyApp> {
                           style: TextStyle(
                             fontSize: fontSize,
                             fontWeight: fontWeight,
-                            color: selectedColor.computeLuminance() > 0.5
-                                ? Colors.black
-                                : Colors.white,
+                            color: textColor,
                           ),
                           innerRadius: innerRadius,
                           outerRadius: outerRadius,
@@ -172,6 +173,7 @@ Done with so much <3 by @bdlukaa''',
                           style: TextStyle(
                             fontSize: fontSize,
                             fontWeight: fontWeight,
+                            color: textColor,
                           ),
                           innerRadius: innerRadius,
                           outerRadius: outerRadius,
@@ -189,6 +191,7 @@ Done with so much <3 by @bdlukaa''',
                           style: TextStyle(
                             fontSize: fontSize,
                             fontWeight: fontWeight,
+                            color: textColor,
                           ),
                           innerRadius: innerRadius,
                           outerRadius: outerRadius,
@@ -213,6 +216,7 @@ Done with so much <3 by @bdlukaa''',
                                 style: TextStyle(
                                   fontSize: fontSize,
                                   fontWeight: fontWeight,
+                                  color: textColor,
                                 ),
                               ),
                               const TextSpan(text: ' and stuff like that'),

@@ -526,14 +526,14 @@ class _HighlightPainter extends CustomPainter {
     path.moveTo(firstInfo.x + outerFactor, firstInfo.y);
 
     LineMetricsHelper lastUsedInfo = firstInfo;
-    int _currentIndex = -1;
+    int currentIndex = -1;
 
     for (final info in lineInfos) {
-      _currentIndex++;
+      currentIndex++;
 
       LineMetricsHelper? nextElement() {
         try {
-          return lineInfos.elementAt(_currentIndex + 1);
+          return lineInfos.elementAt(currentIndex + 1);
         } catch (e) {
           return null;
         }
@@ -666,15 +666,15 @@ class _HighlightPainter extends CustomPainter {
     path.lineTo(lastInfo.fullWidth / 2, lastInfo.fullHeight);
 
     final reversedInfo = lineInfos.reversed;
-    _currentIndex = -1;
+    currentIndex = -1;
     lastUsedInfo = reversedInfo.first;
 
     // !Goes horizontal and up
     for (final info in reversedInfo) {
-      _currentIndex++;
+      currentIndex++;
       LineMetricsHelper? nextElement() {
         try {
-          return reversedInfo.elementAt(_currentIndex + 1);
+          return reversedInfo.elementAt(currentIndex + 1);
         } catch (e) {
           return null;
         }
