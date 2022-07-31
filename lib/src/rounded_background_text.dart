@@ -18,13 +18,6 @@ Color? foregroundColor(Color? backgroundColor) {
           : Colors.white;
 }
 
-/// Calculates the line height based on [fontSize]
-double calculateHeight(double fontSize) {
-  // fontSize * x = fontSize + 14
-  // x = (fontSize + 14) / fontSize
-  return (fontSize + 14) / fontSize;
-}
-
 List<List<LineMetricsHelper>> generateLineInfosForPainter(
   TextPainter painter, [
   double maxWidth = double.infinity,
@@ -49,24 +42,9 @@ List<List<LineMetricsHelper>> generateLineInfosForPainter(
   return lineInfos;
 }
 
-const singleLinePadding = EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0);
-const firstLinePadding = EdgeInsets.only(
-  left: 8.0,
-  right: 8.0,
-  top: 8.0,
-  bottom: 0,
-);
-const innerLinePadding = EdgeInsets.only(
-  left: 8.0,
-  right: 8.0,
-  top: 0.0,
-  bottom: 4.0,
-);
-const lastLinePadding = EdgeInsets.only(
-  left: 8.0,
-  right: 8.0,
-  top: 0.0,
-  bottom: 4.0,
+const singleLinePadding = EdgeInsets.symmetric(
+  horizontal: 8.0,
+  vertical: 8.0,
 );
 
 /// Creates a paragraph with rounded background text
@@ -311,7 +289,6 @@ class RoundedBackgroundText extends StatelessWidget {
         style: TextStyle(
           color: foregroundColor(backgroundColor),
           leadingDistribution: TextLeadingDistribution.proportional,
-          height: calculateHeight(style.fontSize ?? 16),
           fontSize: style.fontSize ?? 16.0,
         ).merge(style),
       ),
@@ -341,15 +318,13 @@ class _TextSpanEditingController extends TextEditingController {
   final TextSpan _textSpan;
 
   @override
-  TextSpan buildTextSpan(
-      {required BuildContext context,
-      TextStyle? style,
-      required bool withComposing}) {
+  TextSpan buildTextSpan({
+    required BuildContext context,
+    TextStyle? style,
+    required bool withComposing,
+  }) {
     // This does not care about composing.
-    return TextSpan(
-      style: style,
-      children: <TextSpan>[_textSpan],
-    );
+    return TextSpan(style: style, children: <TextSpan>[_textSpan]);
   }
 
   @override
@@ -594,7 +569,8 @@ class _HighlightPainter extends CustomPainter {
 
       void drawInnerCorner(LineMetricsHelper info, [bool toLeft = true]) {
         if (toLeft) {
-          final formattedHeight = info.fullHeight - innerLinePadding.bottom;
+          final formattedHeight =
+              info.fullHeight - info.innerLinePadding.bottom;
 
           final innerFactor = (info.x - next!.x).clamp(0, this.innerFactor);
           path.lineTo(info.x, info.fullHeight - innerFactor);
@@ -614,7 +590,7 @@ class _HighlightPainter extends CustomPainter {
             iEndPoint.dy,
           );
         } else {
-          final formattedY = next!.y + innerLinePadding.bottom;
+          final formattedY = next!.y + info.innerLinePadding.bottom;
 
           final innerFactor = (next.x - info.x).clamp(0, this.innerFactor);
           path.lineTo(next.x - innerFactor, formattedY);
@@ -725,7 +701,8 @@ class _HighlightPainter extends CustomPainter {
       void drawInnerCorner(LineMetricsHelper info, [bool toRight = true]) {
         // To left
         if (!toRight) {
-          final formattedHeight = info.fullHeight - innerLinePadding.bottom;
+          final formattedHeight =
+              info.fullHeight - info.innerLinePadding.bottom;
           path.lineTo(
             info.fullWidth + innerFactor,
             formattedHeight,
@@ -747,7 +724,7 @@ class _HighlightPainter extends CustomPainter {
             endPoint.dy,
           );
         } else {
-          final formattedY = info.y + innerLinePadding.bottom;
+          final formattedY = info.y + info.innerLinePadding.bottom;
           path.lineTo(
             info.fullWidth,
             formattedY + innerFactor,
@@ -848,16 +825,35 @@ class LineMetricsHelper {
   /// Whether this line is the last line in the paragraph
   bool get isLast => metrics.lineNumber == length - 1;
 
+  late EdgeInsets firstLinePadding = EdgeInsets.only(
+    left: height * 0.3,
+    right: height * 0.3,
+    top: height * 0.3,
+    bottom: 0,
+  );
+  late EdgeInsets innerLinePadding = EdgeInsets.only(
+    left: height * 0.3,
+    right: height * 0.3,
+    top: 0.0,
+    bottom: height * 0.15,
+  );
+  late EdgeInsets lastLinePadding = EdgeInsets.only(
+    left: height * 0.3,
+    right: height * 0.3,
+    top: 0.0,
+    bottom: height * 0.15,
+  );
+
   double get x {
     if (overridenX != null) return overridenX!;
     final result = metrics.left;
 
     if (metrics.lineNumber == 0) {
-      return result - firstLinePadding.left;
+      return result - (firstLinePadding.left);
     } else if (isLast) {
-      return result - lastLinePadding.left;
+      return result - (lastLinePadding.left);
     } else {
-      return result - innerLinePadding.left;
+      return result - (innerLinePadding.left);
     }
   }
 
@@ -866,9 +862,9 @@ class LineMetricsHelper {
     if (metrics.lineNumber == 0) {
       // return result - firstLinePadding.top;
     } else if (isLast) {
-      return result + lastLinePadding.top / 2;
+      return result + (lastLinePadding.top / 2);
     } else {
-      return result - innerLinePadding.top;
+      return result - (innerLinePadding.top);
     }
     return result;
   }
@@ -879,11 +875,11 @@ class LineMetricsHelper {
 
     if (!isEmpty) {
       if (metrics.lineNumber == 0) {
-        return result + firstLinePadding.left;
+        return result + (firstLinePadding.left);
       } else if (isLast) {
-        return result + lastLinePadding.left;
+        return result + (lastLinePadding.left);
       } else {
-        return result + innerLinePadding.left;
+        return result + (innerLinePadding.left);
       }
     }
     return x + metrics.width;
@@ -894,9 +890,9 @@ class LineMetricsHelper {
     final result = y + height;
 
     if (isLast) {
-      return result + lastLinePadding.bottom;
+      return result + (lastLinePadding.bottom);
     } else {
-      return result + innerLinePadding.bottom;
+      return result + (innerLinePadding.bottom);
     }
   }
 
@@ -906,11 +902,11 @@ class LineMetricsHelper {
     final result = metrics.width;
 
     if (metrics.lineNumber == 0) {
-      return result + firstLinePadding.right;
+      return result + (firstLinePadding.right);
     } else if (isLast) {
-      return result + lastLinePadding.right;
+      return result + (lastLinePadding.right);
     } else {
-      return result + innerLinePadding.right;
+      return result + (innerLinePadding.right);
     }
   }
 
