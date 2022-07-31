@@ -1,9 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import 'package:rounded_background_text/rounded_background_text.dart';
 
-final _primaryAndAccentColors =
-    (<ColorSwatch>[...Colors.primaries]).followedBy(Colors.accents);
+final _primaryAndAccentColors = [...Colors.primaries, ...Colors.accents];
 
 enum _HighlightTextType { field, text, span, selectableText }
 
@@ -19,7 +20,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final colorsController = ScrollController();
+  late final ScrollController colorsController;
   final controller = TextEditingController();
 
   double fontSize = 20.0;
@@ -30,7 +31,19 @@ class _MyAppState extends State<MyApp> {
   FontWeight fontWeight = FontWeight.bold;
   _HighlightTextType type = _HighlightTextType.text;
 
-  Color selectedColor = Colors.blue;
+  late Color selectedColor;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final initialIndex = Random().nextInt(_primaryAndAccentColors.length);
+    selectedColor = _primaryAndAccentColors[initialIndex];
+
+    colorsController = ScrollController(
+      initialScrollOffset: 40.0 * initialIndex,
+    );
+  }
 
   @override
   void dispose() {
@@ -48,8 +61,8 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         body: SafeArea(
           child: Column(children: [
-            Row(
-              children: [
+            Material(
+              child: Row(children: [
                 const VerticalDivider(),
                 Expanded(
                   child: DropdownButton<FontWeight>(
@@ -122,13 +135,16 @@ class _MyAppState extends State<MyApp> {
                   ),
                 ),
                 const VerticalDivider(),
-              ],
+              ]),
             ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Center(
                   child: () {
+                    final textColor = selectedColor.computeLuminance() > 0.5
+                        ? Colors.black
+                        : Colors.white;
                     switch (type) {
                       case _HighlightTextType.field:
                         return RoundedBackgroundTextField(
@@ -139,6 +155,7 @@ class _MyAppState extends State<MyApp> {
                           style: TextStyle(
                             fontSize: fontSize,
                             fontWeight: fontWeight,
+                            color: textColor,
                           ),
                           innerRadius: innerRadius,
                           outerRadius: outerRadius,
@@ -156,6 +173,7 @@ Done with so much <3 by @bdlukaa''',
                           style: TextStyle(
                             fontSize: fontSize,
                             fontWeight: fontWeight,
+                            color: textColor,
                           ),
                           innerRadius: innerRadius,
                           outerRadius: outerRadius,
@@ -173,6 +191,7 @@ Done with so much <3 by @bdlukaa''',
                           style: TextStyle(
                             fontSize: fontSize,
                             fontWeight: fontWeight,
+                            color: textColor,
                           ),
                           innerRadius: innerRadius,
                           outerRadius: outerRadius,
@@ -197,6 +216,7 @@ Done with so much <3 by @bdlukaa''',
                                 style: TextStyle(
                                   fontSize: fontSize,
                                   fontWeight: fontWeight,
+                                  color: textColor,
                                 ),
                               ),
                               const TextSpan(text: ' and stuff like that'),
@@ -231,43 +251,47 @@ Done with so much <3 by @bdlukaa''',
                 child: const Icon(Icons.chevron_right),
               ),
             ]),
-            SingleChildScrollView(
-              controller: colorsController,
-              padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
-              scrollDirection: Axis.horizontal,
-              child: Wrap(
-                runSpacing: 10.0,
-                spacing: 10.0,
-                alignment: WrapAlignment.center,
-                children: _primaryAndAccentColors.map((color) {
-                  return MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () => setState(() => selectedColor = color),
-                      child: AnimatedContainer(
-                        duration: kThemeChangeDuration,
-                        curve: Curves.bounceInOut,
-                        height: 30.0,
-                        width: 30.0,
-                        decoration: BoxDecoration(
-                          color: color,
-                          borderRadius: BorderRadius.circular(2.0),
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2.0,
-                            style: selectedColor == color
-                                ? BorderStyle.solid
-                                : BorderStyle.none,
+            Material(
+              child: SingleChildScrollView(
+                controller: colorsController,
+                padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
+                scrollDirection: Axis.horizontal,
+                child: Wrap(
+                  runSpacing: 10.0,
+                  spacing: 10.0,
+                  alignment: WrapAlignment.center,
+                  children: _primaryAndAccentColors.map((color) {
+                    return MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () => setState(() => selectedColor = color),
+                        child: AnimatedContainer(
+                          duration: kThemeChangeDuration,
+                          curve: Curves.bounceInOut,
+                          height: 30.0,
+                          width: 30.0,
+                          decoration: BoxDecoration(
+                            color: color,
+                            borderRadius: BorderRadius.circular(2.0),
+                            border: Border.all(
+                              color: color.computeLuminance() > 0.5
+                                  ? Colors.black
+                                  : Colors.white,
+                              width: 2.5,
+                              style: selectedColor == color
+                                  ? BorderStyle.solid
+                                  : BorderStyle.none,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
+                ),
               ),
             ),
-            Row(
-              children: [
+            Material(
+              child: Row(children: [
                 Expanded(
                   child: Slider(
                     onChanged: (v) => setState(() => fontSize = v),
@@ -296,7 +320,7 @@ Done with so much <3 by @bdlukaa''',
                     divisions: 20,
                   ),
                 ),
-              ],
+              ]),
             ),
           ]),
         ),

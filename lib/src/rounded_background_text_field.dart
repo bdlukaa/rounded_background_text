@@ -8,7 +8,7 @@ import 'rounded_background_text.dart';
 class RoundedBackgroundTextField extends StatefulWidget {
   const RoundedBackgroundTextField({
     Key? key,
-    required this.controller,
+    this.controller,
     this.style,
     this.backgroundColor,
     this.textAlign = TextAlign.start,
@@ -51,9 +51,13 @@ class RoundedBackgroundTextField extends StatefulWidget {
     this.textInputAction,
     this.toolbarOptions = const ToolbarOptions(),
     this.onSelectionChanged,
+    this.scrollController,
+    this.scrollPhysics,
+    this.scrollBehavior,
+    this.scrollPadding = EdgeInsets.zero,
   }) : super(key: key);
 
-  final TextEditingController controller;
+  final TextEditingController? controller;
 
   /// The final text style
   ///
@@ -254,73 +258,90 @@ class RoundedBackgroundTextField extends StatefulWidget {
   /// {@macro flutter.widgets.editableText.onSelectionChanged}
   final SelectionChangedCallback? onSelectionChanged;
 
+  /// {@macro flutter.widgets.editableText.scrollController}
+  final ScrollController? scrollController;
+
+  /// {@macro flutter.widgets.editableText.scrollPhysics}
+  ///
+  /// If an explicit [ScrollBehavior] is provided to [scrollBehavior], the
+  /// [ScrollPhysics] provided by that behavior will take precedence after
+  /// [scrollPhysics].
+  final ScrollPhysics? scrollPhysics;
+
+  /// {@macro flutter.widgets.shadow.scrollBehavior}
+  ///
+  /// [ScrollBehavior]s also provide [ScrollPhysics]. If an explicit
+  /// [ScrollPhysics] is provided in [scrollPhysics], it will take precedence,
+  /// followed by [scrollBehavior], and then the inherited ancestor
+  /// [ScrollBehavior].
+  ///
+  /// The [ScrollBehavior] of the inherited [ScrollConfiguration] will be
+  /// modified by default to only apply a [Scrollbar] if [maxLines] is greater
+  /// than 1.
+  final ScrollBehavior? scrollBehavior;
+
+  /// {@macro flutter.widgets.editableText.scrollPadding}
+  final EdgeInsets scrollPadding;
+
   @override
-  _RoundedBackgroundTextFieldState createState() =>
+  State<RoundedBackgroundTextField> createState() =>
       _RoundedBackgroundTextFieldState();
 }
 
 class _RoundedBackgroundTextFieldState
     extends State<RoundedBackgroundTextField> {
-  double finalScale = 1.0;
-
   FocusNode? _focusNode;
   FocusNode get _effectiveFocusNode =>
       widget.focusNode ?? (_focusNode ??= FocusNode());
 
-  GlobalKey fieldKey = GlobalKey();
+  final fieldKey = GlobalKey<EditableTextState>();
+
+  late TextEditingController textController =
+      widget.controller ?? TextEditingController();
+  late ScrollController scrollController =
+      widget.scrollController ?? ScrollController();
 
   @override
   void initState() {
     super.initState();
-    widget.controller.addListener(_handleTextChange);
+    textController.addListener(_handleTextChange);
+    scrollController.addListener(_handleScrollChange);
   }
 
   void _handleTextChange() {
-    scale();
+    if (mounted) setState(() {});
+  }
+
+  void _handleScrollChange() {
     if (mounted) setState(() {});
   }
 
   @override
-  void dispose() {
-    widget.controller.removeListener(_handleTextChange);
-    super.dispose();
-  }
-
-  Size getSize() {
-    RenderBox box = context.findRenderObject() as RenderBox;
-    return box.size;
-  }
-
-  double scale() {
-    final size = getSize();
-
-    final painter = TextPainter(
-      text: TextSpan(
-          text: widget.controller.text,
-          style: widget.style?.copyWith(
-            height: calculateHeight(
-              (widget.style?.fontSize ?? 16) * finalScale,
-            ),
-          )),
-      textDirection: widget.textDirection ?? TextDirection.ltr,
-      maxLines: widget.maxLines,
-      textAlign: widget.textAlign,
-      // textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
-      // textScaleFactor: widget.textScaleFactor,
-      // strutStyle: widget.strutStyle,
-      // locale: widget.locale,
-      // textHeightBehavior: widget.textHeightBehavior,
-      // ellipsis: widget.ellipsis,
-    )..layout(maxWidth: size.width);
-
-    final scale = (size.height / painter.size.height).clamp(0.0, 1.0);
-    // debugPrint('${size.height}/${painter.size.height} - $scale');
-
-    if (finalScale != scale && mounted) {
-      setState(() => finalScale = scale);
+  void didUpdateWidget(covariant RoundedBackgroundTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.scrollController != oldWidget.scrollController) {
+      scrollController = widget.scrollController ?? scrollController;
     }
 
-    return finalScale;
+    if (widget.controller != oldWidget.controller) {
+      textController = widget.controller ?? textController;
+    }
+  }
+
+  @override
+  void dispose() {
+    if (widget.controller == null) {
+      textController.dispose();
+    } else {
+      textController.removeListener(_handleTextChange);
+    }
+
+    if (widget.scrollController == null) {
+      scrollController.dispose();
+    } else {
+      widget.scrollController!.removeListener(_handleScrollChange);
+    }
+    super.dispose();
   }
 
   @override
@@ -331,8 +352,7 @@ class _RoundedBackgroundTextFieldState
     final defaultTextStyle = DefaultTextStyle.of(context);
 
     final fontSize =
-        (widget.style?.fontSize ?? defaultTextStyle.style.fontSize ?? 16) *
-            finalScale;
+        (widget.style?.fontSize ?? defaultTextStyle.style.fontSize ?? 16);
 
     TextSelectionControls? textSelectionControls = widget.selectionControls;
     final bool paintCursorAboveText;
@@ -408,13 +428,17 @@ class _RoundedBackgroundTextFieldState
       }
     }();
 
+    // if (scrollController.hasClients) print(scrollController.position.pixels);
+
     return Stack(
       alignment: Alignment.center,
-      clipBehavior: Clip.none,
       children: [
         const Positioned.fill(child: SizedBox.expand()),
-        if (widget.controller.text.isNotEmpty)
-          Positioned(
+        if (textController.text.isNotEmpty)
+          Positioned.fill(
+            top: scrollController.hasClients
+                ? -scrollController.position.pixels
+                : null,
             child: IgnorePointer(
               child: Container(
                 alignment: alignment,
@@ -423,10 +447,16 @@ class _RoundedBackgroundTextFieldState
                   left: 1.0,
                   bottom: 3.0,
                 ),
-                child: RoundedBackgroundText(
-                  widget.controller.text,
-                  style: (widget.style ?? const TextStyle())
-                      .copyWith(fontSize: fontSize),
+                child: RoundedBackgroundText.rich(
+                  text: textController.buildTextSpan(
+                    context: context,
+                    withComposing: !widget.readOnly,
+                    style: (widget.style ?? const TextStyle()).copyWith(
+                      // The text is rendered by the [EditableText] widget below.
+                      // It has more accuracy for a bunch of text features
+                      color: Colors.transparent,
+                    ),
+                  ),
                   textAlign: widget.textAlign,
                   backgroundColor: widget.backgroundColor,
                   innerRadius: widget.innerRadius,
@@ -452,18 +482,18 @@ class _RoundedBackgroundTextFieldState
           child: EditableText(
             key: fieldKey,
             autofocus: widget.autofocus,
-            controller: widget.controller,
+            controller: textController,
             focusNode: _effectiveFocusNode,
-            // The text field can't be scrollable because
-            // [RoundedBackgroundText] can't follow the scroll
-            scrollPhysics: const NeverScrollableScrollPhysics(),
-            scrollBehavior: const ScrollBehavior(),
-
+            scrollPhysics: widget.scrollPhysics,
+            scrollBehavior: widget.scrollBehavior,
+            scrollController: scrollController,
+            scrollPadding: widget.scrollPadding,
             style: (widget.style ?? const TextStyle()).copyWith(
-              color: Colors.transparent,
+              // color: Colors.transparent,
               // color: Colors.amber,
               fontSize: fontSize,
               height: calculateHeight(fontSize),
+              leadingDistribution: TextLeadingDistribution.proportional,
             ),
             textAlign: widget.textAlign,
             maxLines: widget.maxLines,
@@ -471,8 +501,8 @@ class _RoundedBackgroundTextFieldState
             backgroundCursorColor: CupertinoColors.inactiveGray,
             cursorColor: widget.cursorColor ??
                 widget.style?.color ??
-                foregroundColor(widget.backgroundColor) ??
                 selectionTheme.cursorColor ??
+                foregroundColor(widget.backgroundColor) ??
                 Colors.black,
             cursorWidth: widget.cursorWidth,
             cursorHeight: widget.cursorHeight,
@@ -481,7 +511,6 @@ class _RoundedBackgroundTextFieldState
             cursorOpacityAnimates: cursorOpacityAnimates,
             cursorOffset: cursorOffset,
             autocorrectionTextRectColor: autocorrectionTextRectColor,
-            scrollPadding: EdgeInsets.zero,
             textCapitalization: widget.textCapitalization,
             keyboardAppearance: widget.keyboardAppearance,
             textScaleFactor: widget.textScaleFactor,

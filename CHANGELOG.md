@@ -1,3 +1,9 @@
+## next
+
+* feat: `RoundedBackgroundTextField` is now scrollable. The background will follow the scroll of the text field
+* feat: Added `.scrollController`, `.scrollPhysics`, `.scrollBehavior` and `.scrollPadding` to `RoundedBackgroundTextField`
+* `RoundedBackgroundTextField.controller` is no longer required. If omitted, a local controller is created instead
+
 ## 0.2.1
 
 * fix: `RoundedBackgroundTextField` now shows the background properly as the user types
