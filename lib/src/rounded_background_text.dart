@@ -486,7 +486,7 @@ class _HighlightPainter extends CustomPainter {
             info.y,
             info.fullWidth,
             info.fullHeight,
-            Radius.circular(outerFactor),
+            Radius.circular(info.outerFactor(outerFactor)),
           ),
           Paint()..color = backgroundColor,
         );
@@ -516,6 +516,9 @@ class _HighlightPainter extends CustomPainter {
 
       final next = nextElement();
 
+      final outerFactor = info.outerFactor(this.outerFactor);
+      final innerFactor = info.innerFactor(this.innerFactor);
+
       if (next != null) {
         final difference = () {
           final width = (info.width - next.width);
@@ -532,16 +535,16 @@ class _HighlightPainter extends CustomPainter {
       }
 
       void drawTopLeftCorner(LineMetricsHelper info) {
-        final outerFactor = lastUsedInfo == info
-            ? this.outerFactor
-            : (lastUsedInfo.x - info.x).clamp(0, this.outerFactor);
+        final localOuterFactor = lastUsedInfo == info
+            ? outerFactor
+            : (lastUsedInfo.x - info.x).clamp(0, outerFactor);
         final controlPoint = Offset(
           info.x,
           info.y,
         );
-        final endPoint = Offset(info.x, info.y + outerFactor);
+        final endPoint = Offset(info.x, info.y + localOuterFactor);
 
-        path.lineTo(info.x + outerFactor, info.y);
+        path.lineTo(info.x + localOuterFactor, info.y);
         path.quadraticBezierTo(
           controlPoint.dx,
           controlPoint.dy,
@@ -572,14 +575,14 @@ class _HighlightPainter extends CustomPainter {
           final formattedHeight =
               info.fullHeight - info.innerLinePadding.bottom;
 
-          final innerFactor = (info.x - next!.x).clamp(0, this.innerFactor);
-          path.lineTo(info.x, info.fullHeight - innerFactor);
+          final localInnerFactor = (info.x - next!.x).clamp(0, innerFactor);
+          path.lineTo(info.x, info.fullHeight - localInnerFactor);
           final iControlPoint = Offset(
             info.x,
             formattedHeight,
           );
           final iEndPoint = Offset(
-            info.x - innerFactor,
+            info.x - localInnerFactor,
             formattedHeight,
           );
 
@@ -592,15 +595,15 @@ class _HighlightPainter extends CustomPainter {
         } else {
           final formattedY = next!.y + info.innerLinePadding.bottom;
 
-          final innerFactor = (next.x - info.x).clamp(0, this.innerFactor);
-          path.lineTo(next.x - innerFactor, formattedY);
+          final localInnerFactor = (next.x - info.x).clamp(0, innerFactor);
+          path.lineTo(next.x - localInnerFactor, formattedY);
           final iControlPoint = Offset(
             next.x,
             formattedY,
           );
           final iEndPoint = Offset(
             next.x,
-            formattedY + innerFactor,
+            formattedY + localInnerFactor,
           );
 
           path.quadraticBezierTo(
@@ -657,6 +660,9 @@ class _HighlightPainter extends CustomPainter {
       }
 
       final next = nextElement();
+
+      final outerFactor = info.outerFactor(this.outerFactor);
+      final innerFactor = info.innerFactor(this.innerFactor);
 
       void drawTopRightCorner(
         LineMetricsHelper info, [
@@ -843,6 +849,14 @@ class LineMetricsHelper {
     top: 0.0,
     bottom: height * 0.15,
   );
+
+  double outerFactor(double outerFactor) {
+    return (height * outerFactor) / 35;
+  }
+
+  double innerFactor(double innerFactor) {
+    return (height * innerFactor) / 25;
+  }
 
   double get x {
     if (overridenX != null) return overridenX!;
