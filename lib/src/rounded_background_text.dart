@@ -268,14 +268,20 @@ class RoundedBackgroundText extends StatelessWidget {
   /// {@template rounded_background_text.innerRadius}
   /// The radius of the inner corners.
   ///
-  /// Defaults to [this.innerFactor]
+  /// The radius is dynamically calculated based on the line height and the
+  /// provided factor.
+  ///
+  /// Defaults to 8.0
   /// {@end-template}
   final double innerRadius;
 
   /// {@template rounded_background_text.outerRadius}
   /// The radius of the inner corners.
   ///
-  /// Defaults to [this.outerFactor]
+  /// The radius is dynamically calculated based on the line height and the
+  /// provided factor.
+  ///
+  /// Defaults to 10.0
   /// {@end-template}
   final double outerRadius;
 
@@ -850,10 +856,12 @@ class LineMetricsHelper {
     bottom: height * 0.15,
   );
 
+  /// Dynamically calculate the outer factor based on the provided [outerFactor]
   double outerFactor(double outerFactor) {
     return (height * outerFactor) / 35;
   }
 
+  /// Dynamically calculate the inner factor based on the provided [innerFactor]
   double innerFactor(double innerFactor) {
     return (height * innerFactor) / 25;
   }
@@ -900,7 +908,6 @@ class LineMetricsHelper {
   }
 
   double get fullHeight {
-    // final result = metrics.lineNumber * metrics.height + height;
     final result = y + height;
 
     if (isLast) {
