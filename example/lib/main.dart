@@ -296,8 +296,10 @@ Done with so much <3 by @bdlukaa''',
                   child: Slider(
                     onChanged: (v) => setState(() => fontSize = v),
                     value: fontSize,
-                    min: 10,
-                    max: 20,
+                    min: 8,
+                    max: 30,
+                    divisions: 30 - 8,
+                    label: '${fontSize.toInt()}',
                   ),
                 ),
                 Expanded(

@@ -158,6 +158,8 @@ To paint the background, the line metrics generated before is used. Each line ha
 
 With these values, we can generate the background for each line. The background is generated around the whole text: from top-left to bottom-left to bottom-right to top-right to top-left. This makes it easy to calculate when there is a corner, either outer or inner. 
 
+The inner and outer radius are dynamically calculated based on the line height, provided by the line metrics, and the given `innerFactor` and `outerFactor`, respectively. By default, `innerFactor` is `8.0` and `outerFactor` is `10.0`. For safety, in order to keep the roundnesses correct, these values must be in the bounds of `0.0` (min) and `20.0` max, otherwise the painting would go off-line.
+
 ## Contribution
 
 Feel free to [file an issue](https://github.com/bdlukaa/rounded_background_text/issues/new) if you find a problem or [make pull requests](https://github.com/bdlukaa/rounded_background_text/pulls).

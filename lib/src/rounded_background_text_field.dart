@@ -473,7 +473,7 @@ class _RoundedBackgroundTextFieldState
             style: (widget.hintStyle ?? TextStyle(color: theme.hintColor))
                 .copyWith(
               fontSize: fontSize,
-              height: calculateHeight(fontSize),
+              // height: calculateHeight(fontSize),
             ),
             textAlign: widget.textAlign,
             maxLines: widget.maxLines,
@@ -492,7 +492,7 @@ class _RoundedBackgroundTextFieldState
               // color: Colors.transparent,
               // color: Colors.amber,
               fontSize: fontSize,
-              height: calculateHeight(fontSize),
+              // height: calculateHeight(fontSize),
               leadingDistribution: TextLeadingDistribution.proportional,
             ),
             textAlign: widget.textAlign,

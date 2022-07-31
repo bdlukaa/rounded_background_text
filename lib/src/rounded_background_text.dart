@@ -18,13 +18,6 @@ Color? foregroundColor(Color? backgroundColor) {
           : Colors.white;
 }
 
-/// Calculates the line height based on [fontSize]
-double calculateHeight(double fontSize) {
-  // fontSize * x = fontSize + 14
-  // x = (fontSize + 14) / fontSize
-  return (fontSize + 14) / fontSize;
-}
-
 List<List<LineMetricsHelper>> generateLineInfosForPainter(
   TextPainter painter, [
   double maxWidth = double.infinity,
@@ -49,24 +42,9 @@ List<List<LineMetricsHelper>> generateLineInfosForPainter(
   return lineInfos;
 }
 
-const singleLinePadding = EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0);
-const firstLinePadding = EdgeInsets.only(
-  left: 8.0,
-  right: 8.0,
-  top: 8.0,
-  bottom: 0,
-);
-const innerLinePadding = EdgeInsets.only(
-  left: 8.0,
-  right: 8.0,
-  top: 0.0,
-  bottom: 4.0,
-);
-const lastLinePadding = EdgeInsets.only(
-  left: 8.0,
-  right: 8.0,
-  top: 0.0,
-  bottom: 4.0,
+const singleLinePadding = EdgeInsets.symmetric(
+  horizontal: 8.0,
+  vertical: 8.0,
 );
 
 /// Creates a paragraph with rounded background text
@@ -290,14 +268,20 @@ class RoundedBackgroundText extends StatelessWidget {
   /// {@template rounded_background_text.innerRadius}
   /// The radius of the inner corners.
   ///
-  /// Defaults to [this.innerFactor]
+  /// The radius is dynamically calculated based on the line height and the
+  /// provided factor.
+  ///
+  /// Defaults to 8.0
   /// {@end-template}
   final double innerRadius;
 
   /// {@template rounded_background_text.outerRadius}
   /// The radius of the inner corners.
   ///
-  /// Defaults to [this.outerFactor]
+  /// The radius is dynamically calculated based on the line height and the
+  /// provided factor.
+  ///
+  /// Defaults to 10.0
   /// {@end-template}
   final double outerRadius;
 
@@ -311,7 +295,6 @@ class RoundedBackgroundText extends StatelessWidget {
         style: TextStyle(
           color: foregroundColor(backgroundColor),
           leadingDistribution: TextLeadingDistribution.proportional,
-          height: calculateHeight(style.fontSize ?? 16),
           fontSize: style.fontSize ?? 16.0,
         ).merge(style),
       ),
@@ -341,15 +324,13 @@ class _TextSpanEditingController extends TextEditingController {
   final TextSpan _textSpan;
 
   @override
-  TextSpan buildTextSpan(
-      {required BuildContext context,
-      TextStyle? style,
-      required bool withComposing}) {
+  TextSpan buildTextSpan({
+    required BuildContext context,
+    TextStyle? style,
+    required bool withComposing,
+  }) {
     // This does not care about composing.
-    return TextSpan(
-      style: style,
-      children: <TextSpan>[_textSpan],
-    );
+    return TextSpan(style: style, children: <TextSpan>[_textSpan]);
   }
 
   @override
@@ -511,7 +492,7 @@ class _HighlightPainter extends CustomPainter {
             info.y,
             info.fullWidth,
             info.fullHeight,
-            Radius.circular(outerFactor),
+            Radius.circular(info.outerFactor(outerFactor)),
           ),
           Paint()..color = backgroundColor,
         );
@@ -541,6 +522,9 @@ class _HighlightPainter extends CustomPainter {
 
       final next = nextElement();
 
+      final outerFactor = info.outerFactor(this.outerFactor);
+      final innerFactor = info.innerFactor(this.innerFactor);
+
       if (next != null) {
         final difference = () {
           final width = (info.width - next.width);
@@ -557,16 +541,16 @@ class _HighlightPainter extends CustomPainter {
       }
 
       void drawTopLeftCorner(LineMetricsHelper info) {
-        final outerFactor = lastUsedInfo == info
-            ? this.outerFactor
-            : (lastUsedInfo.x - info.x).clamp(0, this.outerFactor);
+        final localOuterFactor = lastUsedInfo == info
+            ? outerFactor
+            : (lastUsedInfo.x - info.x).clamp(0, outerFactor);
         final controlPoint = Offset(
           info.x,
           info.y,
         );
-        final endPoint = Offset(info.x, info.y + outerFactor);
+        final endPoint = Offset(info.x, info.y + localOuterFactor);
 
-        path.lineTo(info.x + outerFactor, info.y);
+        path.lineTo(info.x + localOuterFactor, info.y);
         path.quadraticBezierTo(
           controlPoint.dx,
           controlPoint.dy,
@@ -594,16 +578,17 @@ class _HighlightPainter extends CustomPainter {
 
       void drawInnerCorner(LineMetricsHelper info, [bool toLeft = true]) {
         if (toLeft) {
-          final formattedHeight = info.fullHeight - innerLinePadding.bottom;
+          final formattedHeight =
+              info.fullHeight - info.innerLinePadding.bottom;
 
-          final innerFactor = (info.x - next!.x).clamp(0, this.innerFactor);
-          path.lineTo(info.x, info.fullHeight - innerFactor);
+          final localInnerFactor = (info.x - next!.x).clamp(0, innerFactor);
+          path.lineTo(info.x, info.fullHeight - localInnerFactor);
           final iControlPoint = Offset(
             info.x,
             formattedHeight,
           );
           final iEndPoint = Offset(
-            info.x - innerFactor,
+            info.x - localInnerFactor,
             formattedHeight,
           );
 
@@ -614,17 +599,17 @@ class _HighlightPainter extends CustomPainter {
             iEndPoint.dy,
           );
         } else {
-          final formattedY = next!.y + innerLinePadding.bottom;
+          final formattedY = next!.y + info.innerLinePadding.bottom;
 
-          final innerFactor = (next.x - info.x).clamp(0, this.innerFactor);
-          path.lineTo(next.x - innerFactor, formattedY);
+          final localInnerFactor = (next.x - info.x).clamp(0, innerFactor);
+          path.lineTo(next.x - localInnerFactor, formattedY);
           final iControlPoint = Offset(
             next.x,
             formattedY,
           );
           final iEndPoint = Offset(
             next.x,
-            formattedY + innerFactor,
+            formattedY + localInnerFactor,
           );
 
           path.quadraticBezierTo(
@@ -682,6 +667,9 @@ class _HighlightPainter extends CustomPainter {
 
       final next = nextElement();
 
+      final outerFactor = info.outerFactor(this.outerFactor);
+      final innerFactor = info.innerFactor(this.innerFactor);
+
       void drawTopRightCorner(
         LineMetricsHelper info, [
         double? factor,
@@ -725,7 +713,8 @@ class _HighlightPainter extends CustomPainter {
       void drawInnerCorner(LineMetricsHelper info, [bool toRight = true]) {
         // To left
         if (!toRight) {
-          final formattedHeight = info.fullHeight - innerLinePadding.bottom;
+          final formattedHeight =
+              info.fullHeight - info.innerLinePadding.bottom;
           path.lineTo(
             info.fullWidth + innerFactor,
             formattedHeight,
@@ -747,7 +736,7 @@ class _HighlightPainter extends CustomPainter {
             endPoint.dy,
           );
         } else {
-          final formattedY = info.y + innerLinePadding.bottom;
+          final formattedY = info.y + info.innerLinePadding.bottom;
           path.lineTo(
             info.fullWidth,
             formattedY + innerFactor,
@@ -848,16 +837,45 @@ class LineMetricsHelper {
   /// Whether this line is the last line in the paragraph
   bool get isLast => metrics.lineNumber == length - 1;
 
+  late EdgeInsets firstLinePadding = EdgeInsets.only(
+    left: height * 0.3,
+    right: height * 0.3,
+    top: height * 0.3,
+    bottom: 0,
+  );
+  late EdgeInsets innerLinePadding = EdgeInsets.only(
+    left: height * 0.3,
+    right: height * 0.3,
+    top: 0.0,
+    bottom: height * 0.15,
+  );
+  late EdgeInsets lastLinePadding = EdgeInsets.only(
+    left: height * 0.3,
+    right: height * 0.3,
+    top: 0.0,
+    bottom: height * 0.15,
+  );
+
+  /// Dynamically calculate the outer factor based on the provided [outerFactor]
+  double outerFactor(double outerFactor) {
+    return (height * outerFactor) / 35;
+  }
+
+  /// Dynamically calculate the inner factor based on the provided [innerFactor]
+  double innerFactor(double innerFactor) {
+    return (height * innerFactor) / 25;
+  }
+
   double get x {
     if (overridenX != null) return overridenX!;
     final result = metrics.left;
 
     if (metrics.lineNumber == 0) {
-      return result - firstLinePadding.left;
+      return result - (firstLinePadding.left);
     } else if (isLast) {
-      return result - lastLinePadding.left;
+      return result - (lastLinePadding.left);
     } else {
-      return result - innerLinePadding.left;
+      return result - (innerLinePadding.left);
     }
   }
 
@@ -866,9 +884,9 @@ class LineMetricsHelper {
     if (metrics.lineNumber == 0) {
       // return result - firstLinePadding.top;
     } else if (isLast) {
-      return result + lastLinePadding.top / 2;
+      return result + (lastLinePadding.top / 2);
     } else {
-      return result - innerLinePadding.top;
+      return result - (innerLinePadding.top);
     }
     return result;
   }
@@ -879,24 +897,23 @@ class LineMetricsHelper {
 
     if (!isEmpty) {
       if (metrics.lineNumber == 0) {
-        return result + firstLinePadding.left;
+        return result + (firstLinePadding.left);
       } else if (isLast) {
-        return result + lastLinePadding.left;
+        return result + (lastLinePadding.left);
       } else {
-        return result + innerLinePadding.left;
+        return result + (innerLinePadding.left);
       }
     }
     return x + metrics.width;
   }
 
   double get fullHeight {
-    // final result = metrics.lineNumber * metrics.height + height;
     final result = y + height;
 
     if (isLast) {
-      return result + lastLinePadding.bottom;
+      return result + (lastLinePadding.bottom);
     } else {
-      return result + innerLinePadding.bottom;
+      return result + (innerLinePadding.bottom);
     }
   }
 
@@ -906,11 +923,11 @@ class LineMetricsHelper {
     final result = metrics.width;
 
     if (metrics.lineNumber == 0) {
-      return result + firstLinePadding.right;
+      return result + (firstLinePadding.right);
     } else if (isLast) {
-      return result + lastLinePadding.right;
+      return result + (lastLinePadding.right);
     } else {
-      return result + innerLinePadding.right;
+      return result + (innerLinePadding.right);
     }
   }
 
