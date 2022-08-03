@@ -952,6 +952,6 @@ class LineMetricsHelper {
 
   @override
   String toString() {
-    return 'LineMetricsHelper(metrics: $metrics, length: $length, overridenWidth: $overridenWidth, overridenX: $overridenX)';
+    return 'LineMetricsHelper(x: $x, y: $y, w: $fullWidth, h: $fullHeight)';
   }
 }

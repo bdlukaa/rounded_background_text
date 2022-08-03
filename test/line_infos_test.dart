@@ -21,15 +21,15 @@ void main() {
     expect(lines.length, 3);
     expect(
       lines[0].toString(),
-      '[LineMetricsHelper(x: 251.0, y: 0.0, w: 715.0, h: 18.0)]',
+      '[LineMetricsHelper(x: 254.8, y: 0.0, w: 711.2, h: 16.1)]',
     );
     expect(
       lines[1].toString(),
-      '[LineMetricsHelper(x: -8.0, y: 30.0, w: 974.0, h: 46.0)]',
+      '[LineMetricsHelper(x: -4.2, y: 28.0, w: 970.2, h: 44.1)]',
     );
     expect(
       lines[2].toString(),
-      '[LineMetricsHelper(x: 279.0, y: 58.0, w: 687.0, h: 74.0)]',
+      '[LineMetricsHelper(x: 282.8, y: 56.0, w: 683.2, h: 72.1)]',
     );
   });
 }
