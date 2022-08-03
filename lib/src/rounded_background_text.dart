@@ -726,7 +726,7 @@ class _HighlightPainter extends CustomPainter {
           );
           final endPoint = Offset(
             info.fullWidth,
-            info.fullHeight - innerFactor,
+            formattedHeight - innerFactor,
           );
 
           path.quadraticBezierTo(
