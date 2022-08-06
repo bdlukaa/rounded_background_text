@@ -74,8 +74,8 @@ class _MyAppState extends State<MyApp> {
                     icon: const Icon(Icons.font_download),
                     items: FontWeight.values.map((e) {
                       return DropdownMenuItem(
-                        child: Text('$e'.replaceAll('FontWeight.', '')),
                         value: e,
+                        child: Text('$e'.replaceAll('FontWeight.', '')),
                       );
                     }).toList(),
                   ),
@@ -91,16 +91,16 @@ class _MyAppState extends State<MyApp> {
                     isExpanded: true,
                     items: const [
                       DropdownMenuItem(
-                        child: Text('Start'),
                         value: TextAlign.start,
+                        child: Text('Start'),
                       ),
                       DropdownMenuItem(
-                        child: Text('Center'),
                         value: TextAlign.center,
+                        child: Text('Center'),
                       ),
                       DropdownMenuItem(
-                        child: Text('End'),
                         value: TextAlign.end,
+                        child: Text('End'),
                       ),
                     ],
                   ),
@@ -116,20 +116,20 @@ class _MyAppState extends State<MyApp> {
                     isExpanded: true,
                     items: const [
                       DropdownMenuItem(
-                        child: Text('Field'),
                         value: _HighlightTextType.field,
+                        child: Text('Field'),
                       ),
                       DropdownMenuItem(
-                        child: Text('Text'),
                         value: _HighlightTextType.text,
+                        child: Text('Text'),
                       ),
                       DropdownMenuItem(
-                        child: Text('Selectable Text'),
                         value: _HighlightTextType.selectableText,
+                        child: Text('Selectable Text'),
                       ),
                       DropdownMenuItem(
-                        child: Text('Span'),
                         value: _HighlightTextType.span,
+                        child: Text('Span'),
                       ),
                     ],
                   ),

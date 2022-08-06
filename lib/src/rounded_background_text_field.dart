@@ -468,15 +468,17 @@ class _RoundedBackgroundTextFieldState
             ),
           )
         else if (widget.hint != null)
-          Text(
-            widget.hint!,
-            style: (widget.hintStyle ?? TextStyle(color: theme.hintColor))
-                .copyWith(
-              fontSize: fontSize,
-              // height: calculateHeight(fontSize),
+          Positioned.fill(
+            child: Text(
+              widget.hint!,
+              style: (widget.hintStyle ?? TextStyle(color: theme.hintColor))
+                  .copyWith(
+                fontSize: fontSize,
+                // height: calculateHeight(fontSize),
+              ),
+              textAlign: widget.textAlign,
+              maxLines: widget.maxLines,
             ),
-            textAlign: widget.textAlign,
-            maxLines: widget.maxLines,
           ),
         Positioned.fill(
           child: EditableText(

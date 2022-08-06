@@ -1,3 +1,7 @@
+## [next]
+
+* fix: hint is aligned with the text field ([#7](https://github.com/bdlukaa/rounded_background_text/issues/7))
+
 ## 0.3.0
 
 * feat: `RoundedBackgroundTextField` is now scrollable. The background will follow the scroll of the text field
