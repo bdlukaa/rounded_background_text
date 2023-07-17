@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -426,7 +427,6 @@ class _RoundedBackgroundTextFieldState
     return Stack(
       alignment: Alignment.center,
       children: [
-        const Positioned.fill(child: SizedBox.expand()),
         if (textController.text.isNotEmpty)
           Positioned.fill(
             top: scrollController.hasClients
@@ -441,6 +441,7 @@ class _RoundedBackgroundTextFieldState
                   bottom: 3.0,
                 ),
                 child: RoundedBackgroundText.rich(
+                  key: ValueKey(textController.text),
                   text: textController.buildTextSpan(
                     context: context,
                     withComposing: !widget.readOnly,
