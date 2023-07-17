@@ -58,7 +58,7 @@ class RoundedBackgroundText extends StatelessWidget {
   /// Creates a rounded background text with a single style.
   RoundedBackgroundText(
     String text, {
-    Key? key,
+    super.key,
     TextStyle? style,
     this.textDirection,
     this.textAlign,
@@ -72,13 +72,12 @@ class RoundedBackgroundText extends StatelessWidget {
     this.textHeightBehavior,
     this.innerRadius = kDefaultInnerFactor,
     this.outerRadius = kDefaultOuterFactor,
-  })  : text = TextSpan(text: text, style: style),
-        super(key: key);
+  }) : text = TextSpan(text: text, style: style);
 
   /// Creates a rounded background text based on an [InlineSpan], that can have
   /// multiple styles
   const RoundedBackgroundText.rich({
-    Key? key,
+    super.key,
     required this.text,
     this.textDirection,
     this.backgroundColor,
@@ -93,8 +92,7 @@ class RoundedBackgroundText extends StatelessWidget {
     this.innerRadius = kDefaultInnerFactor,
     this.outerRadius = kDefaultOuterFactor,
   })  : assert(innerRadius >= 0.0 && innerRadius <= 20.0),
-        assert(outerRadius >= 0.0 && outerRadius <= 20.0),
-        super(key: key);
+        assert(outerRadius >= 0.0 && outerRadius <= 20.0);
 
   /// Creates a selectable [RoundedBackgroundText]
   ///
@@ -107,10 +105,6 @@ class RoundedBackgroundText extends StatelessWidget {
     Key? key,
     FocusNode? focusNode,
     bool autofocus = false,
-    ToolbarOptions toolbarOptions = const ToolbarOptions(
-      selectAll: true,
-      copy: true,
-    ),
     TextSelectionControls? selectionControls,
     TextStyle? style,
     TextDirection? textDirection,
@@ -135,7 +129,6 @@ class RoundedBackgroundText extends StatelessWidget {
       controller: controller,
       focusNode: focusNode,
       autofocus: autofocus,
-      toolbarOptions: toolbarOptions,
       style: style,
       readOnly: true,
       textDirection: textDirection,
@@ -167,10 +160,6 @@ class RoundedBackgroundText extends StatelessWidget {
     Key? key,
     FocusNode? focusNode,
     bool autofocus = false,
-    ToolbarOptions toolbarOptions = const ToolbarOptions(
-      selectAll: true,
-      copy: true,
-    ),
     TextSelectionControls? selectionControls,
     TextStyle? style,
     TextDirection? textDirection,
@@ -194,7 +183,6 @@ class RoundedBackgroundText extends StatelessWidget {
       controller: controller,
       focusNode: focusNode,
       autofocus: autofocus,
-      toolbarOptions: toolbarOptions,
       style: style,
       readOnly: true,
       textDirection: textDirection,
@@ -342,7 +330,6 @@ class _TextSpanEditingController extends TextEditingController {
 
 class _RoundedBackgroundText extends StatefulWidget {
   const _RoundedBackgroundText({
-    Key? key,
     required this.text,
     required this.textDirection,
     this.backgroundColor = kDefaultRoundedTextBackgroundColor,
@@ -356,7 +343,7 @@ class _RoundedBackgroundText extends StatefulWidget {
     this.ellipsis,
     this.innerFactor = kDefaultInnerFactor,
     this.outerFactor = kDefaultOuterFactor,
-  }) : super(key: key);
+  });
 
   final InlineSpan text;
   final TextDirection textDirection;

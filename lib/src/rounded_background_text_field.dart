@@ -7,7 +7,7 @@ import 'rounded_background_text.dart';
 /// A wrapper around [RoundedBackgroundText] and [TextField]
 class RoundedBackgroundTextField extends StatefulWidget {
   const RoundedBackgroundTextField({
-    Key? key,
+    super.key,
     this.controller,
     this.style,
     this.backgroundColor,
@@ -49,13 +49,12 @@ class RoundedBackgroundTextField extends StatefulWidget {
     this.smartDashesType = SmartDashesType.enabled,
     this.smartQuotesType = SmartQuotesType.enabled,
     this.textInputAction,
-    this.toolbarOptions = const ToolbarOptions(),
     this.onSelectionChanged,
     this.scrollController,
     this.scrollPhysics,
     this.scrollBehavior,
     this.scrollPadding = EdgeInsets.zero,
-  }) : super(key: key);
+  });
 
   final TextEditingController? controller;
 
@@ -156,12 +155,6 @@ class RoundedBackgroundTextField extends StatefulWidget {
   ///
   ///  * [textWidthBasis], which controls the calculation of text width.
   final bool forceLine;
-
-  /// Configuration of toolbar options.
-  ///
-  /// By default, all options are enabled. If [readOnly] is true,
-  /// paste and cut will be disabled regardless.
-  final ToolbarOptions toolbarOptions;
 
   /// Whether to show selection handles.
   ///
@@ -527,7 +520,6 @@ class _RoundedBackgroundTextFieldState
             autocorrect: widget.autocorrect,
             forceLine: widget.forceLine,
             readOnly: widget.readOnly,
-            toolbarOptions: widget.toolbarOptions,
             smartDashesType: widget.smartDashesType,
             smartQuotesType: widget.smartQuotesType,
             enableSuggestions: widget.enableSuggestions,
