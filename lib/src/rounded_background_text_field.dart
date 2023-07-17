@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -422,47 +421,47 @@ class _RoundedBackgroundTextFieldState
       }
     }();
 
-    // if (scrollController.hasClients) print(scrollController.position.pixels);
+    const padding = EdgeInsets.all(6.0);
 
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        if (textController.text.isNotEmpty)
-          Positioned.fill(
-            top: scrollController.hasClients
-                ? -scrollController.position.pixels
-                : null,
-            child: IgnorePointer(
-              child: Container(
-                alignment: alignment,
-                padding: const EdgeInsets.only(
-                  right: 2.0,
-                  left: 1.0,
-                  bottom: 3.0,
-                ),
-                child: RoundedBackgroundText.rich(
-                  key: ValueKey(textController.text),
-                  text: textController.buildTextSpan(
-                    context: context,
-                    withComposing: !widget.readOnly,
-                    style: (widget.style ?? const TextStyle()).copyWith(
-                      // The text is rendered by the [EditableText] widget below.
-                      // It has more accuracy for a bunch of text features
-                      color: Colors.transparent,
-                    ),
+    return Stack(alignment: Alignment.center, children: [
+      if (textController.text.isNotEmpty)
+        Positioned.fill(
+          top: scrollController.hasClients
+              ? -scrollController.position.pixels
+              : null,
+          child: IgnorePointer(
+            child: Container(
+              alignment: alignment,
+              padding: const EdgeInsets.only(
+                right: 2.0,
+                left: 1.0,
+                bottom: 3.0,
+              ),
+              margin: padding,
+              child: RoundedBackgroundText.rich(
+                text: textController.buildTextSpan(
+                  context: context,
+                  withComposing: !widget.readOnly,
+                  style: (widget.style ?? const TextStyle()).copyWith(
+                    // The text is rendered by the [EditableText] widget below.
+                    // It has more accuracy for a bunch of text features
+                    color: Colors.transparent,
                   ),
-                  textAlign: widget.textAlign,
-                  backgroundColor: widget.backgroundColor,
-                  innerRadius: widget.innerRadius,
-                  outerRadius: widget.outerRadius,
-                  textDirection: widget.textDirection,
-                  textScaleFactor: widget.textScaleFactor ?? 1.0,
                 ),
+                textAlign: widget.textAlign,
+                backgroundColor: widget.backgroundColor,
+                innerRadius: widget.innerRadius,
+                outerRadius: widget.outerRadius,
+                textDirection: widget.textDirection,
+                textScaleFactor: widget.textScaleFactor ?? 1.0,
               ),
             ),
-          )
-        else if (widget.hint != null)
-          Positioned.fill(
+          ),
+        )
+      else if (widget.hint != null)
+        Positioned.fill(
+          child: Padding(
+            padding: padding,
             child: Text(
               widget.hint!,
               style: (widget.hintStyle ?? TextStyle(color: theme.hintColor))
@@ -474,7 +473,10 @@ class _RoundedBackgroundTextFieldState
               maxLines: widget.maxLines,
             ),
           ),
-        Positioned.fill(
+        ),
+      Positioned.fill(
+        child: Padding(
+          padding: padding,
           child: EditableText(
             key: fieldKey,
             autofocus: widget.autofocus,
@@ -538,7 +540,7 @@ class _RoundedBackgroundTextFieldState
             onSelectionChanged: widget.onSelectionChanged,
           ),
         ),
-      ],
-    );
+      ),
+    ]);
   }
 }

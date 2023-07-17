@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import '../rounded_background_text.dart';
 
 const Color kDefaultRoundedTextBackgroundColor = Colors.blue;
-const double kDefaultInnerFactor = 5.0;
+const double kDefaultInnerFactor = 3.0;
 const double kDefaultOuterFactor = 10.0;
 
 /// Gets the foreground color based on [backgroundColor]
@@ -391,7 +391,6 @@ class __RoundedBackgroundTextState extends State<_RoundedBackgroundText> {
   late TextPainter painter;
 
   void generate() {
-    // debugPrint('generating on $lastMaxWidth w');
     painter = TextPainter(
       text: widget.text,
       textDirection: widget.textDirection,
@@ -453,8 +452,8 @@ class _HighlightPainter extends CustomPainter {
     required this.lineInfos,
     required this.backgroundColor,
     required this.text,
-    this.innerFactor = kDefaultInnerFactor,
-    this.outerFactor = kDefaultOuterFactor,
+    required this.innerFactor,
+    required this.outerFactor,
   });
 
   @override
@@ -466,10 +465,10 @@ class _HighlightPainter extends CustomPainter {
     text.paint(canvas, Offset.zero);
   }
 
-  void paintBackground(Canvas canvas, List<LineMetricsHelper> lineInfos) {
-    if (lineInfos.isEmpty) return;
-    if (lineInfos.length == 1) {
-      final info = lineInfos.first;
+  void paintBackground(Canvas canvas, List<LineMetricsHelper> lineInfo) {
+    if (lineInfo.isEmpty) return;
+    if (lineInfo.length == 1) {
+      final info = lineInfo.first;
       if (!info.isEmpty) {
         canvas.drawRRect(
           RRect.fromLTRBR(
@@ -486,26 +485,24 @@ class _HighlightPainter extends CustomPainter {
     }
 
     final path = Path();
-    final firstInfo = lineInfos.elementAt(0);
-    final lastInfo = lineInfos.elementAt(lineInfos.length - 1);
+    final firstInfo = lineInfo.elementAt(0);
+    final lastInfo = lineInfo.elementAt(lineInfo.length - 1);
 
     path.moveTo(firstInfo.x + outerFactor, firstInfo.y);
 
     LineMetricsHelper previous = firstInfo;
     int currentIndex = -1;
 
-    for (final info in lineInfos) {
+    for (final info in lineInfo) {
       currentIndex++;
 
-      LineMetricsHelper? nextElement() {
+      final next = () {
         try {
-          return lineInfos.elementAt(currentIndex + 1);
+          return lineInfo.elementAt(currentIndex + 1);
         } catch (e) {
           return null;
         }
-      }
-
-      final next = nextElement();
+      }();
 
       final outerFactor = info.outerFactor(this.outerFactor);
       final innerFactor = info.innerFactor(this.innerFactor);
@@ -560,7 +557,9 @@ class _HighlightPainter extends CustomPainter {
       }
 
       if (next != null) {
-        if (info == firstInfo || info.x < previous.x) {
+        // If it's the first line OR the previous line is bigger than the current
+        // one, draw the top left corner
+        if (info == firstInfo || previous.x > info.x) {
           drawTopLeftCorner(info);
         }
         if (info.x > next.x) {
@@ -588,7 +587,7 @@ class _HighlightPainter extends CustomPainter {
     // Draw the last line only to the half of it
     path.lineTo(lastInfo.fullWidth / 2, lastInfo.fullHeight);
 
-    final reversedInfo = lineInfos.reversed;
+    final reversedInfo = lineInfo.reversed;
     currentIndex = -1;
     previous = reversedInfo.first;
 
@@ -699,11 +698,11 @@ class _HighlightPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _HighlightPainter oldDelegate) {
-    // If we're debugging, update everytime
-    if (kDebugMode) return true;
-
     return oldDelegate.backgroundColor != backgroundColor ||
-        oldDelegate.lineInfos != lineInfos;
+        oldDelegate.lineInfos != lineInfos ||
+        oldDelegate.text != text ||
+        oldDelegate.innerFactor != innerFactor ||
+        oldDelegate.outerFactor != outerFactor;
   }
 
   // Normalize the width of the next element based on the difference between
