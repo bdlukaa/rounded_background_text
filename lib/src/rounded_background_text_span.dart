@@ -43,28 +43,6 @@ class RoundedBackgroundTextSpan extends WidgetSpan {
   TextSpan get _textSpan => TextSpan(text: text);
 
   @override
-  void build(ui.ParagraphBuilder builder,
-      {double textScaleFactor = 1.0, List<PlaceholderDimensions>? dimensions}) {
-    super.build(
-      builder,
-      textScaleFactor: textScaleFactor,
-      dimensions: dimensions,
-    );
-    try {
-      builder.addText(text);
-    } on ArgumentError catch (exception, stack) {
-      FlutterError.reportError(FlutterErrorDetails(
-        exception: exception,
-        stack: stack,
-        library: 'painting library',
-        context: ErrorDescription('while building a TextSpan'),
-      ));
-      // Use a Unicode replacement character as a substitute for invalid text.
-      builder.addText('\uFFFD');
-    }
-  }
-
-  @override
   InlineSpan? getSpanForPositionVisitor(
       TextPosition position, Accumulator offset) {
     return _textSpan.getSpanForPositionVisitor(position, offset);

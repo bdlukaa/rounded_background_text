@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import '../rounded_background_text.dart';
 
 const Color kDefaultRoundedTextBackgroundColor = Colors.blue;
-const double kDefaultInnerFactor = 8.0;
+const double kDefaultInnerFactor = 5.0;
 const double kDefaultOuterFactor = 10.0;
 
 /// Gets the foreground color based on [backgroundColor]
@@ -491,7 +491,7 @@ class _HighlightPainter extends CustomPainter {
 
     path.moveTo(firstInfo.x + outerFactor, firstInfo.y);
 
-    LineMetricsHelper lastUsedInfo = firstInfo;
+    LineMetricsHelper previous = firstInfo;
     int currentIndex = -1;
 
     for (final info in lineInfos) {
@@ -510,56 +510,28 @@ class _HighlightPainter extends CustomPainter {
       final outerFactor = info.outerFactor(this.outerFactor);
       final innerFactor = info.innerFactor(this.innerFactor);
 
-      // Normalize the width of the next element based on the difference between
-      // the width of the current element and the next one
-      if (next != null) {
-        final difference = () {
-          final width = (info.width - next.width);
-          if (width.isNegative) return -width;
-          return width;
-        }()
-            .roundToDouble();
-        final differenceBigger = difference > outerFactor * 2;
-        if (!differenceBigger) {
-          next.overridenX = info.x;
-          next.overridenWidth = info.fullWidth;
-        }
-      }
+      normalize(next, info);
 
       void drawTopLeftCorner(LineMetricsHelper info) {
-        final localOuterFactor = lastUsedInfo == info
+        final localOuterFactor = previous == info
             ? outerFactor
-            : (lastUsedInfo.x - info.x).clamp(0, outerFactor);
-        final controlPoint = Offset(
-          info.x,
-          info.y,
-        );
+            : (previous.x - info.x).clamp(0, outerFactor);
+        final controlPoint = Offset(info.x, info.y);
         final endPoint = Offset(info.x, info.y + localOuterFactor);
 
         path.lineTo(info.x + localOuterFactor, info.y);
         path.quadraticBezierTo(
-          controlPoint.dx,
-          controlPoint.dy,
-          endPoint.dx,
-          endPoint.dy,
-        );
+            controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
       }
 
       void drawBottomLeftCorner(LineMetricsHelper info) {
         path.lineTo(info.x, info.fullHeight - outerFactor);
 
-        final iControlPoint = Offset(
-          info.x,
-          info.fullHeight,
-        );
+        final iControlPoint = Offset(info.x, info.fullHeight);
         final iEndPoint = Offset(info.x + outerFactor, info.fullHeight);
 
         path.quadraticBezierTo(
-          iControlPoint.dx,
-          iControlPoint.dy,
-          iEndPoint.dx,
-          iEndPoint.dy,
-        );
+            iControlPoint.dx, iControlPoint.dy, iEndPoint.dx, iEndPoint.dy);
       }
 
       void drawInnerCorner(LineMetricsHelper info, [bool toLeft = true]) {
@@ -569,46 +541,26 @@ class _HighlightPainter extends CustomPainter {
 
           final localInnerFactor = (info.x - next!.x).clamp(0, innerFactor);
           path.lineTo(info.x, info.fullHeight - localInnerFactor);
-          final iControlPoint = Offset(
-            info.x,
-            formattedHeight,
-          );
-          final iEndPoint = Offset(
-            info.x - localInnerFactor,
-            formattedHeight,
-          );
+          final iControlPoint = Offset(info.x, formattedHeight);
+          final iEndPoint = Offset(info.x - localInnerFactor, formattedHeight);
 
           path.quadraticBezierTo(
-            iControlPoint.dx,
-            iControlPoint.dy,
-            iEndPoint.dx,
-            iEndPoint.dy,
-          );
+              iControlPoint.dx, iControlPoint.dy, iEndPoint.dx, iEndPoint.dy);
         } else {
           final formattedY = next!.y + info.innerLinePadding.bottom;
 
           final localInnerFactor = (next.x - info.x).clamp(0, innerFactor);
           path.lineTo(next.x - localInnerFactor, formattedY);
-          final iControlPoint = Offset(
-            next.x,
-            formattedY,
-          );
-          final iEndPoint = Offset(
-            next.x,
-            formattedY + localInnerFactor,
-          );
+          final iControlPoint = Offset(next.x, formattedY);
+          final iEndPoint = Offset(next.x, formattedY + localInnerFactor);
 
           path.quadraticBezierTo(
-            iControlPoint.dx,
-            iControlPoint.dy,
-            iEndPoint.dx,
-            iEndPoint.dy,
-          );
+              iControlPoint.dx, iControlPoint.dy, iEndPoint.dx, iEndPoint.dy);
         }
       }
 
       if (next != null) {
-        if (info == firstInfo || info.x < lastUsedInfo.x) {
+        if (info == firstInfo || info.x < previous.x) {
           drawTopLeftCorner(info);
         }
         if (info.x > next.x) {
@@ -630,7 +582,7 @@ class _HighlightPainter extends CustomPainter {
         drawBottomLeftCorner(info);
       }
 
-      lastUsedInfo = info;
+      previous = info;
     }
 
     // Draw the last line only to the half of it
@@ -638,7 +590,7 @@ class _HighlightPainter extends CustomPainter {
 
     final reversedInfo = lineInfos.reversed;
     currentIndex = -1;
-    lastUsedInfo = reversedInfo.first;
+    previous = reversedInfo.first;
 
     // !Goes horizontal and up
     for (final info in reversedInfo) {
@@ -661,39 +613,22 @@ class _HighlightPainter extends CustomPainter {
         double? factor,
       ]) {
         factor ??= outerFactor;
-        final controlPoint = Offset(
-          info.fullWidth,
-          info.y,
-        );
+        final controlPoint = Offset(info.fullWidth, info.y);
         final endPoint = Offset(info.fullWidth - factor, info.y);
 
         path.lineTo(info.fullWidth, info.y + factor);
         path.quadraticBezierTo(
-          controlPoint.dx,
-          controlPoint.dy,
-          endPoint.dx,
-          endPoint.dy,
-        );
+            controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
       }
 
       void drawBottomRightCorner(LineMetricsHelper info) {
         path.lineTo(info.fullWidth - outerFactor, info.fullHeight);
 
-        final iControlPoint = Offset(
-          info.fullWidth,
-          info.fullHeight,
-        );
-        final iEndPoint = Offset(
-          info.fullWidth,
-          info.fullHeight - outerFactor,
-        );
+        final iControlPoint = Offset(info.fullWidth, info.fullHeight);
+        final iEndPoint = Offset(info.fullWidth, info.fullHeight - outerFactor);
 
         path.quadraticBezierTo(
-          iControlPoint.dx,
-          iControlPoint.dy,
-          iEndPoint.dx,
-          iEndPoint.dy,
-        );
+            iControlPoint.dx, iControlPoint.dy, iEndPoint.dx, iEndPoint.dy);
       }
 
       void drawInnerCorner(LineMetricsHelper info, [bool toRight = true]) {
@@ -701,56 +636,31 @@ class _HighlightPainter extends CustomPainter {
         if (!toRight) {
           final formattedHeight =
               info.fullHeight - info.innerLinePadding.bottom;
-          path.lineTo(
-            info.fullWidth + innerFactor,
-            formattedHeight,
-          );
+          path.lineTo(info.fullWidth + innerFactor, formattedHeight);
 
-          final controlPoint = Offset(
-            info.fullWidth,
-            formattedHeight,
-          );
-          final endPoint = Offset(
-            info.fullWidth,
-            formattedHeight - innerFactor,
-          );
+          final controlPoint = Offset(info.fullWidth, formattedHeight);
+          final endPoint =
+              Offset(info.fullWidth, formattedHeight - innerFactor);
 
           path.quadraticBezierTo(
-            controlPoint.dx,
-            controlPoint.dy,
-            endPoint.dx,
-            endPoint.dy,
-          );
+              controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
         } else {
           final formattedY = info.y + info.innerLinePadding.bottom;
-          path.lineTo(
-            info.fullWidth,
-            formattedY + innerFactor,
-          );
+          path.lineTo(info.fullWidth, formattedY + innerFactor);
 
-          final controlPoint = Offset(
-            info.fullWidth,
-            formattedY,
-          );
-          final endPoint = Offset(
-            info.fullWidth + innerFactor,
-            formattedY,
-          );
+          final controlPoint = Offset(info.fullWidth, formattedY);
+          final endPoint = Offset(info.fullWidth + innerFactor, formattedY);
 
           path.quadraticBezierTo(
-            controlPoint.dx,
-            controlPoint.dy,
-            endPoint.dx,
-            endPoint.dy,
-          );
+              controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
         }
       }
 
       if (next != null) {
-        final differenceBigger = info == lastUsedInfo ||
-            info.fullWidth - lastUsedInfo.fullWidth >= outerFactor;
+        final differenceBigger = info == previous ||
+            info.fullWidth - previous.fullWidth >= outerFactor;
         // If it's the first info or it's bigger than the last one
-        if ((info == lastInfo || info.fullWidth > lastUsedInfo.fullWidth) &&
+        if ((info == lastInfo || info.fullWidth > previous.fullWidth) &&
             differenceBigger) {
           drawBottomRightCorner(info);
         }
@@ -771,13 +681,13 @@ class _HighlightPainter extends CustomPainter {
           drawBottomRightCorner(next);
         }
       } else {
-        if (lastUsedInfo.fullWidth < info.fullWidth) {
+        if (previous.fullWidth < info.fullWidth) {
           drawBottomRightCorner(info);
         }
         drawTopRightCorner(info);
       }
 
-      lastUsedInfo = info;
+      previous = info;
     }
 
     // First line horizontal
@@ -796,10 +706,42 @@ class _HighlightPainter extends CustomPainter {
         oldDelegate.lineInfos != lineInfos;
   }
 
-  @override
-  bool shouldRebuildSemantics(_HighlightPainter oldDelegate) => false;
+  // Normalize the width of the next element based on the difference between
+  // the width of the current element and the next one. This is responsible
+  // to not let the next element go too little away from the current one
+  void normalize(LineMetricsHelper? next, LineMetricsHelper info) {
+    if (next != null) {
+      var difference = () {
+        final width = (info.width - next.width);
+        return width.roundToDouble();
+      }();
+      // If the difference is negative, it means that the next element is a little
+      // bigger than the current one. The current one takes the dimensions of
+      // the next one
+      if (difference.isNegative) {
+        difference = -difference;
+        final differenceBigger = difference > outerFactor * 2;
+        if (!differenceBigger) {
+          info.overridenX = next.x;
+          info.overridenWidth = next.fullWidth;
+        }
+      }
+      // If the difference is positive, it means that the current element is a
+      // little bigger than the next one. The next one takes the dimensions of
+      // the current one
+      else {
+        final differenceBigger = difference > outerFactor * 2;
+        if (!differenceBigger) {
+          next.overridenX = info.x;
+          next.overridenWidth = info.fullWidth;
+        }
+      }
+    }
+  }
 }
 
+/// A helper class that holds important information about a single line metrics.
+/// This is used to calculate the position of the line in the paragraph.
 class LineMetricsHelper {
   /// The original line metrics, which stores the measurements and statistics of
   /// a single line in the paragraph.
@@ -812,13 +754,28 @@ class LineMetricsHelper {
   ///  * [isLast], which uses this property to check the amount of lines
   final int length;
 
+  /// The overriden width of the line
+  ///
+  /// This allows another line to affect the width of this line based on the
+  /// difference between the two. If the difference is minimal, the width may
+  /// be the same
   double? overridenWidth;
+
+  /// The overriden x of the line
+  ///
+  /// This allows another line to affect the x of this line based on the
+  /// difference between the two. If the difference is minimal, the x may
+  /// be the same
   double? overridenX;
 
+  /// Creates a new line metrics helper
   LineMetricsHelper(this.metrics, this.length);
 
   /// Whether this line has no content
   bool get isEmpty => metrics.width == 0.0;
+
+  /// Whether this line is the first line in the paragraph
+  bool get isFirst => metrics.lineNumber == 0;
 
   /// Whether this line is the last line in the paragraph
   bool get isLast => metrics.lineNumber == length - 1;
@@ -849,14 +806,14 @@ class LineMetricsHelper {
 
   /// Dynamically calculate the inner factor based on the provided [innerFactor]
   double innerFactor(double innerFactor) {
-    return (height * innerFactor) / 25;
+    return (height * innerFactor) / 10;
   }
 
   double get x {
     if (overridenX != null) return overridenX!;
     final result = metrics.left;
 
-    if (metrics.lineNumber == 0) {
+    if (isFirst) {
       return (result - firstLinePadding.left).roundToDouble();
     } else if (isLast) {
       return (result - lastLinePadding.left).roundToDouble();
@@ -867,14 +824,13 @@ class LineMetricsHelper {
 
   double get y {
     final result = metrics.lineNumber * metrics.height;
-    if (metrics.lineNumber == 0) {
-      // return result - firstLinePadding.top;
+    if (isFirst) {
+      return result.roundToDouble();
     } else if (isLast) {
       return (result + (lastLinePadding.top / 2)).roundToDouble();
     } else {
       return (result - innerLinePadding.top).roundToDouble();
     }
-    return result.roundToDouble();
   }
 
   double get fullWidth {
@@ -882,7 +838,7 @@ class LineMetricsHelper {
     final result = x + width;
 
     if (!isEmpty) {
-      if (metrics.lineNumber == 0) {
+      if (isFirst) {
         return (result + firstLinePadding.left).roundToDouble();
       } else if (isLast) {
         return (result + lastLinePadding.left).roundToDouble();
