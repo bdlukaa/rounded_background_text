@@ -21,7 +21,7 @@
 
 <div align="center">
   <a href="https://bdlukaa.github.io/rounded_background_text">
-    <img src="assets/showcase.png" />
+    <img src="https://github.com/bdlukaa/rounded_background_text/blob/main/assets/showcase.png?raw=true" />
   </a>
 </div>
 
@@ -65,7 +65,7 @@ RoundedBackgroundText(
 ),
 ```
 
-![Simple Text](assets/simple_text.png)
+![Simple Text](https://github.com/bdlukaa/rounded_background_text/blob/main/assets/simple_text.png?raw=true)
 
 Multiline text is also supported
 
@@ -77,7 +77,7 @@ RoundedBackgroundText(
 ),
 ```
 
-![Two Lines Text](assets/two_lines_text.png)
+![Two Lines Text](https://github.com/bdlukaa/rounded_background_text/blob/main/assets/two_lines_text.png?raw=true)
 
 ### Highlight a text field:
 
@@ -96,7 +96,7 @@ RoundedBackgroundTextField(
 
 The text will be highlighted as the user types
 
-![TextField Preview](assets/textfield_preview.gif)
+![TextField Preview](https://github.com/bdlukaa/rounded_background_text/blob/main/assets/textfield_preview.gif?raw=true)
 
 The font size of the text will be reduced if there isn't enough space to fit the text. The text field can't be scrollable
 
@@ -119,7 +119,7 @@ RichText(
 ),
 ```
 
-![TextSpan Highlight Preview](assets/highlight_text_span.png)
+![TextSpan Highlight Preview](https://github.com/bdlukaa/rounded_background_text/blob/main/assets/highlight_text_span.png?raw=true)
 
 ## You may like to know:
 

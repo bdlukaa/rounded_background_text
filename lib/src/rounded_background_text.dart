@@ -374,12 +374,6 @@ class __RoundedBackgroundTextState extends State<_RoundedBackgroundText> {
   double lastMaxWidth = 0;
 
   @override
-  void initState() {
-    super.initState();
-    generate();
-  }
-
-  @override
   void didUpdateWidget(_RoundedBackgroundText oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.text != widget.text ||
