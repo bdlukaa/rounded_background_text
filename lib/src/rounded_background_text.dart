@@ -1,12 +1,11 @@
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../rounded_background_text.dart';
 
 const Color kDefaultRoundedTextBackgroundColor = Colors.blue;
-const double kDefaultInnerFactor = 3.0;
+const double kDefaultInnerFactor = 8.0;
 const double kDefaultOuterFactor = 10.0;
 
 /// Gets the foreground color based on [backgroundColor]
@@ -18,6 +17,7 @@ Color? foregroundColor(Color? backgroundColor) {
           : Colors.white;
 }
 
+@visibleForTesting
 List<List<LineMetricsHelper>> generateLineInfosForPainter(
   TextPainter painter, [
   double maxWidth = double.infinity,
@@ -41,11 +41,6 @@ List<List<LineMetricsHelper>> generateLineInfosForPainter(
 
   return lineInfos;
 }
-
-const singleLinePadding = EdgeInsets.symmetric(
-  horizontal: 8.0,
-  vertical: 8.0,
-);
 
 /// Creates a paragraph with rounded background text
 ///
@@ -805,7 +800,7 @@ class LineMetricsHelper {
 
   /// Dynamically calculate the inner factor based on the provided [innerFactor]
   double innerFactor(double innerFactor) {
-    return (height * innerFactor) / 10;
+    return (height * innerFactor) / 35;
   }
 
   double get x {
