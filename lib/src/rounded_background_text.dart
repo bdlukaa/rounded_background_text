@@ -510,15 +510,16 @@ class _HighlightPainter extends CustomPainter {
       final outerFactor = info.outerFactor(this.outerFactor);
       final innerFactor = info.innerFactor(this.innerFactor);
 
+      // Normalize the width of the next element based on the difference between
+      // the width of the current element and the next one
       if (next != null) {
         final difference = () {
           final width = (info.width - next.width);
           if (width.isNegative) return -width;
           return width;
         }()
-            .toInt();
-        final differenceBigger = difference > outerFactor + 1;
-        // print('$differenceBigger $difference/$outerFactor');
+            .roundToDouble();
+        final differenceBigger = difference > outerFactor * 2;
         if (!differenceBigger) {
           next.overridenX = info.x;
           next.overridenWidth = info.fullWidth;
@@ -614,7 +615,7 @@ class _HighlightPainter extends CustomPainter {
           // If the current one is less than the next, draw the inner corner
           drawInnerCorner(info);
           // drawBottomLeftCorner(info);
-        }
+        } else
         // If the next one is more to the right, draw the bottom left
         if (info.x < next.x) {
           // Draw bottom right corner
@@ -856,11 +857,11 @@ class LineMetricsHelper {
     final result = metrics.left;
 
     if (metrics.lineNumber == 0) {
-      return result - (firstLinePadding.left);
+      return (result - firstLinePadding.left).roundToDouble();
     } else if (isLast) {
-      return result - (lastLinePadding.left);
+      return (result - lastLinePadding.left).roundToDouble();
     } else {
-      return result - (innerLinePadding.left);
+      return (result - innerLinePadding.left).roundToDouble();
     }
   }
 
@@ -869,11 +870,11 @@ class LineMetricsHelper {
     if (metrics.lineNumber == 0) {
       // return result - firstLinePadding.top;
     } else if (isLast) {
-      return result + (lastLinePadding.top / 2);
+      return (result + (lastLinePadding.top / 2)).roundToDouble();
     } else {
-      return result - (innerLinePadding.top);
+      return (result - innerLinePadding.top).roundToDouble();
     }
-    return result;
+    return result.roundToDouble();
   }
 
   double get fullWidth {
@@ -882,23 +883,23 @@ class LineMetricsHelper {
 
     if (!isEmpty) {
       if (metrics.lineNumber == 0) {
-        return result + (firstLinePadding.left);
+        return (result + firstLinePadding.left).roundToDouble();
       } else if (isLast) {
-        return result + (lastLinePadding.left);
+        return (result + lastLinePadding.left).roundToDouble();
       } else {
-        return result + (innerLinePadding.left);
+        return (result + innerLinePadding.left).roundToDouble();
       }
     }
-    return x + metrics.width;
+    return (x + metrics.width).roundToDouble();
   }
 
   double get fullHeight {
     final result = y + height;
 
     if (isLast) {
-      return result + (lastLinePadding.bottom);
+      return (result + lastLinePadding.bottom).roundToDouble();
     } else {
-      return result + (innerLinePadding.bottom);
+      return (result + innerLinePadding.bottom).roundToDouble();
     }
   }
 
@@ -908,11 +909,11 @@ class LineMetricsHelper {
     final result = metrics.width;
 
     if (metrics.lineNumber == 0) {
-      return result + (firstLinePadding.right);
+      return (result + firstLinePadding.right).roundToDouble();
     } else if (isLast) {
-      return result + (lastLinePadding.right);
+      return (result + lastLinePadding.right).roundToDouble();
     } else {
-      return result + (innerLinePadding.right);
+      return (result + innerLinePadding.right).roundToDouble();
     }
   }
 
