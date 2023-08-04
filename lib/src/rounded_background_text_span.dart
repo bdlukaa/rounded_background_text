@@ -35,6 +35,7 @@ class RoundedBackgroundTextSpan extends WidgetSpan {
               innerRadius: innerRadius ?? kDefaultInnerRadius,
               outerRadius: outerRadius ?? kDefaultOuterRadius,
               textAlign: textAlign,
+              maxLines: 1,
             ),
           ),
           baseline: baseline,

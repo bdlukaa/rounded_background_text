@@ -71,7 +71,7 @@ class _MyAppState extends State<MyApp> {
                     onChanged: (w) => setState(
                       () => fontWeight = w ?? FontWeight.normal,
                     ),
-                    icon: const Icon(Icons.font_download),
+                    icon: const Icon(Icons.format_bold),
                     items: FontWeight.values.map((e) {
                       return DropdownMenuItem(
                         value: e,
@@ -87,7 +87,20 @@ class _MyAppState extends State<MyApp> {
                     onChanged: (align) => setState(
                       () => textAlign = align ?? TextAlign.center,
                     ),
-                    icon: const Icon(Icons.align_horizontal_left),
+                    icon: Icon(() {
+                      switch (textAlign) {
+                        case TextAlign.center:
+                          return Icons.format_align_center;
+                        case TextAlign.end:
+                        case TextAlign.right:
+                          return Icons.format_align_right;
+                        case TextAlign.start:
+                        case TextAlign.left:
+                          return Icons.format_align_left;
+                        default:
+                          return null;
+                      }
+                    }()),
                     isExpanded: true,
                     items: const [
                       DropdownMenuItem(

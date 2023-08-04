@@ -407,31 +407,16 @@ class _RoundedBackgroundTextFieldState
         break;
     }
 
-    Alignment alignment = () {
-      switch (widget.textAlign) {
-        case TextAlign.justify:
-        case TextAlign.center:
-          return Alignment.center;
-        case TextAlign.left:
-        case TextAlign.start:
-          return Alignment.centerLeft;
-        case TextAlign.right:
-        case TextAlign.end:
-          return Alignment.centerRight;
-      }
-    }();
-
     const padding = EdgeInsets.all(6.0);
 
     return Stack(alignment: Alignment.center, children: [
       if (textController.text.isNotEmpty)
-        Positioned.fill(
+        Positioned(
           top: scrollController.hasClients
               ? -scrollController.position.pixels
               : null,
           child: IgnorePointer(
             child: Container(
-              alignment: alignment,
               padding: const EdgeInsets.only(
                 right: 2.0,
                 left: 1.0,

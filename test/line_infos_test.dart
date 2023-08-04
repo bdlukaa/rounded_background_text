@@ -15,7 +15,7 @@ void main() {
       textAlign: TextAlign.center,
       textDirection: TextDirection.ltr,
     );
-    final lines = generateLineInfosForPainter(painter);
+    final lines = RoundedBackgroundTextPainter.computeLines(painter);
 
     expect(lines, isNotEmpty);
     expect(lines.length, 3);
