@@ -367,68 +367,33 @@ class _RoundedBackgroundText extends StatefulWidget {
 class __RoundedBackgroundTextState extends State<_RoundedBackgroundText> {
   final parentKey = GlobalKey();
 
-  List<List<LineMetricsHelper>> lineInfos = [];
-
-  Size requiredSize = Size.zero;
   double lastMaxWidth = 0;
 
-  @override
-  void didUpdateWidget(_RoundedBackgroundText oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.text != widget.text ||
-        oldWidget.textAlign != widget.textAlign ||
-        oldWidget.textDirection != widget.textDirection ||
-        oldWidget.textWidthBasis != widget.textWidthBasis) {
-      generate();
-    }
-  }
-
-  late TextPainter painter;
-
-  void generate() {
-    painter = TextPainter(
-      text: widget.text,
-      textDirection: widget.textDirection,
-      maxLines: widget.maxLines,
-      textAlign: widget.textAlign,
-      textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
-      textScaleFactor: widget.textScaleFactor,
-      strutStyle: widget.strutStyle,
-      locale: widget.locale,
-      textHeightBehavior: widget.textHeightBehavior,
-      ellipsis: widget.ellipsis,
-    );
-
-    lineInfos = generateLineInfosForPainter(painter, lastMaxWidth);
-    requiredSize = painter.size;
-  }
+  late TextPainter painter = TextPainter(
+    text: widget.text,
+    textDirection: widget.textDirection,
+    maxLines: widget.maxLines,
+    textAlign: widget.textAlign,
+    textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
+    textScaleFactor: widget.textScaleFactor,
+    strutStyle: widget.strutStyle,
+    locale: widget.locale,
+    textHeightBehavior: widget.textHeightBehavior,
+    ellipsis: widget.ellipsis,
+  );
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, size) {
-      final maxWidth = size.maxWidth;
-      if (lastMaxWidth != maxWidth) {
-        lastMaxWidth = maxWidth;
-        generate();
-      }
-      return SizedBox(
-        width: requiredSize.width == 0 || requiredSize.width.isInfinite
-            ? maxWidth
-            : requiredSize.width,
-        child: CustomPaint(
-          isComplex: true,
-          willChange: true,
-          size: Size(
-            size.maxWidth,
-            size.maxHeight.isInfinite ? requiredSize.height : size.maxHeight,
-          ),
-          painter: _HighlightPainter(
-            lineInfos: lineInfos,
-            backgroundColor: widget.backgroundColor,
-            text: painter,
-            innerFactor: widget.innerFactor,
-            outerFactor: widget.outerFactor,
-          ),
+    return LayoutBuilder(builder: (context, constraints) {
+      return CustomPaint(
+        isComplex: true,
+        willChange: true,
+        size: Size(constraints.maxWidth, constraints.maxHeight),
+        painter: _HighlightPainter(
+          backgroundColor: widget.backgroundColor,
+          text: painter,
+          innerFactor: widget.innerFactor,
+          outerFactor: widget.outerFactor,
         ),
       );
     });
@@ -436,7 +401,6 @@ class __RoundedBackgroundTextState extends State<_RoundedBackgroundText> {
 }
 
 class _HighlightPainter extends CustomPainter {
-  final List<List<LineMetricsHelper>> lineInfos;
   final Color backgroundColor;
   final TextPainter text;
 
@@ -444,7 +408,6 @@ class _HighlightPainter extends CustomPainter {
   final double outerFactor;
 
   const _HighlightPainter({
-    required this.lineInfos,
     required this.backgroundColor,
     required this.text,
     required this.innerFactor,
@@ -453,6 +416,9 @@ class _HighlightPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    text.layout(maxWidth: size.width);
+    final lineInfos = generateLineInfosForPainter(text, size.width);
+
     for (final lineInfo in lineInfos) {
       paintBackground(canvas, lineInfo);
     }
@@ -488,6 +454,22 @@ class _HighlightPainter extends CustomPainter {
     LineMetricsHelper previous = firstInfo;
     int currentIndex = -1;
 
+    {
+      for (final info in lineInfo) {
+        currentIndex++;
+
+        final next = () {
+          try {
+            return lineInfo.elementAt(currentIndex + 1);
+          } catch (e) {
+            return null;
+          }
+        }();
+        normalize(next, info);
+      }
+      currentIndex = -1;
+    }
+
     for (final info in lineInfo) {
       currentIndex++;
 
@@ -501,8 +483,6 @@ class _HighlightPainter extends CustomPainter {
 
       final outerFactor = info.outerFactor(this.outerFactor);
       final innerFactor = info.innerFactor(this.innerFactor);
-
-      normalize(next, info);
 
       void drawTopLeftCorner(LineMetricsHelper info) {
         final localOuterFactor = previous == info
@@ -694,7 +674,6 @@ class _HighlightPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _HighlightPainter oldDelegate) {
     return oldDelegate.backgroundColor != backgroundColor ||
-        oldDelegate.lineInfos != lineInfos ||
         oldDelegate.text != text ||
         oldDelegate.innerFactor != innerFactor ||
         oldDelegate.outerFactor != outerFactor;
