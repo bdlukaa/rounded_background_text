@@ -257,7 +257,7 @@ class RoundedBackgroundText extends StatelessWidget {
         style: TextStyle(
           color: foregroundColor(backgroundColor),
           leadingDistribution: TextLeadingDistribution.proportional,
-          fontSize: style.fontSize ?? 16.0,
+          fontSize: style.fontSize,
         ).merge(style),
       ),
       textDirection:
