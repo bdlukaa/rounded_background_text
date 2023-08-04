@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../rounded_background_text.dart';
 
-const Color kDefaultRoundedTextBackgroundColor = Colors.blue;
-const double kDefaultInnerFactor = 8.0;
-const double kDefaultOuterFactor = 10.0;
+const double kDefaultInnerRadius = 8.0;
+const double kDefaultOuterRadius = 10.0;
 
 /// Gets the foreground color based on [backgroundColor]
 Color? foregroundColor(Color? backgroundColor) {
@@ -65,8 +64,8 @@ class RoundedBackgroundText extends StatelessWidget {
     this.textScaleFactor = 1.0,
     this.maxLines,
     this.textHeightBehavior,
-    this.innerRadius = kDefaultInnerFactor,
-    this.outerRadius = kDefaultOuterFactor,
+    this.innerRadius = kDefaultInnerRadius,
+    this.outerRadius = kDefaultOuterRadius,
   }) : text = TextSpan(text: text, style: style);
 
   /// Creates a rounded background text based on an [InlineSpan], that can have
@@ -84,8 +83,8 @@ class RoundedBackgroundText extends StatelessWidget {
     this.textScaleFactor = 1.0,
     this.maxLines,
     this.textHeightBehavior,
-    this.innerRadius = kDefaultInnerFactor,
-    this.outerRadius = kDefaultOuterFactor,
+    this.innerRadius = kDefaultInnerRadius,
+    this.outerRadius = kDefaultOuterRadius,
   })  : assert(innerRadius >= 0.0 && innerRadius <= 20.0),
         assert(outerRadius >= 0.0 && outerRadius <= 20.0);
 
@@ -107,8 +106,8 @@ class RoundedBackgroundText extends StatelessWidget {
     TextAlign textAlign = TextAlign.start,
     TextWidthBasis? textWidthBasis,
     double textScaleFactor = 1.0,
-    double innerRadius = kDefaultInnerFactor,
-    double outerRadius = kDefaultOuterFactor,
+    double innerRadius = kDefaultInnerRadius,
+    double outerRadius = kDefaultOuterRadius,
     double cursorWidth = 2.0,
     Color? cursorColor,
     double? cursorHeight,
@@ -166,8 +165,8 @@ class RoundedBackgroundText extends StatelessWidget {
     TextAlign textAlign = TextAlign.start,
     TextWidthBasis? textWidthBasis,
     double textScaleFactor = 1.0,
-    double innerRadius = kDefaultInnerFactor,
-    double outerRadius = kDefaultOuterFactor,
+    double innerRadius = kDefaultInnerRadius,
+    double outerRadius = kDefaultOuterRadius,
     MouseCursor? mouseCursor,
     double cursorWidth = 2.0,
     Color? cursorColor,
@@ -276,7 +275,8 @@ class RoundedBackgroundText extends StatelessWidget {
   Widget build(BuildContext context) {
     final defaultTextStyle = DefaultTextStyle.of(context);
     final style = text.style ?? defaultTextStyle.style;
-    return _RoundedBackgroundText(
+
+    TextPainter painter = TextPainter(
       text: TextSpan(
         children: [text],
         style: TextStyle(
@@ -287,19 +287,30 @@ class RoundedBackgroundText extends StatelessWidget {
       ),
       textDirection:
           textDirection ?? Directionality.maybeOf(context) ?? TextDirection.ltr,
-      textAlign: textAlign ?? defaultTextStyle.textAlign ?? TextAlign.start,
-      backgroundColor: backgroundColor ?? Colors.transparent,
-      textWidthBasis: textWidthBasis ?? defaultTextStyle.textWidthBasis,
       maxLines: maxLines ?? defaultTextStyle.maxLines,
+      textAlign: textAlign ?? defaultTextStyle.textAlign ?? TextAlign.start,
+      textWidthBasis: textWidthBasis ?? defaultTextStyle.textWidthBasis,
+      textScaleFactor: textScaleFactor,
+      strutStyle: strutStyle,
+      locale: locale,
       textHeightBehavior:
           textHeightBehavior ?? defaultTextStyle.textHeightBehavior,
       ellipsis: ellipsis,
-      locale: locale,
-      strutStyle: strutStyle,
-      textScaleFactor: textScaleFactor,
-      innerFactor: innerRadius,
-      outerFactor: outerRadius,
     );
+
+    return LayoutBuilder(builder: (context, constraints) {
+      return CustomPaint(
+        isComplex: true,
+        willChange: true,
+        size: Size(constraints.maxWidth, constraints.maxHeight),
+        painter: RoundedBackgroundTextPainter(
+          backgroundColor: backgroundColor ?? Colors.transparent,
+          text: painter,
+          innerRadius: innerRadius,
+          outerRadius: outerRadius,
+        ),
+      );
+    });
   }
 }
 
@@ -327,91 +338,18 @@ class _TextSpanEditingController extends TextEditingController {
   }
 }
 
-class _RoundedBackgroundText extends StatefulWidget {
-  const _RoundedBackgroundText({
-    required this.text,
-    required this.textDirection,
-    this.backgroundColor = kDefaultRoundedTextBackgroundColor,
-    this.maxLines,
-    this.textAlign = TextAlign.center,
-    this.textWidthBasis = TextWidthBasis.parent,
-    this.textScaleFactor = 1,
-    this.strutStyle,
-    this.locale,
-    this.textHeightBehavior,
-    this.ellipsis,
-    this.innerFactor = kDefaultInnerFactor,
-    this.outerFactor = kDefaultOuterFactor,
-  });
-
-  final InlineSpan text;
-  final TextDirection textDirection;
-
-  final Color backgroundColor;
-  final int? maxLines;
-  final TextAlign textAlign;
-  final TextWidthBasis? textWidthBasis;
-  final double textScaleFactor;
-  final StrutStyle? strutStyle;
-  final Locale? locale;
-  final TextHeightBehavior? textHeightBehavior;
-  final String? ellipsis;
-
-  final double innerFactor;
-  final double outerFactor;
-
-  @override
-  __RoundedBackgroundTextState createState() => __RoundedBackgroundTextState();
-}
-
-class __RoundedBackgroundTextState extends State<_RoundedBackgroundText> {
-  final parentKey = GlobalKey();
-
-  double lastMaxWidth = 0;
-
-  late TextPainter painter = TextPainter(
-    text: widget.text,
-    textDirection: widget.textDirection,
-    maxLines: widget.maxLines,
-    textAlign: widget.textAlign,
-    textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
-    textScaleFactor: widget.textScaleFactor,
-    strutStyle: widget.strutStyle,
-    locale: widget.locale,
-    textHeightBehavior: widget.textHeightBehavior,
-    ellipsis: widget.ellipsis,
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return CustomPaint(
-        isComplex: true,
-        willChange: true,
-        size: Size(constraints.maxWidth, constraints.maxHeight),
-        painter: _HighlightPainter(
-          backgroundColor: widget.backgroundColor,
-          text: painter,
-          innerFactor: widget.innerFactor,
-          outerFactor: widget.outerFactor,
-        ),
-      );
-    });
-  }
-}
-
-class _HighlightPainter extends CustomPainter {
+class RoundedBackgroundTextPainter extends CustomPainter {
   final Color backgroundColor;
   final TextPainter text;
 
-  final double innerFactor;
-  final double outerFactor;
+  final double innerRadius;
+  final double outerRadius;
 
-  const _HighlightPainter({
+  const RoundedBackgroundTextPainter({
     required this.backgroundColor,
     required this.text,
-    required this.innerFactor,
-    required this.outerFactor,
+    required this.innerRadius,
+    required this.outerRadius,
   });
 
   @override
@@ -437,7 +375,7 @@ class _HighlightPainter extends CustomPainter {
             info.y,
             info.fullWidth,
             info.fullHeight,
-            Radius.circular(info.outerFactor(outerFactor)),
+            Radius.circular(info.outerRadius(outerRadius)),
           ),
           Paint()..color = backgroundColor,
         );
@@ -457,7 +395,7 @@ class _HighlightPainter extends CustomPainter {
     final firstInfo = lineInfo.elementAt(0);
     final lastInfo = lineInfo.elementAt(lineInfo.length - 1);
 
-    path.moveTo(firstInfo.x + outerFactor, firstInfo.y);
+    path.moveTo(firstInfo.x + outerRadius, firstInfo.y);
 
     LineMetricsHelper previous = firstInfo;
     int currentIndex = -1;
@@ -473,26 +411,26 @@ class _HighlightPainter extends CustomPainter {
         }
       }();
 
-      final outerFactor = info.outerFactor(this.outerFactor);
-      final innerFactor = info.innerFactor(this.innerFactor);
+      final outerRadius = info.outerRadius(this.outerRadius);
+      final innerRadius = info.innerRadius(this.innerRadius);
 
       void drawTopLeftCorner(LineMetricsHelper info) {
-        final localOuterFactor = previous == info
-            ? outerFactor
-            : (previous.x - info.x).clamp(0, outerFactor);
+        final localOuterRadius = previous == info
+            ? outerRadius
+            : (previous.x - info.x).clamp(0, outerRadius);
         final controlPoint = Offset(info.x, info.y);
-        final endPoint = Offset(info.x, info.y + localOuterFactor);
+        final endPoint = Offset(info.x, info.y + localOuterRadius);
 
-        path.lineTo(info.x + localOuterFactor, info.y);
+        path.lineTo(info.x + localOuterRadius, info.y);
         path.quadraticBezierTo(
             controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
       }
 
       void drawBottomLeftCorner(LineMetricsHelper info) {
-        path.lineTo(info.x, info.fullHeight - outerFactor);
+        path.lineTo(info.x, info.fullHeight - outerRadius);
 
         final iControlPoint = Offset(info.x, info.fullHeight);
-        final iEndPoint = Offset(info.x + outerFactor, info.fullHeight);
+        final iEndPoint = Offset(info.x + outerRadius, info.fullHeight);
 
         path.quadraticBezierTo(
             iControlPoint.dx, iControlPoint.dy, iEndPoint.dx, iEndPoint.dy);
@@ -503,20 +441,20 @@ class _HighlightPainter extends CustomPainter {
           final formattedHeight =
               info.fullHeight - info.innerLinePadding.bottom;
 
-          final localInnerFactor = (info.x - next!.x).clamp(0, innerFactor);
-          path.lineTo(info.x, info.fullHeight - localInnerFactor);
+          final localInnerRadius = (info.x - next!.x).clamp(0, innerRadius);
+          path.lineTo(info.x, info.fullHeight - localInnerRadius);
           final iControlPoint = Offset(info.x, formattedHeight);
-          final iEndPoint = Offset(info.x - localInnerFactor, formattedHeight);
+          final iEndPoint = Offset(info.x - localInnerRadius, formattedHeight);
 
           path.quadraticBezierTo(
               iControlPoint.dx, iControlPoint.dy, iEndPoint.dx, iEndPoint.dy);
         } else {
           final formattedY = next!.y + info.innerLinePadding.bottom;
 
-          final localInnerFactor = (next.x - info.x).clamp(0, innerFactor);
-          path.lineTo(next.x - localInnerFactor, formattedY);
+          final localInnerRadius = (next.x - info.x).clamp(0, innerRadius);
+          path.lineTo(next.x - localInnerRadius, formattedY);
           final iControlPoint = Offset(next.x, formattedY);
-          final iEndPoint = Offset(next.x, formattedY + localInnerFactor);
+          final iEndPoint = Offset(next.x, formattedY + localInnerRadius);
 
           path.quadraticBezierTo(
               iControlPoint.dx, iControlPoint.dy, iEndPoint.dx, iEndPoint.dy);
@@ -571,14 +509,14 @@ class _HighlightPainter extends CustomPainter {
 
       final next = nextElement();
 
-      final outerFactor = info.outerFactor(this.outerFactor);
-      final innerFactor = info.innerFactor(this.innerFactor);
+      final outerRadius = info.outerRadius(this.outerRadius);
+      final innerRadius = info.innerRadius(this.innerRadius);
 
       void drawTopRightCorner(
         LineMetricsHelper info, [
         double? factor,
       ]) {
-        factor ??= outerFactor;
+        factor ??= outerRadius;
         final controlPoint = Offset(info.fullWidth, info.y);
         final endPoint = Offset(info.fullWidth - factor, info.y);
 
@@ -588,10 +526,10 @@ class _HighlightPainter extends CustomPainter {
       }
 
       void drawBottomRightCorner(LineMetricsHelper info) {
-        path.lineTo(info.fullWidth - outerFactor, info.fullHeight);
+        path.lineTo(info.fullWidth - outerRadius, info.fullHeight);
 
         final iControlPoint = Offset(info.fullWidth, info.fullHeight);
-        final iEndPoint = Offset(info.fullWidth, info.fullHeight - outerFactor);
+        final iEndPoint = Offset(info.fullWidth, info.fullHeight - outerRadius);
 
         path.quadraticBezierTo(
             iControlPoint.dx, iControlPoint.dy, iEndPoint.dx, iEndPoint.dy);
@@ -602,20 +540,20 @@ class _HighlightPainter extends CustomPainter {
         if (!toRight) {
           final formattedHeight =
               info.fullHeight - info.innerLinePadding.bottom;
-          path.lineTo(info.fullWidth + innerFactor, formattedHeight);
+          path.lineTo(info.fullWidth + innerRadius, formattedHeight);
 
           final controlPoint = Offset(info.fullWidth, formattedHeight);
           final endPoint =
-              Offset(info.fullWidth, formattedHeight - innerFactor);
+              Offset(info.fullWidth, formattedHeight - innerRadius);
 
           path.quadraticBezierTo(
               controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
         } else {
           final formattedY = info.y + info.innerLinePadding.bottom;
-          path.lineTo(info.fullWidth, formattedY + innerFactor);
+          path.lineTo(info.fullWidth, formattedY + innerRadius);
 
           final controlPoint = Offset(info.fullWidth, formattedY);
-          final endPoint = Offset(info.fullWidth + innerFactor, formattedY);
+          final endPoint = Offset(info.fullWidth + innerRadius, formattedY);
 
           path.quadraticBezierTo(
               controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
@@ -624,7 +562,7 @@ class _HighlightPainter extends CustomPainter {
 
       if (next != null) {
         final differenceBigger = info == previous ||
-            info.fullWidth - previous.fullWidth >= outerFactor;
+            info.fullWidth - previous.fullWidth >= outerRadius;
         // If it's the first info or it's bigger than the last one
         if ((info == lastInfo || info.fullWidth > previous.fullWidth) &&
             differenceBigger) {
@@ -633,7 +571,7 @@ class _HighlightPainter extends CustomPainter {
 
         if (info.fullWidth > next.fullWidth) {
           final factor = info.fullWidth - next.fullWidth;
-          if (factor >= outerFactor) {
+          if (factor >= outerRadius) {
             drawTopRightCorner(info);
             drawInnerCorner(next, false);
           } else {
@@ -664,11 +602,11 @@ class _HighlightPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _HighlightPainter oldDelegate) {
+  bool shouldRepaint(covariant RoundedBackgroundTextPainter oldDelegate) {
     return oldDelegate.backgroundColor != backgroundColor ||
         oldDelegate.text != text ||
-        oldDelegate.innerFactor != innerFactor ||
-        oldDelegate.outerFactor != outerFactor;
+        oldDelegate.innerRadius != innerRadius ||
+        oldDelegate.outerRadius != outerRadius;
   }
 
   // Normalize the width of the next element based on the difference between
@@ -688,7 +626,7 @@ class _HighlightPainter extends CustomPainter {
       if (difference.isNegative) {
         difference = -difference;
       }
-      final differenceBigger = difference > outerFactor;
+      final differenceBigger = difference > outerRadius;
       if (!differenceBigger) {
         info.overridenX = next.x;
         info.overridenWidth = next.fullWidth;
@@ -697,7 +635,7 @@ class _HighlightPainter extends CustomPainter {
       // little bigger than the next one. The next one takes the dimensions of
       // the current one
       else {
-        final differenceBigger = difference > outerFactor;
+        final differenceBigger = difference > outerRadius;
         if (!differenceBigger) {
           next.overridenX = info.x;
           next.overridenWidth = info.fullWidth;
@@ -766,14 +704,14 @@ class LineMetricsHelper {
     bottom: height * 0.15,
   );
 
-  /// Dynamically calculate the outer factor based on the provided [outerFactor]
-  double outerFactor(double outerFactor) {
-    return (height * outerFactor) / 35;
+  /// Dynamically calculate the outer factor based on the provided [outerRadius]
+  double outerRadius(double outerRadius) {
+    return (height * outerRadius) / 35;
   }
 
-  /// Dynamically calculate the inner factor based on the provided [innerFactor]
-  double innerFactor(double innerFactor) {
-    return (height * innerFactor) / 35;
+  /// Dynamically calculate the inner factor based on the provided [innerRadius]
+  double innerRadius(double innerRadius) {
+    return (height * innerRadius) / 35;
   }
 
   double get x {

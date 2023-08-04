@@ -24,8 +24,8 @@ class _MyAppState extends State<MyApp> {
   final controller = TextEditingController();
 
   double fontSize = 20.0;
-  double innerRadius = kDefaultInnerFactor;
-  double outerRadius = kDefaultOuterFactor;
+  double innerRadius = kDefaultInnerRadius;
+  double outerRadius = kDefaultOuterRadius;
 
   TextAlign textAlign = TextAlign.center;
   FontWeight fontWeight = FontWeight.bold;
