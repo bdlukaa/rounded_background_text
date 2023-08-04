@@ -445,6 +445,14 @@ class _HighlightPainter extends CustomPainter {
       return;
     }
 
+    // This ensures the normalization will be done for all lines in the paragraph
+    // and not only for the next one
+    for (final info in lineInfo) {
+      for (final i in lineInfo) {
+        normalize(info, i);
+      }
+    }
+
     final path = Path();
     final firstInfo = lineInfo.elementAt(0);
     final lastInfo = lineInfo.elementAt(lineInfo.length - 1);
@@ -453,22 +461,6 @@ class _HighlightPainter extends CustomPainter {
 
     LineMetricsHelper previous = firstInfo;
     int currentIndex = -1;
-
-    {
-      for (final info in lineInfo) {
-        currentIndex++;
-
-        final next = () {
-          try {
-            return lineInfo.elementAt(currentIndex + 1);
-          } catch (e) {
-            return null;
-          }
-        }();
-        normalize(next, info);
-      }
-      currentIndex = -1;
-    }
 
     for (final info in lineInfo) {
       currentIndex++;
@@ -683,9 +675,11 @@ class _HighlightPainter extends CustomPainter {
   // the width of the current element and the next one. This is responsible
   // to not let the next element go too little away from the current one
   void normalize(LineMetricsHelper? next, LineMetricsHelper info) {
+    // There is no need to normalize the last element, since it'll have already
+    // been normalized
     if (next != null) {
       var difference = () {
-        final width = (info.width - next.width);
+        final width = (info.rawWidth - next.rawWidth);
         return width.roundToDouble();
       }();
       // If the difference is negative, it means that the next element is a little
@@ -693,17 +687,17 @@ class _HighlightPainter extends CustomPainter {
       // the next one
       if (difference.isNegative) {
         difference = -difference;
-        final differenceBigger = difference > outerFactor * 2;
-        if (!differenceBigger) {
-          info.overridenX = next.x;
-          info.overridenWidth = next.fullWidth;
-        }
+      }
+      final differenceBigger = difference > outerFactor;
+      if (!differenceBigger) {
+        info.overridenX = next.x;
+        info.overridenWidth = next.fullWidth;
       }
       // If the difference is positive, it means that the current element is a
       // little bigger than the next one. The next one takes the dimensions of
       // the current one
       else {
-        final differenceBigger = difference > outerFactor * 2;
+        final differenceBigger = difference > outerFactor;
         if (!differenceBigger) {
           next.overridenX = info.x;
           next.overridenWidth = info.fullWidth;
@@ -745,7 +739,7 @@ class LineMetricsHelper {
   LineMetricsHelper(this.metrics, this.length);
 
   /// Whether this line has no content
-  bool get isEmpty => metrics.width == 0.0;
+  bool get isEmpty => rawWidth == 0.0;
 
   /// Whether this line is the first line in the paragraph
   bool get isFirst => metrics.lineNumber == 0;
@@ -819,7 +813,7 @@ class LineMetricsHelper {
         return (result + innerLinePadding.left).roundToDouble();
       }
     }
-    return (x + metrics.width).roundToDouble();
+    return (x + rawWidth).roundToDouble();
   }
 
   double get fullHeight {
@@ -834,15 +828,14 @@ class LineMetricsHelper {
 
   double get height => metrics.height;
 
+  double get rawWidth => metrics.width;
   double get width {
-    final result = metrics.width;
-
     if (metrics.lineNumber == 0) {
-      return (result + firstLinePadding.right).roundToDouble();
+      return (rawWidth + firstLinePadding.right).roundToDouble();
     } else if (isLast) {
-      return (result + lastLinePadding.right).roundToDouble();
+      return (rawWidth + lastLinePadding.right).roundToDouble();
     } else {
-      return (result + innerLinePadding.right).roundToDouble();
+      return (rawWidth + innerLinePadding.right).roundToDouble();
     }
   }
 
