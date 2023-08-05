@@ -1,4 +1,4 @@
-## [next]
+## 0.4.0
 
 * fix: hint is aligned with the text field ([#7](https://github.com/bdlukaa/rounded_background_text/issues/7))
 * feat: `RoundedBackgroundText.selectable` now uses `SelectableText` under the hood instead of `EditableText` ([4ba757](https://github.com/bdlukaa/rounded_background_text/commit/4ba7578ad22290d7a6ae31d7ffdd7490bc614f68))
