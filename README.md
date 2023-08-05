@@ -42,7 +42,7 @@
 ## Features
 
 - ✅ Highlight Text
-- ✅ Highlight Text Field [beta]
+- ✅ Highlight Text Field
 - ✅ Highlight Text Span
 
 ## Getting started
@@ -84,10 +84,7 @@ RoundedBackgroundText(
 You must use a `TextEditingController`
 
 ```dart
-final controller = TextEditingController();
-
 RoundedBackgroundTextField(
-  controller: controller, // required
   backgroundColor: Colors.blue,
   style: const TextStyle(fontWeight: FontWeight.bold),
   textAlign: TextAlign.center,
@@ -98,7 +95,7 @@ The text will be highlighted as the user types
 
 ![TextField Preview](https://github.com/bdlukaa/rounded_background_text/blob/main/assets/textfield_preview.gif?raw=true)
 
-The font size of the text will be reduced if there isn't enough space to fit the text. The text field can't be scrollable
+The text highlight will follow the text field scroll position.
 
 ### Highlight a text span:
 
@@ -139,10 +136,6 @@ RoundedBackgroundText(
 
 The max allowed value is `20.0`. The min is `0.0`
 
-### Known issues with the text field
-
-- It can't be scrollable. Instead, as a workaround, the text is scaled down to fit the available space
-
 ### Deep dive
 
 This section explains, with details, how the background painting works.
@@ -158,7 +151,7 @@ To paint the background, the line metrics generated before is used. Each line ha
 
 With these values, we can generate the background for each line. The background is generated around the whole text: from top-left to bottom-left to bottom-right to top-right to top-left. This makes it easy to calculate when there is a corner, either outer or inner. 
 
-The inner and outer radius are dynamically calculated based on the line height, provided by the line metrics, and the given `innerFactor` and `outerFactor`, respectively. By default, `innerFactor` is `8.0` and `outerFactor` is `10.0`. For safety, in order to keep the roundnesses correct, these values must be in the bounds of `0.0` (min) and `20.0` max, otherwise the painting would go off-line.
+The inner and outer radius are dynamically calculated based on the line height, provided by the line metrics, and the given `innerRadius` and `outerRadius`, respectively. By default, `innerRadius` is `10.0` and `outerRadius` is `10.0`. For safety, in order to keep the roundnesses correct, these values must be in the bounds of `0.0` (min) and `20.0` max, otherwise the painting would be out the line.
 
 ## Contribution
 

@@ -16,13 +16,14 @@ Color? foregroundColor(Color? backgroundColor) {
           : Colors.white;
 }
 
-/// Creates a paragraph with rounded background text
+/// Creates a paragraph with rounded background.
 ///
 /// See also:
 ///
-///  * [RichText], which this widget uses to render text
-///  * [TextPainter], which is used to calculate the line metrics
-///  * [TextStyle], used to customize the text look and feel
+///  * [RichText], which this widget uses to render text.
+///  * [TextPainter], which is used to calculate the line metrics.
+///  * [TextStyle], used to customize the text look and feel.
+///  * [RoundedBackgroundTextPainter], the painter used to draw the background.
 class RoundedBackgroundText extends StatelessWidget {
   /// Creates a rounded background text with a single style.
   RoundedBackgroundText(
@@ -334,10 +335,18 @@ class RoundedBackgroundTextPainter extends CustomPainter {
   });
 
   @visibleForTesting
-  static List<List<LineMetricsHelper>> computeLines(
-    TextPainter painter, [
-    double maxWidth = double.infinity,
-  ]) {
+
+  /// Compute the lines used by [RoundedBackgroundTextPainter].
+  ///
+  /// The text [painter] must have been already laid out:
+  /// ```dart
+  /// final painter = TextPainter(
+  ///  text: const TextSpan(text: testText),
+  /// );
+  /// painter.layout();
+  /// final lines = RoundedBackgroundTextPainter.computeLines(painter);
+  /// ```
+  static List<List<LineMetricsHelper>> computeLines(TextPainter painter) {
     final metrics = painter.computeLineMetrics();
 
     final helpers = metrics.map((lineMetric) {
@@ -359,7 +368,7 @@ class RoundedBackgroundTextPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final lineInfos = computeLines(text, size.width);
+    final lineInfos = computeLines(text);
 
     for (final lineInfo in lineInfos) {
       paintBackground(canvas, lineInfo);
