@@ -409,6 +409,13 @@ class _RoundedBackgroundTextFieldState
 
     const padding = EdgeInsets.all(6.0);
 
+    final style = (widget.style ?? const TextStyle()).copyWith(
+      // The text is rendered by the [EditableText] widget below.
+      // It has more accuracy for a bunch of text features
+      color: Colors.transparent,
+      leadingDistribution: TextLeadingDistribution.proportional,
+    );
+
     return Stack(alignment: Alignment.center, children: [
       if (textController.text.isNotEmpty)
         Positioned(
@@ -427,11 +434,7 @@ class _RoundedBackgroundTextFieldState
                 text: textController.buildTextSpan(
                   context: context,
                   withComposing: !widget.readOnly,
-                  style: (widget.style ?? const TextStyle()).copyWith(
-                    // The text is rendered by the [EditableText] widget below.
-                    // It has more accuracy for a bunch of text features
-                    color: Colors.transparent,
-                  ),
+                  style: style,
                 ),
                 textAlign: widget.textAlign,
                 backgroundColor: widget.backgroundColor,
@@ -471,20 +474,14 @@ class _RoundedBackgroundTextFieldState
             scrollBehavior: widget.scrollBehavior,
             scrollController: scrollController,
             scrollPadding: widget.scrollPadding,
-            style: (widget.style ?? const TextStyle()).copyWith(
-              // color: Colors.transparent,
-              // color: Colors.amber,
-              fontSize: fontSize,
-              // height: calculateHeight(fontSize),
-              leadingDistribution: TextLeadingDistribution.proportional,
-            ),
+            style: style,
             textAlign: widget.textAlign,
             maxLines: widget.maxLines,
             keyboardType: widget.keyboardType,
             backgroundCursorColor: CupertinoColors.inactiveGray,
             cursorColor: widget.cursorColor ??
-                widget.style?.color ??
                 selectionTheme.cursorColor ??
+                widget.style?.color ??
                 foregroundColor(widget.backgroundColor) ??
                 Colors.black,
             cursorWidth: widget.cursorWidth,
