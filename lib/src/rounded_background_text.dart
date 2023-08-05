@@ -726,6 +726,7 @@ class LineMetricsHelper {
     return (height * innerRadius) / 35;
   }
 
+  /// The x position of the line
   double get x {
     if (_overridenX != null) return _overridenX!;
     final result = metrics.left;
@@ -739,46 +740,36 @@ class LineMetricsHelper {
     }
   }
 
+  /// The y position of the line
   double get y {
-    final result = metrics.lineNumber * metrics.height;
+    final y = metrics.baseline - metrics.ascent;
     if (isFirst) {
-      return result.roundToDouble();
+      return y;
     } else if (isLast) {
-      return (result + (_lastLinePadding.top / 2)).roundToDouble();
+      return y + (_lastLinePadding.top / 2);
     } else {
-      return (result - _innerLinePadding.top).roundToDouble();
+      return y - _innerLinePadding.top;
     }
   }
 
-  double get fullWidth {
-    if (_overridenWidth != null) return _overridenWidth!;
-    final result = x + width;
-
-    if (!isEmpty) {
-      if (isFirst) {
-        return (result + _firstLinePadding.left).roundToDouble();
-      } else if (isLast) {
-        return (result + _lastLinePadding.left).roundToDouble();
-      } else {
-        return (result + _innerLinePadding.left).roundToDouble();
-      }
-    }
-    return (x + rawWidth).roundToDouble();
-  }
-
+  /// The entire height of the line, including its [y] and padding
   double get fullHeight {
     final result = y + height;
 
     if (isLast) {
-      return (result + _lastLinePadding.bottom).roundToDouble();
+      return result + _lastLinePadding.bottom;
     } else {
-      return (result + _innerLinePadding.bottom).roundToDouble();
+      return result + _innerLinePadding.bottom;
     }
   }
 
+  /// The raw height of the line, without any additional padding
   double get height => metrics.height;
 
+  /// The raw width of the line, without any additional padding
   double get rawWidth => metrics.width;
+
+  /// The entire width of the line, including the padding
   double get width {
     if (metrics.lineNumber == 0) {
       return (rawWidth + _firstLinePadding.right).roundToDouble();
@@ -787,6 +778,23 @@ class LineMetricsHelper {
     } else {
       return (rawWidth + _innerLinePadding.right).roundToDouble();
     }
+  }
+
+  /// The entire width of the line, including the padding and its [x]
+  double get fullWidth {
+    if (_overridenWidth != null) return _overridenWidth!;
+    final result = x + width;
+
+    if (!isEmpty) {
+      if (isFirst) {
+        return result + _firstLinePadding.left;
+      } else if (isLast) {
+        return result + _lastLinePadding.left;
+      } else {
+        return result + _innerLinePadding.left;
+      }
+    }
+    return x + rawWidth;
   }
 
   @override
