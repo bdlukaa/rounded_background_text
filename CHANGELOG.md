@@ -1,3 +1,7 @@
+## 0.4.2
+
+* fix: TextField text is no longer transparent
+
 ## 0.4.1
 
 * fix: update how the line heights are calculated based on the baseline and its accent

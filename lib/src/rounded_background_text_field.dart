@@ -474,7 +474,10 @@ class _RoundedBackgroundTextFieldState
             scrollBehavior: widget.scrollBehavior,
             scrollController: scrollController,
             scrollPadding: widget.scrollPadding,
-            style: style,
+            style: (widget.style ?? const TextStyle()).copyWith(
+              fontSize: fontSize,
+              leadingDistribution: TextLeadingDistribution.proportional,
+            ),
             textAlign: widget.textAlign,
             maxLines: widget.maxLines,
             keyboardType: widget.keyboardType,
