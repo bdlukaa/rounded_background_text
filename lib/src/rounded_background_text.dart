@@ -404,21 +404,12 @@ class RoundedBackgroundTextPainter extends CustomPainter {
     final firstInfo = lineInfo.elementAt(0);
     final lastInfo = lineInfo.elementAt(lineInfo.length - 1);
 
-    path.moveTo(firstInfo.x + outerRadius, firstInfo.y);
+    path.moveTo(firstInfo.x + firstInfo.outerRadius(outerRadius), firstInfo.y);
 
     LineMetricsHelper previous = firstInfo;
-    int currentIndex = -1;
 
     for (final info in lineInfo) {
-      currentIndex++;
-
-      final next = () {
-        try {
-          return lineInfo.elementAt(currentIndex + 1);
-        } catch (e) {
-          return null;
-        }
-      }();
+      final next = lineInfo.elementAtOrNull(lineInfo.indexOf(info) + 1);
 
       final outerRadius = info.outerRadius(this.outerRadius);
       final innerRadius = info.innerRadius(this.innerRadius);
@@ -501,22 +492,12 @@ class RoundedBackgroundTextPainter extends CustomPainter {
     // Draw the last line only to the half of it
     path.lineTo(lastInfo.fullWidth / 2, lastInfo.fullHeight);
 
-    final reversedInfo = lineInfo.reversed;
-    currentIndex = -1;
+    final reversedInfo = lineInfo.reversed.toList(growable: false);
     previous = reversedInfo.first;
 
     // !Goes horizontal and up
     for (final info in reversedInfo) {
-      currentIndex++;
-      LineMetricsHelper? nextElement() {
-        try {
-          return reversedInfo.elementAt(currentIndex + 1);
-        } catch (e) {
-          return null;
-        }
-      }
-
-      final next = nextElement();
+      final next = reversedInfo.elementAtOrNull(reversedInfo.indexOf(info) + 1);
 
       final outerRadius = info.outerRadius(this.outerRadius);
       final innerRadius = info.innerRadius(this.innerRadius);
@@ -578,20 +559,22 @@ class RoundedBackgroundTextPainter extends CustomPainter {
           drawBottomRightCorner(info);
         }
 
+        final factor = info.fullWidth - next.fullWidth;
+
         if (info.fullWidth > next.fullWidth) {
-          final factor = info.fullWidth - next.fullWidth;
           if (factor >= outerRadius) {
             drawTopRightCorner(info);
             drawInnerCorner(next, false);
           } else {
             drawTopRightCorner(info, factor);
           }
-        }
-
-        if (info.fullWidth < next.fullWidth) {
-          // If the current one is less than the next, draw the inner corner
-          drawInnerCorner(info, true);
-          drawBottomRightCorner(next);
+        } else if (info.fullWidth < next.fullWidth) {
+          if (factor >= innerRadius) {
+            drawInnerCorner(info, true);
+            drawBottomRightCorner(next);
+          } else {
+            drawBottomRightCorner(info);
+          }
         }
       } else {
         if (previous.fullWidth < info.fullWidth) {
@@ -625,6 +608,7 @@ class RoundedBackgroundTextPainter extends CustomPainter {
     // There is no need to normalize the last element, since it'll have already
     // been normalized
     if (next != null) {
+      final outerRadius = info.outerRadius(this.outerRadius);
       var difference = () {
         final width = (info.rawWidth - next.rawWidth);
         return width.roundToDouble();
@@ -784,15 +768,16 @@ class LineMetricsHelper {
     final result = x + width;
 
     if (!isEmpty) {
+      // The padding is subtracted on [x]. Add it back in here
       if (isFirst) {
-        return result + _firstLinePadding.left;
+        return (result + _firstLinePadding.left).roundToDouble();
       } else if (isLast) {
-        return result + _lastLinePadding.left;
+        return (result + _lastLinePadding.left).roundToDouble();
       } else {
-        return result + _innerLinePadding.left;
+        return (result + _innerLinePadding.left).roundToDouble();
       }
     }
-    return x + rawWidth;
+    return (x + rawWidth).roundToDouble();
   }
 
   @override
