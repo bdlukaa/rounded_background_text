@@ -176,7 +176,6 @@ class _MyAppState extends State<MyApp> {
                       case _HighlightTextType.text:
                         return RoundedBackgroundText(
                           '''Rounded Background Text Showcase
-
 It handles well all font sizes and weights, as well as text alignments
 Contributions are welcome!
 Done with so much <3 by @bdlukaa''',

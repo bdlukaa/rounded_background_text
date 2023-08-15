@@ -527,31 +527,31 @@ class RoundedBackgroundTextPainter extends CustomPainter {
       }
 
       if (next != null) {
-        final factor = info.fullWidth - next.fullWidth;
-
-        if (info == lastInfo) {
+        if (info == previous) {
+          // if it's the last line
           drawBottomRightCorner(info);
-        }
-        if (info.fullWidth > next.fullWidth) {
-          // If the factor is greater than the outer radius, draw the inner corner.
-          // Otherwise draw only the top right corner
-          if (factor >= innerRadius) {
-            drawTopRightCorner(info);
-            drawInnerCorner(next, false);
-          } else {
-            drawTopRightCorner(info, factor);
-          }
-        } else if (info.fullWidth < next.fullWidth) {
-          // If the factor is greater than the inner radius, draw the inner corner.
-          // Otherwise draw only the bottom right corner
-          if (factor >= innerRadius) {
-            drawInnerCorner(info, true);
-            drawBottomRightCorner(next);
-          } else {
-            drawBottomRightCorner(info);
-          }
+        } else if (info.fullWidth < previous.fullWidth) {
+          // if the current one is less than the previous one
+          drawTopRightCorner(previous);
+          drawInnerCorner(info, false);
+          // drawInnerCorner(info);
+        } else if (info.fullWidth > previous.fullWidth) {
+          // if the current one is bigger than the previous one
+          drawInnerCorner(previous, true);
+          drawBottomRightCorner(info);
+        } else {
+          // if the current one is equal to the previous one, ignore it
         }
       } else {
+        // if it's the first line
+        if (previous.fullWidth < info.fullWidth) {
+          // if the current one is bigger than the previous one
+          drawInnerCorner(previous);
+          drawBottomRightCorner(info);
+        } else if (previous.fullWidth > info.fullWidth) {
+          drawTopRightCorner(previous);
+          drawInnerCorner(info, false);
+        }
         drawTopRightCorner(info);
       }
 

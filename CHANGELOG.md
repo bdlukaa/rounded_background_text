@@ -4,6 +4,7 @@
 * fix: `RoundedBackgroundTextField` automatic line break is respected
 * fix: `RoundedBackgroundText.selectable` text is no longer duplicated
 * fix: outerRadius is correctly calculated when normalizing the lines
+* fix: update painting cases on the right side
 
 ## 0.4.2
 
