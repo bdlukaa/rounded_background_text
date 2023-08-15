@@ -551,24 +551,23 @@ class RoundedBackgroundTextPainter extends CustomPainter {
       }
 
       if (next != null) {
-        final differenceBigger = info == previous ||
-            info.fullWidth - previous.fullWidth >= outerRadius;
-        // If it's the first info or it's bigger than the last one
-        if ((info == lastInfo || info.fullWidth > previous.fullWidth) &&
-            differenceBigger) {
-          drawBottomRightCorner(info);
-        }
-
         final factor = info.fullWidth - next.fullWidth;
 
+        if (info == lastInfo) {
+          drawBottomRightCorner(info);
+        }
         if (info.fullWidth > next.fullWidth) {
-          if (factor >= outerRadius) {
+          // If the factor is greater than the outer radius, draw the inner corner.
+          // Otherwise draw only the top right corner
+          if (factor >= innerRadius) {
             drawTopRightCorner(info);
             drawInnerCorner(next, false);
           } else {
             drawTopRightCorner(info, factor);
           }
         } else if (info.fullWidth < next.fullWidth) {
+          // If the factor is greater than the inner radius, draw the inner corner.
+          // Otherwise draw only the bottom right corner
           if (factor >= innerRadius) {
             drawInnerCorner(info, true);
             drawBottomRightCorner(next);
@@ -577,9 +576,6 @@ class RoundedBackgroundTextPainter extends CustomPainter {
           }
         }
       } else {
-        if (previous.fullWidth < info.fullWidth) {
-          drawBottomRightCorner(info);
-        }
         drawTopRightCorner(info);
       }
 
@@ -613,6 +609,7 @@ class RoundedBackgroundTextPainter extends CustomPainter {
         final width = (info.rawWidth - next.rawWidth);
         return width.roundToDouble();
       }();
+
       // If the difference is negative, it means that the next element is a little
       // bigger than the current one. The current one takes the dimensions of
       // the next one
