@@ -1,4 +1,4 @@
-## [next]:
+## 0.4.3
 
 * fix: `RoundedBackgroundTextField.textAlign` is respected ([#17](https://github.com/bdlukaa/rounded_background_text/issues/17))
 * fix: `RoundedBackgroundTextField` automatic line break is respected
