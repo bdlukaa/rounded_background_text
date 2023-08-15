@@ -294,30 +294,6 @@ class RoundedBackgroundText extends StatelessWidget {
   }
 }
 
-class _TextSpanEditingController extends TextEditingController {
-  _TextSpanEditingController({required TextSpan textSpan})
-      : _textSpan = textSpan,
-        super(text: textSpan.toPlainText(includeSemanticsLabels: false));
-
-  final TextSpan _textSpan;
-
-  @override
-  TextSpan buildTextSpan({
-    required BuildContext context,
-    TextStyle? style,
-    required bool withComposing,
-  }) {
-    // This does not care about composing.
-    return TextSpan(style: style, children: <TextSpan>[_textSpan]);
-  }
-
-  @override
-  set text(String? newText) {
-    // This should never be reached.
-    throw UnimplementedError();
-  }
-}
-
 class RoundedBackgroundTextPainter extends CustomPainter {
   final Color backgroundColor;
   final TextPainter text;
