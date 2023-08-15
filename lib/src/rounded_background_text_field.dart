@@ -416,116 +416,136 @@ class _RoundedBackgroundTextFieldState
       leadingDistribution: TextLeadingDistribution.proportional,
     );
 
-    return Stack(alignment: Alignment.center, children: [
-      if (textController.text.isNotEmpty)
-        Positioned(
-          top: scrollController.hasClients
-              ? -scrollController.position.pixels
-              : null,
-          child: IgnorePointer(
-            child: Container(
-              padding: const EdgeInsets.only(
-                right: 2.0,
-                left: 1.0,
-                bottom: 3.0,
+    return Stack(
+      alignment: () {
+        switch (widget.textAlign) {
+          case TextAlign.end:
+            return AlignmentDirectional.topEnd;
+          case TextAlign.start:
+            return AlignmentDirectional.topStart;
+          case TextAlign.left:
+            return Alignment.topLeft;
+          case TextAlign.right:
+            return Alignment.topRight;
+          case TextAlign.center:
+          default:
+            return Alignment.topCenter;
+        }
+      }(),
+      children: [
+        if (textController.text.isNotEmpty)
+          Positioned(
+            top: scrollController.hasClients
+                ? -scrollController.position.pixels
+                : null,
+            left: 0,
+            right: 0,
+            child: IgnorePointer(
+              child: Container(
+                padding: const EdgeInsets.only(
+                  right: 2.0,
+                  left: 1.0,
+                  bottom: 3.0,
+                ),
+                margin: padding,
+                child: RoundedBackgroundText.rich(
+                  text: textController.buildTextSpan(
+                    context: context,
+                    withComposing: !widget.readOnly,
+                    style: style,
+                  ),
+                  textAlign: widget.textAlign,
+                  backgroundColor: widget.backgroundColor,
+                  innerRadius: widget.innerRadius,
+                  outerRadius: widget.outerRadius,
+                  textDirection: widget.textDirection,
+                  textScaleFactor: widget.textScaleFactor ?? 1.0,
+                ),
               ),
-              margin: padding,
-              child: RoundedBackgroundText.rich(
-                text: textController.buildTextSpan(
-                  context: context,
-                  withComposing: !widget.readOnly,
-                  style: style,
+            ),
+          )
+        else if (widget.hint != null)
+          Positioned.fill(
+            child: Padding(
+              padding: padding,
+              child: Text(
+                widget.hint!,
+                style: (widget.hintStyle ?? TextStyle(color: theme.hintColor))
+                    .copyWith(
+                  fontSize: fontSize,
+                  // height: calculateHeight(fontSize),
                 ),
                 textAlign: widget.textAlign,
-                backgroundColor: widget.backgroundColor,
-                innerRadius: widget.innerRadius,
-                outerRadius: widget.outerRadius,
-                textDirection: widget.textDirection,
-                textScaleFactor: widget.textScaleFactor ?? 1.0,
+                maxLines: widget.maxLines,
               ),
             ),
           ),
-        )
-      else if (widget.hint != null)
         Positioned.fill(
           child: Padding(
             padding: padding,
-            child: Text(
-              widget.hint!,
-              style: (widget.hintStyle ?? TextStyle(color: theme.hintColor))
-                  .copyWith(
+            child: EditableText(
+              key: fieldKey,
+              autofocus: widget.autofocus,
+              controller: textController,
+              focusNode: _effectiveFocusNode,
+              scrollPhysics: widget.scrollPhysics,
+              scrollBehavior: widget.scrollBehavior,
+              scrollController: scrollController,
+              scrollPadding: widget.scrollPadding,
+              style: (widget.style ?? const TextStyle()).copyWith(
                 fontSize: fontSize,
-                // height: calculateHeight(fontSize),
+                leadingDistribution: TextLeadingDistribution.proportional,
               ),
               textAlign: widget.textAlign,
               maxLines: widget.maxLines,
+              keyboardType: widget.keyboardType,
+              backgroundCursorColor: CupertinoColors.inactiveGray,
+              cursorColor: widget.cursorColor ??
+                  selectionTheme.cursorColor ??
+                  widget.style?.color ??
+                  foregroundColor(widget.backgroundColor) ??
+                  Colors.black,
+              cursorWidth: widget.cursorWidth,
+              cursorHeight: widget.cursorHeight,
+              cursorRadius: widget.cursorRadius,
+              paintCursorAboveText: paintCursorAboveText,
+              cursorOpacityAnimates: cursorOpacityAnimates,
+              cursorOffset: cursorOffset,
+              autocorrectionTextRectColor: autocorrectionTextRectColor,
+              textCapitalization: widget.textCapitalization,
+              keyboardAppearance: widget.keyboardAppearance,
+              textScaleFactor: widget.textScaleFactor,
+              enableInteractiveSelection: widget.enableInteractiveSelection,
+              selectionColor: selectionColor,
+              selectionControls:
+                  widget.selectionEnabled ? textSelectionControls : null,
+              textDirection: widget.textDirection,
+              showSelectionHandles: widget.showSelectionHandles,
+              showCursor: widget.showCursor,
+              textWidthBasis: TextWidthBasis.parent,
+              autocorrect: widget.autocorrect,
+              forceLine: widget.forceLine,
+              readOnly: widget.readOnly,
+              smartDashesType: widget.smartDashesType,
+              smartQuotesType: widget.smartQuotesType,
+              enableSuggestions: widget.enableSuggestions,
+              autofillHints: widget.autofillHints,
+              autofillClient: widget.autofillClient,
+              clipBehavior: widget.clipBehavior,
+              restorationId: widget.restorationId,
+              enableIMEPersonalizedLearning:
+                  widget.enableIMEPersonalizedLearning,
+              inputFormatters: widget.inputFormatters,
+              mouseCursor: widget.mouseCursor,
+              rendererIgnoresPointer: widget.rendererIgnoresPointer,
+              obscureText: widget.obscureText,
+              obscuringCharacter: widget.obscuringCharacter,
+              textInputAction: widget.textInputAction,
+              onSelectionChanged: widget.onSelectionChanged,
             ),
           ),
         ),
-      Positioned.fill(
-        child: Padding(
-          padding: padding,
-          child: EditableText(
-            key: fieldKey,
-            autofocus: widget.autofocus,
-            controller: textController,
-            focusNode: _effectiveFocusNode,
-            scrollPhysics: widget.scrollPhysics,
-            scrollBehavior: widget.scrollBehavior,
-            scrollController: scrollController,
-            scrollPadding: widget.scrollPadding,
-            style: (widget.style ?? const TextStyle()).copyWith(
-              fontSize: fontSize,
-              leadingDistribution: TextLeadingDistribution.proportional,
-            ),
-            textAlign: widget.textAlign,
-            maxLines: widget.maxLines,
-            keyboardType: widget.keyboardType,
-            backgroundCursorColor: CupertinoColors.inactiveGray,
-            cursorColor: widget.cursorColor ??
-                selectionTheme.cursorColor ??
-                widget.style?.color ??
-                foregroundColor(widget.backgroundColor) ??
-                Colors.black,
-            cursorWidth: widget.cursorWidth,
-            cursorHeight: widget.cursorHeight,
-            cursorRadius: widget.cursorRadius,
-            paintCursorAboveText: paintCursorAboveText,
-            cursorOpacityAnimates: cursorOpacityAnimates,
-            cursorOffset: cursorOffset,
-            autocorrectionTextRectColor: autocorrectionTextRectColor,
-            textCapitalization: widget.textCapitalization,
-            keyboardAppearance: widget.keyboardAppearance,
-            textScaleFactor: widget.textScaleFactor,
-            enableInteractiveSelection: widget.enableInteractiveSelection,
-            selectionColor: selectionColor,
-            selectionControls:
-                widget.selectionEnabled ? textSelectionControls : null,
-            textDirection: widget.textDirection,
-            showSelectionHandles: widget.showSelectionHandles,
-            showCursor: widget.showCursor,
-            textWidthBasis: TextWidthBasis.parent,
-            autocorrect: widget.autocorrect,
-            forceLine: widget.forceLine,
-            readOnly: widget.readOnly,
-            smartDashesType: widget.smartDashesType,
-            smartQuotesType: widget.smartQuotesType,
-            enableSuggestions: widget.enableSuggestions,
-            autofillHints: widget.autofillHints,
-            autofillClient: widget.autofillClient,
-            clipBehavior: widget.clipBehavior,
-            restorationId: widget.restorationId,
-            enableIMEPersonalizedLearning: widget.enableIMEPersonalizedLearning,
-            inputFormatters: widget.inputFormatters,
-            mouseCursor: widget.mouseCursor,
-            rendererIgnoresPointer: widget.rendererIgnoresPointer,
-            obscureText: widget.obscureText,
-            obscuringCharacter: widget.obscuringCharacter,
-            textInputAction: widget.textInputAction,
-            onSelectionChanged: widget.onSelectionChanged,
-          ),
-        ),
-      ),
-    ]);
+      ],
+    );
   }
 }

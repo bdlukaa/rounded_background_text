@@ -1,6 +1,11 @@
+## [next]:
+
+* fix: `RoundedBackgroundTextField.textAlign` is respected ([#17](https://github.com/bdlukaa/rounded_background_text/issues/17))
+* fix: `RoundedBackgroundTextField` automatic line break is respected
+
 ## 0.4.2
 
-* fix: TextField text is no longer transparent
+* fix: TextField's text is no longer transparent
 
 ## 0.4.1
 
