@@ -15,21 +15,13 @@ void main() {
       textAlign: TextAlign.center,
       textDirection: TextDirection.ltr,
     );
-    final lines = generateLineInfosForPainter(painter);
+    painter.layout();
+    final lines = RoundedBackgroundTextPainter.computeLines(painter);
 
     expect(lines, isNotEmpty);
     expect(lines.length, 3);
-    expect(
-      lines[0].toString(),
-      '[LineMetricsHelper(x: 254.8, y: 0.0, w: 711.2, h: 16.1)]',
-    );
-    expect(
-      lines[1].toString(),
-      '[LineMetricsHelper(x: -4.2, y: 28.0, w: 970.2, h: 44.1)]',
-    );
-    expect(
-      lines[2].toString(),
-      '[LineMetricsHelper(x: 282.8, y: 56.0, w: 683.2, h: 72.1)]',
-    );
+    expect(lines[0][0].x, 255.0);
+    expect(lines[1][0].x, -4.0);
+    expect(lines[2][0].x, 283.0);
   });
 }

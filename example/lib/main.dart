@@ -24,8 +24,8 @@ class _MyAppState extends State<MyApp> {
   final controller = TextEditingController();
 
   double fontSize = 20.0;
-  double innerRadius = kDefaultInnerFactor;
-  double outerRadius = kDefaultOuterFactor;
+  double innerRadius = kDefaultInnerRadius;
+  double outerRadius = kDefaultOuterRadius;
 
   TextAlign textAlign = TextAlign.center;
   FontWeight fontWeight = FontWeight.bold;
@@ -71,7 +71,7 @@ class _MyAppState extends State<MyApp> {
                     onChanged: (w) => setState(
                       () => fontWeight = w ?? FontWeight.normal,
                     ),
-                    icon: const Icon(Icons.font_download),
+                    icon: const Icon(Icons.format_bold),
                     items: FontWeight.values.map((e) {
                       return DropdownMenuItem(
                         value: e,
@@ -87,7 +87,20 @@ class _MyAppState extends State<MyApp> {
                     onChanged: (align) => setState(
                       () => textAlign = align ?? TextAlign.center,
                     ),
-                    icon: const Icon(Icons.align_horizontal_left),
+                    icon: Icon(() {
+                      switch (textAlign) {
+                        case TextAlign.center:
+                          return Icons.format_align_center;
+                        case TextAlign.end:
+                        case TextAlign.right:
+                          return Icons.format_align_right;
+                        case TextAlign.start:
+                        case TextAlign.left:
+                          return Icons.format_align_left;
+                        default:
+                          return null;
+                      }
+                    }()),
                     isExpanded: true,
                     items: const [
                       DropdownMenuItem(
@@ -163,7 +176,6 @@ class _MyAppState extends State<MyApp> {
                       case _HighlightTextType.text:
                         return RoundedBackgroundText(
                           '''Rounded Background Text Showcase
-
 It handles well all font sizes and weights, as well as text alignments
 Contributions are welcome!
 Done with so much <3 by @bdlukaa''',
