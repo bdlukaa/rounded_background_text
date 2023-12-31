@@ -185,7 +185,7 @@ class RoundedBackgroundText extends StatelessWidget {
   /// The text background color.
   ///
   /// If null, a trasparent color will be used.
-  /// {@end-template}
+  /// {@endtemplate}
   final Color? backgroundColor;
 
   /// How the text should be aligned horizontally.
@@ -232,7 +232,7 @@ class RoundedBackgroundText extends StatelessWidget {
   /// provided factor.
   ///
   /// Defaults to 8.0
-  /// {@end-template}
+  /// {@endtemplate}
   final double innerRadius;
 
   /// {@template rounded_background_text.outerRadius}
@@ -242,7 +242,7 @@ class RoundedBackgroundText extends StatelessWidget {
   /// provided factor.
   ///
   /// Defaults to 10.0
-  /// {@end-template}
+  /// {@endtemplate}
   final double outerRadius;
 
   @override
