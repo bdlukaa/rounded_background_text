@@ -13,7 +13,7 @@ class RoundedBackgroundTextField extends StatefulWidget {
     this.backgroundColor,
     this.textAlign = TextAlign.start,
     this.textDirection,
-    this.textScaleFactor,
+    this.textScaler,
     this.textCapitalization = TextCapitalization.none,
     this.maxLines,
     this.cursorWidth = 2.0,
@@ -72,8 +72,8 @@ class RoundedBackgroundTextField extends StatefulWidget {
   /// {@macro flutter.widgets.editableText.textCapitalization}
   final TextCapitalization textCapitalization;
 
-  /// {@macro flutter.widgets.editableText.textScaleFactor}
-  final double? textScaleFactor;
+  /// {@macro flutter.painting.textPainter.textScaler}
+  final TextScaler? textScaler;
 
   /// {@macro rounded_background_text.background_color}
   final Color? backgroundColor;
@@ -459,7 +459,7 @@ class _RoundedBackgroundTextFieldState
                   innerRadius: widget.innerRadius,
                   outerRadius: widget.outerRadius,
                   textDirection: widget.textDirection,
-                  textScaleFactor: widget.textScaleFactor ?? 1.0,
+                  textScaler: widget.textScaler ?? TextScaler.noScaling,
                 ),
               ),
             ),
@@ -514,7 +514,7 @@ class _RoundedBackgroundTextFieldState
               autocorrectionTextRectColor: autocorrectionTextRectColor,
               textCapitalization: widget.textCapitalization,
               keyboardAppearance: widget.keyboardAppearance,
-              textScaleFactor: widget.textScaleFactor,
+              textScaler: widget.textScaler,
               enableInteractiveSelection: widget.enableInteractiveSelection,
               selectionColor: selectionColor,
               selectionControls:

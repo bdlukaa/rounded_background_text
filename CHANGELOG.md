@@ -1,3 +1,7 @@
+## [next]
+
+* breaking: Remove `textScaleFactor`. Use `textScaler` instead
+
 ## 0.4.3
 
 * fix: `RoundedBackgroundTextField.textAlign` is respected ([#17](https://github.com/bdlukaa/rounded_background_text/issues/17))

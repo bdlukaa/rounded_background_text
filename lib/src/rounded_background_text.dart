@@ -37,7 +37,7 @@ class RoundedBackgroundText extends StatelessWidget {
     this.ellipsis,
     this.locale,
     this.strutStyle,
-    this.textScaleFactor = 1.0,
+    this.textScaler = TextScaler.noScaling,
     this.maxLines,
     this.textHeightBehavior,
     this.innerRadius = kDefaultInnerRadius,
@@ -56,7 +56,7 @@ class RoundedBackgroundText extends StatelessWidget {
     this.ellipsis,
     this.locale,
     this.strutStyle,
-    this.textScaleFactor = 1.0,
+    this.textScaler = TextScaler.noScaling,
     this.maxLines,
     this.textHeightBehavior,
     this.innerRadius = kDefaultInnerRadius,
@@ -81,7 +81,7 @@ class RoundedBackgroundText extends StatelessWidget {
     Color? backgroundColor,
     TextAlign textAlign = TextAlign.start,
     TextWidthBasis? textWidthBasis,
-    double textScaleFactor = 1.0,
+    TextScaler textScaler = TextScaler.noScaling,
     double innerRadius = kDefaultInnerRadius,
     double outerRadius = kDefaultOuterRadius,
     double cursorWidth = 2.0,
@@ -111,7 +111,7 @@ class RoundedBackgroundText extends StatelessWidget {
       semanticsLabel: semanticsLabel,
       textAlign: textAlign,
       textDirection: textDirection,
-      textScaleFactor: textScaleFactor,
+      textScaler: textScaler,
       textWidthBasis: textWidthBasis,
       magnifierConfiguration: magnifierConfiguration,
     );
@@ -133,7 +133,7 @@ class RoundedBackgroundText extends StatelessWidget {
     Color? backgroundColor,
     TextAlign textAlign = TextAlign.start,
     TextWidthBasis? textWidthBasis,
-    double textScaleFactor = 1.0,
+    TextScaler textScaler = TextScaler.noScaling,
     double innerRadius = kDefaultInnerRadius,
     double outerRadius = kDefaultOuterRadius,
     double cursorWidth = 2.0,
@@ -150,7 +150,7 @@ class RoundedBackgroundText extends StatelessWidget {
         text: textSpan,
         textDirection: textDirection,
         textAlign: textAlign,
-        textScaleFactor: textScaleFactor,
+        textScaler: textScaler,
         innerRadius: innerRadius,
         outerRadius: outerRadius,
         backgroundColor: backgroundColor,
@@ -159,7 +159,7 @@ class RoundedBackgroundText extends StatelessWidget {
         textSpan,
         textDirection: textDirection,
         textAlign: textAlign,
-        textScaleFactor: textScaleFactor,
+        textScaler: textScaler,
         cursorColor: cursorColor,
         cursorHeight: cursorHeight,
         cursorRadius: cursorRadius,
@@ -223,7 +223,7 @@ class RoundedBackgroundText extends StatelessWidget {
   ///
   /// For example, if the text scale factor is 1.5, text will be 50% larger than
   /// the specified font size.
-  final double textScaleFactor;
+  final TextScaler textScaler;
 
   /// {@template rounded_background_text.innerRadius}
   /// The radius of the inner corners.
@@ -264,7 +264,7 @@ class RoundedBackgroundText extends StatelessWidget {
       maxLines: maxLines ?? defaultTextStyle.maxLines,
       textAlign: textAlign ?? defaultTextStyle.textAlign ?? TextAlign.start,
       textWidthBasis: textWidthBasis ?? defaultTextStyle.textWidthBasis,
-      textScaleFactor: textScaleFactor,
+      textScaler: textScaler,
       strutStyle: strutStyle,
       locale: locale,
       textHeightBehavior:
