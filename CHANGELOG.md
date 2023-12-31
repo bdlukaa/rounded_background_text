@@ -1,3 +1,7 @@
+## [next]
+
+* fix: Update vertical alignment ([#19](https://github.com/bdlukaa/rounded_background_text/issues/19))
+
 ## 0.4.3
 
 * fix: `RoundedBackgroundTextField.textAlign` is respected ([#17](https://github.com/bdlukaa/rounded_background_text/issues/17))
