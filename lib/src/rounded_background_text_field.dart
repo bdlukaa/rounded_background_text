@@ -511,21 +511,13 @@ class _RoundedBackgroundTextFieldState
     );
 
     return Stack(
-      alignment: () {
-        switch (widget.textAlign) {
-          case TextAlign.end:
-            return AlignmentDirectional.topEnd;
-          case TextAlign.start:
-            return AlignmentDirectional.topStart;
-          case TextAlign.left:
-            return Alignment.topLeft;
-          case TextAlign.right:
-            return Alignment.topRight;
-          case TextAlign.center:
-          default:
-            return Alignment.topCenter;
-        }
-      }(),
+      alignment: switch (widget.textAlign) {
+        TextAlign.end => AlignmentDirectional.topEnd,
+        TextAlign.start => AlignmentDirectional.topStart,
+        TextAlign.left => Alignment.topLeft,
+        TextAlign.right => Alignment.topRight,
+        TextAlign.center || _ => Alignment.topCenter,
+      },
       children: [
         if (textController.text.isNotEmpty)
           Positioned(

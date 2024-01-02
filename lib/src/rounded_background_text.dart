@@ -154,6 +154,7 @@ class RoundedBackgroundText extends StatelessWidget {
         innerRadius: innerRadius,
         outerRadius: outerRadius,
         backgroundColor: backgroundColor,
+        textWidthBasis: textWidthBasis,
       ),
       SelectableText.rich(
         textSpan,
@@ -171,6 +172,7 @@ class RoundedBackgroundText extends StatelessWidget {
         autofocus: autofocus,
         semanticsLabel: semanticsLabel,
         magnifierConfiguration: magnifierConfiguration,
+        textWidthBasis: textWidthBasis,
       ),
     ]);
   }
