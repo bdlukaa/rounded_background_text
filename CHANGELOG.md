@@ -1,5 +1,6 @@
 ## [next]
 
+* fix: Update vertical alignment ([#19](https://github.com/bdlukaa/rounded_background_text/issues/19))
 * breaking: Remove `textScaleFactor`. Use `textScaler` instead
 * feat: Add missing fields to `RoundedBackgroundTextField`
     * Added `textHeightBehavior`

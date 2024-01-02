@@ -154,6 +154,7 @@ class RoundedBackgroundText extends StatelessWidget {
         innerRadius: innerRadius,
         outerRadius: outerRadius,
         backgroundColor: backgroundColor,
+        textWidthBasis: textWidthBasis,
       ),
       SelectableText.rich(
         textSpan,
@@ -171,6 +172,7 @@ class RoundedBackgroundText extends StatelessWidget {
         autofocus: autofocus,
         semanticsLabel: semanticsLabel,
         magnifierConfiguration: magnifierConfiguration,
+        textWidthBasis: textWidthBasis,
       ),
     ]);
   }
@@ -656,19 +658,19 @@ class LineMetricsHelper {
     left: height * _horizontalPaddingFactor,
     right: height * _horizontalPaddingFactor,
     top: height * 0.3,
-    bottom: 0,
+    bottom: height * 0.175 / 2,
   );
   late final EdgeInsets _innerLinePadding = EdgeInsets.only(
     left: height * _horizontalPaddingFactor,
     right: height * _horizontalPaddingFactor,
     top: 0.0,
-    bottom: height * 0.175,
+    bottom: height * 0.175 / 2,
   );
   late final EdgeInsets _lastLinePadding = EdgeInsets.only(
     left: height * _horizontalPaddingFactor,
     right: height * _horizontalPaddingFactor,
     top: 0.0,
-    bottom: height * 0.175,
+    bottom: height * 0.175 / 2,
   );
 
   /// Dynamically calculate the outer factor based on the provided [outerRadius]
