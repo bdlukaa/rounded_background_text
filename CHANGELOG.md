@@ -1,6 +1,27 @@
 ## [next]
 
 * fix: Update vertical alignment ([#19](https://github.com/bdlukaa/rounded_background_text/issues/19))
+* breaking: Remove `textScaleFactor`. Use `textScaler` instead
+* feat: Add missing fields to `RoundedBackgroundTextField`
+    * Added `textHeightBehavior`
+    * Added `textWidthBasis`
+    * Added `selectionHeightStyle`
+    * Added `selectionWidthStyle`
+    * Added `strutStyle`
+    * Added `dragStartBehavior`
+    * Added `contentInsertionConfiguration`
+    * Added `contextMenuBuilder`
+    * Added `spellCheckConfiguration`
+    * Added `magnifierConfiguration`
+    * Added `undoController`
+    * Added `scribbleEnabled`
+    * Added `locale`
+    * Added `onChanged`
+    * Added `onEditingComplete`
+    * Added `onSubmitted`
+    * Added `onAppPrivateCommand`
+    * Added `onSelectionHandleTapped`
+    * Added `onTapOutside` 
 
 ## 0.4.3
 

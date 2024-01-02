@@ -1,4 +1,6 @@
+import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -13,7 +15,7 @@ class RoundedBackgroundTextField extends StatefulWidget {
     this.backgroundColor,
     this.textAlign = TextAlign.start,
     this.textDirection,
-    this.textScaleFactor,
+    this.textScaler,
     this.textCapitalization = TextCapitalization.none,
     this.maxLines,
     this.cursorWidth = 2.0,
@@ -37,6 +39,11 @@ class RoundedBackgroundTextField extends StatefulWidget {
     this.enableIMEPersonalizedLearning = true,
     this.enableSuggestions = true,
     this.forceLine = true,
+    this.textHeightBehavior,
+    this.textWidthBasis = TextWidthBasis.parent,
+    this.selectionHeightStyle = ui.BoxHeightStyle.tight,
+    this.selectionWidthStyle = ui.BoxWidthStyle.tight,
+    this.strutStyle,
     this.inputFormatters,
     this.mouseCursor,
     this.obscureText = false,
@@ -54,6 +61,20 @@ class RoundedBackgroundTextField extends StatefulWidget {
     this.scrollPhysics,
     this.scrollBehavior,
     this.scrollPadding = EdgeInsets.zero,
+    this.dragStartBehavior = DragStartBehavior.start,
+    this.contentInsertionConfiguration,
+    this.contextMenuBuilder,
+    this.spellCheckConfiguration,
+    this.magnifierConfiguration = const TextMagnifierConfiguration(),
+    this.undoController,
+    this.scribbleEnabled = true,
+    this.locale,
+    this.onChanged,
+    this.onEditingComplete,
+    this.onSubmitted,
+    this.onAppPrivateCommand,
+    this.onSelectionHandleTapped,
+    this.onTapOutside,
   });
 
   final TextEditingController? controller;
@@ -72,8 +93,8 @@ class RoundedBackgroundTextField extends StatefulWidget {
   /// {@macro flutter.widgets.editableText.textCapitalization}
   final TextCapitalization textCapitalization;
 
-  /// {@macro flutter.widgets.editableText.textScaleFactor}
-  final double? textScaleFactor;
+  /// {@macro flutter.painting.textPainter.textScaler}
+  final TextScaler? textScaler;
 
   /// {@macro rounded_background_text.background_color}
   final Color? backgroundColor;
@@ -106,6 +127,27 @@ class RoundedBackgroundTextField extends StatefulWidget {
 
   /// The type of action button to use with the soft keyboard.
   final TextInputAction? textInputAction;
+
+  /// {@macro flutter.widgets.editableText.onChanged}
+  final ValueChanged<String>? onChanged;
+
+  /// {@macro flutter.widgets.editableText.onEditingComplete}
+  final VoidCallback? onEditingComplete;
+
+  /// {@macro flutter.widgets.editableText.onSubmitted}
+  final ValueChanged<String>? onSubmitted;
+
+  /// {@macro flutter.widgets.editableText.onAppPrivateCommand}
+  final AppPrivateCommandCallback? onAppPrivateCommand;
+
+  /// {@macro flutter.widgets.editableText.onSelectionChanged}
+  final SelectionChangedCallback? onSelectionChanged;
+
+  /// {@macro flutter.widgets.SelectionOverlay.onSelectionHandleTapped}
+  final VoidCallback? onSelectionHandleTapped;
+
+  /// {@macro flutter.widgets.editableText.onTapOutside}
+  final TapRegionCallback? onTapOutside;
 
   /// The text hint
   final String? hint;
@@ -155,6 +197,22 @@ class RoundedBackgroundTextField extends StatefulWidget {
   ///
   ///  * [textWidthBasis], which controls the calculation of text width.
   final bool forceLine;
+
+  /// {@macro dart.ui.textHeightBehavior}
+  final TextHeightBehavior? textHeightBehavior;
+
+  /// {@macro flutter.painting.textPainter.textWidthBasis}
+  final TextWidthBasis textWidthBasis;
+
+  /// Controls how tall the selection highlight boxes are computed to be.
+  ///
+  /// See [ui.BoxHeightStyle] for details on available styles.
+  final ui.BoxHeightStyle selectionHeightStyle;
+
+  /// Controls how wide the selection highlight boxes are computed to be.
+  ///
+  /// See [ui.BoxWidthStyle] for details on available styles.
+  final ui.BoxWidthStyle selectionWidthStyle;
 
   /// Whether to show selection handles.
   ///
@@ -248,8 +306,8 @@ class RoundedBackgroundTextField extends StatefulWidget {
   /// {@macro flutter.widgets.editableText.obscureText}
   final bool obscureText;
 
-  /// {@macro flutter.widgets.editableText.onSelectionChanged}
-  final SelectionChangedCallback? onSelectionChanged;
+  /// {@macro flutter.painting.textPainter.strutStyle}
+  final StrutStyle? strutStyle;
 
   /// {@macro flutter.widgets.editableText.scrollController}
   final ScrollController? scrollController;
@@ -275,6 +333,42 @@ class RoundedBackgroundTextField extends StatefulWidget {
 
   /// {@macro flutter.widgets.editableText.scrollPadding}
   final EdgeInsets scrollPadding;
+
+  /// {@macro flutter.widgets.scrollable.dragStartBehavior}
+  final DragStartBehavior dragStartBehavior;
+
+  /// {@macro flutter.widgets.editableText.contentInsertionConfiguration}
+  final ContentInsertionConfiguration? contentInsertionConfiguration;
+
+  /// {@macro flutter.widgets.EditableText.contextMenuBuilder}
+  ///
+  /// If not provided, no context menu will be shown.
+  final EditableTextContextMenuBuilder? contextMenuBuilder;
+
+  /// {@macro flutter.widgets.EditableText.spellCheckConfiguration}
+  final SpellCheckConfiguration? spellCheckConfiguration;
+
+  /// {@macro flutter.widgets.magnifier.TextMagnifierConfiguration.intro}
+  ///
+  /// {@macro flutter.widgets.magnifier.intro}
+  ///
+  /// {@macro flutter.widgets.magnifier.TextMagnifierConfiguration.details}
+  final TextMagnifierConfiguration magnifierConfiguration;
+
+  /// Controls the undo state of the current editable text.
+  final UndoHistoryController? undoController;
+
+  /// {macro flutter.widgets.editableText.scribbleEnabled}
+  final bool scribbleEnabled;
+
+  /// Used to select a font when the same Unicode character can
+  /// be rendered differently, depending on the locale.
+  ///
+  /// It's rarely necessary to set this property. By default its value
+  /// is inherited from the enclosing app with `Localizations.localeOf(context)`.
+  ///
+  /// See [RenderEditable.locale] for more information.
+  final Locale? locale;
 
   @override
   State<RoundedBackgroundTextField> createState() =>
@@ -459,7 +553,11 @@ class _RoundedBackgroundTextFieldState
                   innerRadius: widget.innerRadius,
                   outerRadius: widget.outerRadius,
                   textDirection: widget.textDirection,
-                  textScaleFactor: widget.textScaleFactor ?? 1.0,
+                  textScaler: widget.textScaler ?? TextScaler.noScaling,
+                  locale: widget.locale,
+                  textHeightBehavior: widget.textHeightBehavior,
+                  textWidthBasis: widget.textWidthBasis,
+                  strutStyle: widget.strutStyle,
                 ),
               ),
             ),
@@ -477,6 +575,8 @@ class _RoundedBackgroundTextFieldState
                 ),
                 textAlign: widget.textAlign,
                 maxLines: widget.maxLines,
+                locale: widget.locale,
+                strutStyle: widget.strutStyle,
               ),
             ),
           ),
@@ -514,7 +614,7 @@ class _RoundedBackgroundTextFieldState
               autocorrectionTextRectColor: autocorrectionTextRectColor,
               textCapitalization: widget.textCapitalization,
               keyboardAppearance: widget.keyboardAppearance,
-              textScaleFactor: widget.textScaleFactor,
+              textScaler: widget.textScaler,
               enableInteractiveSelection: widget.enableInteractiveSelection,
               selectionColor: selectionColor,
               selectionControls:
@@ -522,7 +622,8 @@ class _RoundedBackgroundTextFieldState
               textDirection: widget.textDirection,
               showSelectionHandles: widget.showSelectionHandles,
               showCursor: widget.showCursor,
-              textWidthBasis: TextWidthBasis.parent,
+              textWidthBasis: widget.textWidthBasis,
+              textHeightBehavior: widget.textHeightBehavior,
               autocorrect: widget.autocorrect,
               forceLine: widget.forceLine,
               readOnly: widget.readOnly,
@@ -542,6 +643,24 @@ class _RoundedBackgroundTextFieldState
               obscuringCharacter: widget.obscuringCharacter,
               textInputAction: widget.textInputAction,
               onSelectionChanged: widget.onSelectionChanged,
+              dragStartBehavior: widget.dragStartBehavior,
+              contentInsertionConfiguration:
+                  widget.contentInsertionConfiguration,
+              contextMenuBuilder: widget.contextMenuBuilder,
+              spellCheckConfiguration: widget.spellCheckConfiguration,
+              magnifierConfiguration: widget.magnifierConfiguration,
+              undoController: widget.undoController,
+              scribbleEnabled: widget.scribbleEnabled,
+              selectionHeightStyle: widget.selectionHeightStyle,
+              selectionWidthStyle: widget.selectionWidthStyle,
+              locale: widget.locale,
+              onChanged: widget.onChanged,
+              onEditingComplete: widget.onEditingComplete,
+              onSubmitted: widget.onSubmitted,
+              onAppPrivateCommand: widget.onAppPrivateCommand,
+              onSelectionHandleTapped: widget.onSelectionHandleTapped,
+              onTapOutside: widget.onTapOutside,
+              strutStyle: widget.strutStyle,
             ),
           ),
         ),
