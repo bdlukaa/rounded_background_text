@@ -23,6 +23,7 @@ class RoundedBackgroundTextSpan extends WidgetSpan {
     double? innerRadius,
     double? outerRadius,
     TextAlign? textAlign,
+    int? maxLines,
   }) : super(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -35,7 +36,7 @@ class RoundedBackgroundTextSpan extends WidgetSpan {
               innerRadius: innerRadius ?? kDefaultInnerRadius,
               outerRadius: outerRadius ?? kDefaultOuterRadius,
               textAlign: textAlign,
-              maxLines: 1,
+              maxLines: maxLines ?? 1,
             ),
           ),
           baseline: baseline,
