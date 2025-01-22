@@ -1,3 +1,7 @@
+## 0.5.1
+* fix: Added maxlines on parameters replacing hardcoded maxline
+
+
 ## 0.5.0
 
 * fix: Update vertical alignment ([#19](https://github.com/bdlukaa/rounded_background_text/issues/19))
