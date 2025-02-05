@@ -42,6 +42,9 @@ class RoundedBackgroundText extends StatelessWidget {
     this.textHeightBehavior,
     this.innerRadius = kDefaultInnerRadius,
     this.outerRadius = kDefaultOuterRadius,
+    this.firstLinePadding,
+    this.innerLinePadding,
+    this.lastLinePadding,
   }) : text = TextSpan(text: text, style: style);
 
   /// Creates a rounded background text based on an [InlineSpan], that can have
@@ -61,8 +64,15 @@ class RoundedBackgroundText extends StatelessWidget {
     this.textHeightBehavior,
     this.innerRadius = kDefaultInnerRadius,
     this.outerRadius = kDefaultOuterRadius,
+    this.firstLinePadding,
+    this.innerLinePadding,
+    this.lastLinePadding,
   })  : assert(innerRadius >= 0.0 && innerRadius <= 20.0),
         assert(outerRadius >= 0.0 && outerRadius <= 20.0);
+
+  final EdgeInsets? firstLinePadding;
+  final EdgeInsets? innerLinePadding;
+  final EdgeInsets? lastLinePadding;
 
   /// Creates a selectable [RoundedBackgroundText]
   ///
@@ -286,11 +296,13 @@ class RoundedBackgroundText extends StatelessWidget {
           painter.height.clamp(0, constraints.maxHeight),
         ),
         painter: RoundedBackgroundTextPainter(
-          backgroundColor: backgroundColor ?? Colors.transparent,
-          text: painter,
-          innerRadius: innerRadius,
-          outerRadius: outerRadius,
-        ),
+            backgroundColor: backgroundColor ?? Colors.transparent,
+            text: painter,
+            innerRadius: innerRadius,
+            outerRadius: outerRadius,
+            firstLinePadding: firstLinePadding,
+            innerLinePadding: innerLinePadding,
+            lastLinePadding: lastLinePadding),
       );
     });
   }
@@ -302,12 +314,18 @@ class RoundedBackgroundTextPainter extends CustomPainter {
 
   final double innerRadius;
   final double outerRadius;
+  final EdgeInsets? firstLinePadding;
+  final EdgeInsets? innerLinePadding;
+  final EdgeInsets? lastLinePadding;
 
   const RoundedBackgroundTextPainter({
     required this.backgroundColor,
     required this.text,
     required this.innerRadius,
     required this.outerRadius,
+    this.firstLinePadding,
+    this.innerLinePadding,
+    this.lastLinePadding,
   });
 
   @visibleForTesting
@@ -322,11 +340,22 @@ class RoundedBackgroundTextPainter extends CustomPainter {
   /// painter.layout();
   /// final lines = RoundedBackgroundTextPainter.computeLines(painter);
   /// ```
-  static List<List<LineMetricsHelper>> computeLines(TextPainter painter) {
+  static List<List<LineMetricsHelper>> computeLines(
+    TextPainter painter, {
+    EdgeInsets? firstLinePadding,
+    EdgeInsets? innerLinePadding,
+    EdgeInsets? lastLinePadding,
+  }) {
     final metrics = painter.computeLineMetrics();
 
     final helpers = metrics.map((lineMetric) {
-      return LineMetricsHelper(lineMetric, metrics.length);
+      return LineMetricsHelper(
+        lineMetric,
+        metrics.length,
+        firstLinePadding: firstLinePadding,
+        innerLinePadding: innerLinePadding,
+        lastLinePadding: lastLinePadding,
+      );
     });
 
     final List<List<LineMetricsHelper>> lineInfos = [[]];
@@ -344,7 +373,10 @@ class RoundedBackgroundTextPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final lineInfos = computeLines(text);
+    final lineInfos = computeLines(text,
+        firstLinePadding: firstLinePadding,
+        innerLinePadding: innerLinePadding,
+        lastLinePadding: lastLinePadding);
 
     for (final lineInfo in lineInfos) {
       paintBackground(canvas, lineInfo);
@@ -642,7 +674,13 @@ class LineMetricsHelper {
   double? _overridenX;
 
   /// Creates a new line metrics helper
-  LineMetricsHelper(this.metrics, this.length);
+  LineMetricsHelper(
+    this.metrics,
+    this.length, {
+    this.firstLinePadding,
+    this.innerLinePadding,
+    this.lastLinePadding,
+  });
 
   /// Whether this line has no content
   bool get isEmpty => rawWidth == 0.0;
@@ -653,25 +691,32 @@ class LineMetricsHelper {
   /// Whether this line is the last line in the paragraph
   bool get isLast => metrics.lineNumber == length - 1;
 
+  final EdgeInsets? firstLinePadding;
+  final EdgeInsets? innerLinePadding;
+  final EdgeInsets? lastLinePadding;
+
   static const _horizontalPaddingFactor = 0.3;
-  late final EdgeInsets _firstLinePadding = EdgeInsets.only(
-    left: height * _horizontalPaddingFactor,
-    right: height * _horizontalPaddingFactor,
-    top: height * 0.3,
-    bottom: height * 0.175 / 2,
-  );
-  late final EdgeInsets _innerLinePadding = EdgeInsets.only(
-    left: height * _horizontalPaddingFactor,
-    right: height * _horizontalPaddingFactor,
-    top: 0.0,
-    bottom: height * 0.175 / 2,
-  );
-  late final EdgeInsets _lastLinePadding = EdgeInsets.only(
-    left: height * _horizontalPaddingFactor,
-    right: height * _horizontalPaddingFactor,
-    top: 0.0,
-    bottom: height * 0.175 / 2,
-  );
+  late final EdgeInsets _firstLinePadding = firstLinePadding ??
+      EdgeInsets.only(
+        left: height * _horizontalPaddingFactor,
+        right: height * _horizontalPaddingFactor,
+        top: height * 0.3,
+        bottom: height * 0.175 / 2,
+      );
+  late final EdgeInsets _innerLinePadding = innerLinePadding ??
+      EdgeInsets.only(
+        left: height * _horizontalPaddingFactor,
+        right: height * _horizontalPaddingFactor,
+        top: 0.0,
+        bottom: height * 0.175 / 2,
+      );
+  late final EdgeInsets _lastLinePadding = lastLinePadding ??
+      EdgeInsets.only(
+        left: height * _horizontalPaddingFactor,
+        right: height * _horizontalPaddingFactor,
+        top: 0.0,
+        bottom: height * 0.175 / 2,
+      );
 
   /// Dynamically calculate the outer factor based on the provided [outerRadius]
   double outerRadius(double outerRadius) {
