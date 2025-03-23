@@ -1,3 +1,7 @@
+## 0.5.1
+
+* feat: Add `RoundedBackgroundTextField.stylusHandwritingEnabled`
+
 ## 0.5.0
 
 * fix: Update vertical alignment ([#19](https://github.com/bdlukaa/rounded_background_text/issues/19))

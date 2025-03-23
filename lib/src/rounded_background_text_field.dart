@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -68,6 +69,8 @@ class RoundedBackgroundTextField extends StatefulWidget {
     this.magnifierConfiguration = const TextMagnifierConfiguration(),
     this.undoController,
     this.scribbleEnabled = true,
+    this.stylusHandwritingEnabled =
+        EditableText.defaultStylusHandwritingEnabled,
     this.locale,
     this.onChanged,
     this.onEditingComplete,
@@ -358,8 +361,15 @@ class RoundedBackgroundTextField extends StatefulWidget {
   /// Controls the undo state of the current editable text.
   final UndoHistoryController? undoController;
 
-  /// {macro flutter.widgets.editableText.scribbleEnabled}
+  /// {@macro flutter.widgets.editableText.scribbleEnabled}
+  @Deprecated(
+    'Use `stylusHandwritingEnabled` instead. '
+    'This feature was deprecated after v3.27.0-0.2.pre.',
+  )
   final bool scribbleEnabled;
+
+  /// {@macro flutter.widgets.editableText.stylusHandwritingEnabled}
+  final bool stylusHandwritingEnabled;
 
   /// Used to select a font when the same Unicode character can
   /// be rendered differently, depending on the locale.
@@ -643,6 +653,7 @@ class _RoundedBackgroundTextFieldState
               magnifierConfiguration: widget.magnifierConfiguration,
               undoController: widget.undoController,
               scribbleEnabled: widget.scribbleEnabled,
+              stylusHandwritingEnabled: widget.stylusHandwritingEnabled,
               selectionHeightStyle: widget.selectionHeightStyle,
               selectionWidthStyle: widget.selectionWidthStyle,
               locale: widget.locale,
