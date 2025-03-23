@@ -149,7 +149,7 @@ To paint the background, the line metrics generated before is used. Each line ha
 - `width` - the horizontal size of the line
 - `height` - the vertical size of the line
 
-With these values, we can generate the background for each line. The background is generated around the whole text: from top-left to bottom-left to bottom-right to top-right to top-left. This makes it easy to calculate when there is a corner, either outer or inner. 
+With these values, we can generate the background for each line. The background is generated around the whole text: from top-left to bottom-left to bottom-right to top-right to top-left. This makes it easy to calculate when there is a corner, either outer or inner.
 
 The inner and outer radius are dynamically calculated based on the line height, provided by the line metrics, and the given `innerRadius` and `outerRadius`, respectively. By default, `innerRadius` is `10.0` and `outerRadius` is `10.0`. For safety, in order to keep the roundnesses correct, these values must be in the bounds of `0.0` (min) and `20.0` max, otherwise the painting would be out the line.
 
