@@ -118,6 +118,20 @@ RichText(
 
 ![TextSpan Highlight Preview](https://github.com/bdlukaa/rounded_background_text/blob/main/assets/highlight_text_span.png?raw=true)
 
+### Select a highlighted text:
+
+Use `RoundedBackgroundText.selectable` to make the text selectable:
+
+```dart
+RoundedBackgroundText.selectable(
+  'A cool highlighted text to be selected',
+  style: const TextStyle(fontWeight: FontWeight.bold),
+  backgroundColor: Colors.white,
+),
+```
+
+![Selectable Text Preview](https://github.com/bdlukaa/rounded_background_text/blob/main/assets/selectable_text_preview.gif?raw=true)
+
 ## You may like to know:
 
 ### Change the corner radius
