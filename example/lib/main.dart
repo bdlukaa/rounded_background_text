@@ -219,8 +219,11 @@ Done with so much <3 by @bdlukaa''',
                             ),
                           );
                         case _HighlightTextType.span:
-                          return RichText(
+                          return RoundedBackgroundText.rich(
                             textAlign: textAlign,
+                            backgroundColor: selectedColor,
+                            innerRadius: innerRadius,
+                            outerRadius: outerRadius,
                             text: TextSpan(
                               text: 'You can use this to ',
                               style: TextStyle(
@@ -231,11 +234,7 @@ Done with so much <3 by @bdlukaa''',
                               children: [
                                 RoundedBackgroundTextSpan(
                                   text:
-                                      'highlight important stuff inside a text',
-                                  backgroundColor: selectedColor,
-                                  innerRadius: innerRadius,
-                                  outerRadius: outerRadius,
-                                  textAlign: textAlign,
+                                      ' highlight important stuff inside a text ',
                                   style: TextStyle(
                                     fontSize: fontSize,
                                     fontWeight: fontWeight,

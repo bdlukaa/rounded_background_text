@@ -223,9 +223,9 @@ class RoundedBackgroundText extends StatelessWidget {
           painter.width.clamp(0, constraints.maxWidth),
           painter.height.clamp(0, constraints.maxHeight),
         ),
-        painter: RoundedBackgroundTextPainter(
+        painter: RoundedBackgroundRichTextPainter(
           backgroundColor: backgroundColor ?? Colors.transparent,
-          text: painter,
+          painter: painter,
           innerRadius: innerRadius,
           outerRadius: outerRadius,
         ),

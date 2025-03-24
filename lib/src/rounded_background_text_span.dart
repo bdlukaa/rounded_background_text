@@ -1,6 +1,5 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
+
 import 'rounded_background_text.dart';
 
 /// A text with rounded background that is embedded inline within text.
@@ -9,74 +8,97 @@ import 'rounded_background_text.dart';
 ///
 ///  * [TextSpan], a node that represents text in an [InlineSpan] tree.
 ///  * [RoundedBackgroundText], which renders rounded background texts
-class RoundedBackgroundTextSpan extends WidgetSpan {
-  final String text;
+class RoundedBackgroundTextSpan extends TextSpan {
+  const RoundedBackgroundTextSpan({
+    super.children,
+    super.locale,
+    super.mouseCursor,
+    super.onEnter,
+    super.onExit,
+    super.recognizer,
+    super.semanticsLabel,
+    super.spellOut,
+    super.style,
+    super.text,
+  });
+}
 
-  /// Creates a text with rounded background with the given values
-  RoundedBackgroundTextSpan({
-    required this.text,
-    TextStyle? style,
-    Color? backgroundColor,
-    TextScaler textScaler = TextScaler.noScaling,
-    Locale? locale,
-    TextBaseline? baseline,
-    double? innerRadius,
-    double? outerRadius,
-    TextAlign? textAlign,
-  }) : super(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: RoundedBackgroundText(
-              text,
-              style: style,
-              backgroundColor: backgroundColor,
-              textScaler: textScaler,
-              locale: locale,
-              innerRadius: innerRadius ?? kDefaultInnerRadius,
-              outerRadius: outerRadius ?? kDefaultOuterRadius,
-              textAlign: textAlign,
-              maxLines: 1,
-            ),
-          ),
-          baseline: baseline,
-        );
+class RoundedBackgroundRichTextPainter extends CustomPainter {
+  final Color backgroundColor;
+  final TextPainter painter;
+  final double innerRadius;
+  final double outerRadius;
 
-  TextSpan get _textSpan => TextSpan(text: text);
+  const RoundedBackgroundRichTextPainter({
+    required this.backgroundColor,
+    required this.painter,
+    required this.innerRadius,
+    required this.outerRadius,
+  });
 
   @override
-  InlineSpan? getSpanForPositionVisitor(
-      TextPosition position, Accumulator offset) {
-    return _textSpan.getSpanForPositionVisitor(position, offset);
+  void paint(Canvas canvas, Size size) {
+    // 1. Paint the text first
+
+    // 2. Find and draw the backgrounds as a single path
+    final roundedBackgroundTextSpans = <RoundedBackgroundTextSpan>[];
+    painter.text!.visitChildren((child) {
+      if (child is RoundedBackgroundTextSpan) {
+        roundedBackgroundTextSpans.add(child);
+      }
+      return true;
+    });
+
+    final paint = Paint()
+      ..color = backgroundColor
+      ..style = PaintingStyle.fill;
+
+    final backgroundPath = Path();
+
+    for (final span in roundedBackgroundTextSpans) {
+      // Find the text range for this span
+      final startIndex = painter.text!.toPlainText().indexOf(span.text!);
+      if (startIndex == -1) {
+        continue; // Span's text not found
+      }
+      final endIndex = startIndex + span.text!.length;
+
+      // Get boxes for the text using getBoxesForSelection
+      final boxes = painter.getBoxesForSelection(
+        TextSelection(baseOffset: startIndex, extentOffset: endIndex),
+      );
+
+      // Add the boxes to the path
+      for (final box in boxes) {
+        final rect = box.toRect();
+        addRoundedRectToPath(backgroundPath, rect, outerRadius, innerRadius);
+      }
+    }
+
+    canvas.drawPath(backgroundPath, paint);
+
+    painter.paint(canvas, Offset.zero);
   }
 
   @override
-  void computeToPlainText(
-    StringBuffer buffer, {
-    bool includeSemanticsLabels = true,
-    bool includePlaceholders = true,
-  }) {
-    _textSpan.computeToPlainText(
-      buffer,
-      includeSemanticsLabels: includeSemanticsLabels,
-      includePlaceholders: includePlaceholders,
+  bool shouldRepaint(covariant RoundedBackgroundRichTextPainter oldDelegate) {
+    return oldDelegate.backgroundColor != backgroundColor ||
+        oldDelegate.painter != painter ||
+        oldDelegate.innerRadius != innerRadius ||
+        oldDelegate.outerRadius != outerRadius;
+  }
+
+  // Helper function to add a rounded rectangle to the path with individual corner radii
+  void addRoundedRectToPath(
+      Path path, Rect rect, double outerRadius, double innerRadius) {
+    final RRect rrect = RRect.fromRectAndCorners(
+      rect,
+      topLeft: Radius.circular(outerRadius),
+      topRight: Radius.circular(outerRadius),
+      bottomLeft: Radius.circular(outerRadius),
+      bottomRight: Radius.circular(outerRadius),
     );
-  }
 
-  @override
-  void computeSemanticsInformation(
-    List<InlineSpanSemanticsInformation> collector, {
-    ui.Locale? inheritedLocale,
-    bool inheritedSpellOut = false,
-  }) {
-    return _textSpan.computeSemanticsInformation(
-      collector,
-      inheritedLocale: inheritedLocale,
-      inheritedSpellOut: inheritedSpellOut,
-    );
-  }
-
-  @override
-  int? codeUnitAtVisitor(int index, Accumulator offset) {
-    return _textSpan.codeUnitAtVisitor(index, offset);
+    path.addRRect(rrect);
   }
 }
