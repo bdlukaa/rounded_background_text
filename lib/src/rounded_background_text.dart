@@ -91,7 +91,28 @@ class RoundedBackgroundText extends StatelessWidget {
     bool enableInteractiveSelection = true,
     TextMagnifierConfiguration? magnifierConfiguration,
   }) {
-    return RoundedBackgroundTextSelectable(text: text);
+    return RoundedBackgroundTextSelectable(
+      key: key,
+      text: text,
+      focusNode: focusNode,
+      autofocus: autofocus,
+      selectionControls: selectionControls,
+      style: style,
+      textDirection: textDirection,
+      backgroundColor: backgroundColor,
+      textAlign: textAlign,
+      textWidthBasis: textWidthBasis,
+      textScaler: textScaler,
+      innerRadius: innerRadius,
+      outerRadius: outerRadius,
+      cursorWidth: cursorWidth,
+      cursorColor: cursorColor,
+      cursorHeight: cursorHeight,
+      cursorRadius: cursorRadius,
+      onSelectionChanged: onSelectionChanged,
+      enableInteractiveSelection: enableInteractiveSelection,
+      magnifierConfiguration: magnifierConfiguration,
+    );
   }
 
   /// The text to display in this widget.

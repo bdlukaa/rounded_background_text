@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-
 import 'package:rounded_background_text/rounded_background_text.dart';
 
 final _primaryAndAccentColors = [...Colors.primaries, ...Colors.accents];
@@ -70,28 +69,25 @@ class _MyAppState extends State<MyApp> {
                       child: DropdownButton<FontWeight>(
                         isExpanded: true,
                         value: fontWeight,
-                        onChanged:
-                            (w) => setState(
-                              () => fontWeight = w ?? FontWeight.normal,
-                            ),
+                        onChanged: (w) => setState(
+                          () => fontWeight = w ?? FontWeight.normal,
+                        ),
                         icon: const Icon(Icons.format_bold),
-                        items:
-                            FontWeight.values.map((e) {
-                              return DropdownMenuItem(
-                                value: e,
-                                child: Text('$e'.replaceAll('FontWeight.', '')),
-                              );
-                            }).toList(),
+                        items: FontWeight.values.map((e) {
+                          return DropdownMenuItem(
+                            value: e,
+                            child: Text('$e'.replaceAll('FontWeight.', '')),
+                          );
+                        }).toList(),
                       ),
                     ),
                     const VerticalDivider(),
                     Expanded(
                       child: DropdownButton<TextAlign>(
                         value: textAlign,
-                        onChanged:
-                            (align) => setState(
-                              () => textAlign = align ?? TextAlign.center,
-                            ),
+                        onChanged: (align) => setState(
+                          () => textAlign = align ?? TextAlign.center,
+                        ),
                         icon: Icon(() {
                           switch (textAlign) {
                             case TextAlign.center:
@@ -127,10 +123,9 @@ class _MyAppState extends State<MyApp> {
                     Expanded(
                       child: DropdownButton<_HighlightTextType>(
                         value: type,
-                        onChanged:
-                            (t) => setState(
-                              () => type = t ?? _HighlightTextType.field,
-                            ),
+                        onChanged: (t) => setState(
+                          () => type = t ?? _HighlightTextType.field,
+                        ),
                         icon: const Icon(Icons.text_fields),
                         isExpanded: true,
                         items: const [
@@ -162,10 +157,9 @@ class _MyAppState extends State<MyApp> {
                   padding: const EdgeInsets.all(12.0),
                   child: Center(
                     child: () {
-                      final textColor =
-                          selectedColor.computeLuminance() > 0.5
-                              ? Colors.black
-                              : Colors.white;
+                      final textColor = selectedColor.computeLuminance() > 0.5
+                          ? Colors.black
+                          : Colors.white;
                       switch (type) {
                         case _HighlightTextType.field:
                           return RoundedBackgroundTextField(
@@ -198,21 +192,26 @@ Done with so much <3 by @bdlukaa''',
                             outerRadius: outerRadius,
                           );
                         case _HighlightTextType.selectableText:
-                          return RoundedBackgroundText.selectable(
-                            '''Rounded Background Text Showcase
+                          return TextSelectionTheme(
+                            data: TextSelectionThemeData(
+                              selectionColor: Colors.blue.withOpacity(0.7),
+                            ),
+                            child: RoundedBackgroundText.selectable(
+                              '''Rounded Background Text Showcase
 
 It handles well all font sizes and weights, as well as text alignments
 Contributions are welcome!
 Done with so much <3 by @bdlukaa''',
-                            backgroundColor: selectedColor,
-                            textAlign: textAlign,
-                            style: TextStyle(
-                              fontSize: fontSize,
-                              fontWeight: fontWeight,
-                              color: textColor,
+                              backgroundColor: selectedColor,
+                              textAlign: textAlign,
+                              style: TextStyle(
+                                fontSize: fontSize,
+                                fontWeight: fontWeight,
+                                color: textColor,
+                              ),
+                              innerRadius: innerRadius,
+                              outerRadius: outerRadius,
                             ),
-                            innerRadius: innerRadius,
-                            outerRadius: outerRadius,
                           );
                         case _HighlightTextType.span:
                           return RichText(
@@ -285,37 +284,33 @@ Done with so much <3 by @bdlukaa''',
                     runSpacing: 10.0,
                     spacing: 10.0,
                     alignment: WrapAlignment.center,
-                    children:
-                        _primaryAndAccentColors.map((color) {
-                          return MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: GestureDetector(
-                              onTap:
-                                  () => setState(() => selectedColor = color),
-                              child: AnimatedContainer(
-                                duration: kThemeChangeDuration,
-                                curve: Curves.bounceInOut,
-                                height: 30.0,
-                                width: 30.0,
-                                decoration: BoxDecoration(
-                                  color: color,
-                                  borderRadius: BorderRadius.circular(2.0),
-                                  border: Border.all(
-                                    color:
-                                        color.computeLuminance() > 0.5
-                                            ? Colors.black
-                                            : Colors.white,
-                                    width: 2.5,
-                                    style:
-                                        selectedColor == color
-                                            ? BorderStyle.solid
-                                            : BorderStyle.none,
-                                  ),
-                                ),
+                    children: _primaryAndAccentColors.map((color) {
+                      return MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          onTap: () => setState(() => selectedColor = color),
+                          child: AnimatedContainer(
+                            duration: kThemeChangeDuration,
+                            curve: Curves.bounceInOut,
+                            height: 30.0,
+                            width: 30.0,
+                            decoration: BoxDecoration(
+                              color: color,
+                              borderRadius: BorderRadius.circular(2.0),
+                              border: Border.all(
+                                color: color.computeLuminance() > 0.5
+                                    ? Colors.black
+                                    : Colors.white,
+                                width: 2.5,
+                                style: selectedColor == color
+                                    ? BorderStyle.solid
+                                    : BorderStyle.none,
                               ),
                             ),
-                          );
-                        }).toList(),
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
               ),

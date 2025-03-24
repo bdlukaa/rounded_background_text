@@ -382,10 +382,10 @@ class RoundedBackgroundTextField extends StatefulWidget {
 
   @override
   State<RoundedBackgroundTextField> createState() =>
-      _RoundedBackgroundTextFieldState();
+      RoundedBackgroundTextFieldState();
 }
 
-class _RoundedBackgroundTextFieldState
+class RoundedBackgroundTextFieldState
     extends State<RoundedBackgroundTextField> {
   FocusNode? _focusNode;
   FocusNode get _effectiveFocusNode =>

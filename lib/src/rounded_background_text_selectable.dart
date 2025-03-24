@@ -1,8 +1,26 @@
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:rounded_background_text/rounded_background_text.dart';
+
+class _SelectableTextSelectionGestureDetectorBuilder
+    extends TextSelectionGestureDetectorBuilder {
+  _SelectableTextSelectionGestureDetectorBuilder(
+      {required _RoundedBackgroundTextSelectableState state})
+      : super(delegate: state);
+
+  @override
+  void onSingleTapUp(TapDragUpDetails details) {
+    if (!delegate.selectionEnabled) {
+      return;
+    }
+    super.onSingleTapUp(details);
+    // _state.widget.onTap?.call();
+  }
+}
 
 /// Creates a selectable [RoundedBackgroundText].
 ///
@@ -11,7 +29,17 @@ import 'package:rounded_background_text/rounded_background_text.dart';
 ///   * [SelectableText], a run of selectable text with a single style.
 ///   * [RoundedBackgroundTextField], the editable version of this widget.
 class RoundedBackgroundTextSelectable extends StatefulWidget {
+  /// The text to display.
   final String text;
+
+  /// {@macro rounded_background_text.background_color}
+  final Color? backgroundColor;
+
+  /// {@macro rounded_background_text.innerRadius}
+  final double innerRadius;
+
+  /// {@macro rounded_background_text.outerRadius}
+  final double outerRadius;
 
   /// Defines the focus for this widget.
   ///
@@ -147,6 +175,9 @@ class RoundedBackgroundTextSelectable extends StatefulWidget {
   const RoundedBackgroundTextSelectable({
     super.key,
     required this.text,
+    this.backgroundColor,
+    this.innerRadius = kDefaultInnerRadius,
+    this.outerRadius = kDefaultOuterRadius,
     this.focusNode,
     this.style,
     this.strutStyle,
@@ -180,59 +211,213 @@ class RoundedBackgroundTextSelectable extends StatefulWidget {
 }
 
 class _RoundedBackgroundTextSelectableState
-    extends State<RoundedBackgroundTextSelectable> {
-  late final TextEditingController controller;
+    extends State<RoundedBackgroundTextSelectable>
+    implements TextSelectionGestureDetectorBuilderDelegate {
+  EditableTextState? get _editableText => editableTextKey.currentState;
+  late final TextEditingController _controller;
+
+  FocusNode? _focusNode;
+  FocusNode get _effectiveFocusNode =>
+      widget.focusNode ?? (_focusNode ??= FocusNode(skipTraversal: true));
+
+  bool _showSelectionHandles = false;
+
+  late _SelectableTextSelectionGestureDetectorBuilder
+      _selectionGestureDetectorBuilder;
+
+  // API for TextSelectionGestureDetectorBuilderDelegate.
+  @override
+  late bool forcePressEnabled;
+
+  @override
+  late final GlobalKey<EditableTextState> editableTextKey;
+
+  final GlobalKey<RoundedBackgroundTextFieldState> fieldKey =
+      GlobalKey<RoundedBackgroundTextFieldState>();
+
+  @override
+  bool get selectionEnabled => widget.selectionEnabled;
+  // End of API for TextSelectionGestureDetectorBuilderDelegate.
 
   @override
   void initState() {
     super.initState();
-    controller = TextEditingController(text: widget.text);
+    _selectionGestureDetectorBuilder =
+        _SelectableTextSelectionGestureDetectorBuilder(state: this);
+    _controller = TextEditingController(text: widget.text);
+    _controller.addListener(_onControllerChanged);
+    _effectiveFocusNode.addListener(_handleFocusChanged);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      editableTextKey = fieldKey.currentState!.fieldKey;
+    });
   }
 
   @override
   void didUpdateWidget(covariant RoundedBackgroundTextSelectable oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.text != widget.text) {
-      controller.text = widget.text;
+      _controller.text = widget.text;
+    }
+
+    if (widget.focusNode != oldWidget.focusNode) {
+      (oldWidget.focusNode ?? _focusNode)?.removeListener(_handleFocusChanged);
+      (widget.focusNode ?? _focusNode)?.addListener(_handleFocusChanged);
+    }
+    if (_effectiveFocusNode.hasFocus && _controller.selection.isCollapsed) {
+      _showSelectionHandles = false;
+    } else {
+      _showSelectionHandles = true;
     }
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    _effectiveFocusNode.removeListener(_handleFocusChanged);
+    _focusNode?.dispose();
+    _controller.dispose();
     super.dispose();
+  }
+
+  void _onControllerChanged() {
+    final bool showSelectionHandles =
+        !_effectiveFocusNode.hasFocus || !_controller.selection.isCollapsed;
+    if (showSelectionHandles == _showSelectionHandles) {
+      return;
+    }
+    setState(() {
+      _showSelectionHandles = showSelectionHandles;
+    });
+  }
+
+  void _handleFocusChanged() {
+    if (!_effectiveFocusNode.hasFocus &&
+        SchedulerBinding.instance.lifecycleState == AppLifecycleState.resumed) {
+      // We should only clear the selection when this SelectableText loses
+      // focus while the application is currently running. It is possible
+      // that the application is not currently running, for example on desktop
+      // platforms, clicking on a different window switches the focus to
+      // the new window causing the Flutter application to go inactive. In this
+      // case we want to retain the selection so it remains when we return to
+      // the Flutter application.
+      _controller.value = TextEditingValue(text: _controller.value.text);
+    }
+  }
+
+  void _handleSelectionChanged(
+      TextSelection selection, SelectionChangedCause? cause) {
+    final bool willShowSelectionHandles = _shouldShowSelectionHandles(cause);
+    if (willShowSelectionHandles != _showSelectionHandles) {
+      setState(() {
+        _showSelectionHandles = willShowSelectionHandles;
+      });
+    }
+
+    widget.onSelectionChanged?.call(selection, cause);
+
+    switch (Theme.of(context).platform) {
+      case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
+        if (cause == SelectionChangedCause.longPress) {
+          _editableText?.bringIntoView(selection.base);
+        }
+        return;
+      case TargetPlatform.android:
+      case TargetPlatform.fuchsia:
+      case TargetPlatform.linux:
+      case TargetPlatform.windows:
+      // Do nothing.
+    }
+  }
+
+  /// Toggle the toolbar when a selection handle is tapped.
+  void _handleSelectionHandleTapped() {
+    if (_controller.selection.isCollapsed) {
+      _editableText!.toggleToolbar();
+    }
+  }
+
+  bool _shouldShowSelectionHandles(SelectionChangedCause? cause) {
+    // When the text field is activated by something that doesn't trigger the
+    // selection overlay, we shouldn't show the handles either.
+    if (!_selectionGestureDetectorBuilder.shouldShowSelectionToolbar) {
+      return false;
+    }
+
+    if (_controller.selection.isCollapsed) {
+      return false;
+    }
+
+    if (cause == SelectionChangedCause.keyboard) {
+      return false;
+    }
+
+    if (cause == SelectionChangedCause.longPress) {
+      return true;
+    }
+
+    if (_controller.text.isNotEmpty) {
+      return true;
+    }
+
+    return false;
   }
 
   @override
   Widget build(BuildContext context) {
-    return RoundedBackgroundTextField(
-      controller: controller,
-      focusNode: widget.focusNode,
-      style: widget.style,
-      strutStyle: widget.strutStyle,
-      textAlign: widget.textAlign ?? TextAlign.start,
-      textDirection: widget.textDirection,
-      textScaler: widget.textScaler,
-      autofocus: widget.autofocus,
-      maxLines: widget.maxLines,
-      showCursor: widget.showCursor,
-      cursorWidth: widget.cursorWidth,
-      cursorHeight: widget.cursorHeight,
-      cursorRadius: widget.cursorRadius,
-      cursorColor: widget.cursorColor,
-      selectionHeightStyle: widget.selectionHeightStyle,
-      selectionWidthStyle: widget.selectionWidthStyle,
-      enableInteractiveSelection: widget.enableInteractiveSelection,
-      selectionControls: widget.selectionControls,
-      dragStartBehavior: widget.dragStartBehavior,
-      scrollPhysics: widget.scrollPhysics,
-      scrollBehavior: widget.scrollBehavior,
-      textHeightBehavior: widget.textHeightBehavior,
-      textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
-      onSelectionChanged: widget.onSelectionChanged,
-      contextMenuBuilder: widget.contextMenuBuilder,
-      magnifierConfiguration:
-          widget.magnifierConfiguration ?? TextMagnifierConfiguration.disabled,
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.iOS:
+        forcePressEnabled = true;
+      case TargetPlatform.macOS:
+        forcePressEnabled = false;
+      case TargetPlatform.android:
+      case TargetPlatform.fuchsia:
+        forcePressEnabled = false;
+      case TargetPlatform.linux:
+      case TargetPlatform.windows:
+        forcePressEnabled = false;
+    }
+
+    return Semantics(
+      onLongPress: () {
+        _effectiveFocusNode.requestFocus();
+      },
+      child: _selectionGestureDetectorBuilder.buildGestureDetector(
+        behavior: HitTestBehavior.translucent,
+        child: RoundedBackgroundTextField(
+          key: fieldKey,
+          readOnly: true,
+          controller: _controller,
+          backgroundColor: widget.backgroundColor,
+          focusNode: widget.focusNode,
+          style: widget.style,
+          strutStyle: widget.strutStyle,
+          textAlign: widget.textAlign ?? TextAlign.start,
+          textDirection: widget.textDirection,
+          textScaler: widget.textScaler,
+          autofocus: widget.autofocus,
+          maxLines: widget.maxLines,
+          showCursor: widget.showCursor,
+          cursorWidth: widget.cursorWidth,
+          cursorHeight: widget.cursorHeight,
+          cursorRadius: widget.cursorRadius,
+          cursorColor: widget.cursorColor,
+          selectionHeightStyle: widget.selectionHeightStyle,
+          selectionWidthStyle: widget.selectionWidthStyle,
+          enableInteractiveSelection: widget.enableInteractiveSelection,
+          selectionControls: widget.selectionControls,
+          dragStartBehavior: widget.dragStartBehavior,
+          scrollPhysics: widget.scrollPhysics,
+          scrollBehavior: widget.scrollBehavior,
+          textHeightBehavior: widget.textHeightBehavior,
+          textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
+          onSelectionChanged: _handleSelectionChanged,
+          onSelectionHandleTapped: _handleSelectionHandleTapped,
+          contextMenuBuilder: widget.contextMenuBuilder,
+          magnifierConfiguration: widget.magnifierConfiguration ??
+              TextMagnifierConfiguration.disabled,
+        ),
+      ),
     );
   }
 }
