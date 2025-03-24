@@ -1,6 +1,10 @@
-## 0.5.1
+## 0.6.0
 
 * feat: Add `RoundedBackgroundTextField.stylusHandwritingEnabled`
+* **BREAKING** fix: Do not use material's `SelectableText` in `RoundedBackgroundText.selectable` ([#21](https://github.com/bdlukaa/rounded_background_text/issues/21))
+  `RoundedBackgroundTextField` is used under the hood instead. It contains all the logic to make the text scrollable, adapts to the style and more.
+
+  `RoundedBackgroundText.selectableRich` has been removed. Use `RoundedBackgroundTextField` with custom text controller instead.
 
 ## 0.5.0
 

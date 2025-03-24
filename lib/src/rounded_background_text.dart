@@ -67,6 +67,7 @@ class RoundedBackgroundText extends StatelessWidget {
   /// See also:
   ///
   ///   * [SelectableText], a run of selectable text with a single style.
+  ///   * [RoundedBackgroundTextSelectable], the selectable version of this widget.
   ///   * [RoundedBackgroundTextField], the editable version of this widget.
   static Widget selectable(
     String text, {
@@ -88,91 +89,9 @@ class RoundedBackgroundText extends StatelessWidget {
     Radius? cursorRadius,
     SelectionChangedCallback? onSelectionChanged,
     bool enableInteractiveSelection = true,
-    String? semanticsLabel,
     TextMagnifierConfiguration? magnifierConfiguration,
   }) {
-    return selectableRich(
-      TextSpan(text: text, style: style),
-      autofocus: autofocus,
-      backgroundColor: backgroundColor,
-      cursorColor: cursorColor,
-      cursorHeight: cursorHeight,
-      cursorRadius: cursorRadius,
-      cursorWidth: cursorWidth,
-      enableInteractiveSelection: enableInteractiveSelection,
-      focusNode: focusNode,
-      innerRadius: innerRadius,
-      key: key,
-      onSelectionChanged: onSelectionChanged,
-      outerRadius: outerRadius,
-      selectionControls: selectionControls,
-      semanticsLabel: semanticsLabel,
-      textAlign: textAlign,
-      textDirection: textDirection,
-      textScaler: textScaler,
-      textWidthBasis: textWidthBasis,
-      magnifierConfiguration: magnifierConfiguration,
-    );
-  }
-
-  /// Creates a selectable [RoundedBackgroundText] that can have multiple styles
-  ///
-  /// See also:
-  ///
-  ///   * [SelectableText], a run of selectable text with a single style.
-  ///   * [RoundedBackgroundTextField], the editable version of this widget.
-  static Widget selectableRich(
-    TextSpan textSpan, {
-    Key? key,
-    FocusNode? focusNode,
-    bool autofocus = false,
-    TextSelectionControls? selectionControls,
-    TextDirection? textDirection,
-    Color? backgroundColor,
-    TextAlign textAlign = TextAlign.start,
-    TextWidthBasis? textWidthBasis,
-    TextScaler textScaler = TextScaler.noScaling,
-    double innerRadius = kDefaultInnerRadius,
-    double outerRadius = kDefaultOuterRadius,
-    double cursorWidth = 2.0,
-    Color? cursorColor,
-    double? cursorHeight,
-    Radius? cursorRadius,
-    SelectionChangedCallback? onSelectionChanged,
-    bool enableInteractiveSelection = true,
-    String? semanticsLabel,
-    TextMagnifierConfiguration? magnifierConfiguration,
-  }) {
-    return Stack(children: [
-      RoundedBackgroundText.rich(
-        text: textSpan,
-        textDirection: textDirection,
-        textAlign: textAlign,
-        textScaler: textScaler,
-        innerRadius: innerRadius,
-        outerRadius: outerRadius,
-        backgroundColor: backgroundColor,
-        textWidthBasis: textWidthBasis,
-      ),
-      SelectableText.rich(
-        textSpan,
-        textDirection: textDirection,
-        textAlign: textAlign,
-        textScaler: textScaler,
-        cursorColor: cursorColor,
-        cursorHeight: cursorHeight,
-        cursorRadius: cursorRadius,
-        cursorWidth: cursorWidth,
-        selectionControls: selectionControls,
-        onSelectionChanged: onSelectionChanged,
-        enableInteractiveSelection: enableInteractiveSelection,
-        focusNode: focusNode,
-        autofocus: autofocus,
-        semanticsLabel: semanticsLabel,
-        magnifierConfiguration: magnifierConfiguration,
-        textWidthBasis: textWidthBasis,
-      ),
-    ]);
+    return RoundedBackgroundTextSelectable(text: text);
   }
 
   /// The text to display in this widget.
