@@ -281,228 +281,239 @@ class RoundedBackgroundTextPainter extends CustomPainter {
   }
 
   @override
+  bool? hitTest(Offset position) {
+    final backgroundPath = _getBackgroundPath(text.size);
+    return backgroundPath.contains(position);
+  }
+
+  @override
   void paint(Canvas canvas, Size size) {
-    final lineInfos = computeLines(text);
-
-    for (final lineInfo in lineInfos) {
-      paintBackground(canvas, lineInfo);
-    }
-
+    final backgroundPath = _getBackgroundPath(size);
+    canvas.drawPath(backgroundPath, Paint()..color = backgroundColor);
     text.paint(canvas, Offset.zero);
   }
 
-  void paintBackground(Canvas canvas, List<LineMetricsHelper> lineInfo) {
-    if (lineInfo.isEmpty) return;
-    if (lineInfo.length == 1) {
-      final info = lineInfo.first;
-      if (!info.isEmpty) {
-        canvas.drawRRect(
-          RRect.fromLTRBR(
+  Path _getBackgroundPath(Size size) {
+    final lineInfos = computeLines(text);
+    final path = Path();
+
+    if (lineInfos.isEmpty) return path;
+
+    for (final lineInfo in lineInfos) {
+      if (lineInfo.isEmpty) continue;
+      if (lineInfo.length == 1) {
+        final info = lineInfo.first;
+        if (!info.isEmpty) {
+          final rRect = RRect.fromLTRBR(
             info.x,
             info.y,
             info.fullWidth,
             info.fullHeight,
             Radius.circular(info.outerRadius(outerRadius)),
-          ),
-          Paint()..color = backgroundColor,
-        );
-      }
-      return;
-    }
-
-    // This ensures the normalization will be done for all lines in the paragraph
-    // and not only for the next one
-    for (final info in lineInfo) {
-      normalize(lineInfo.elementAtOrNull(lineInfo.indexOf(info) + 1), info);
-    }
-
-    final path = Path();
-    final firstInfo = lineInfo.elementAt(0);
-    final lastInfo = lineInfo.elementAt(lineInfo.length - 1);
-
-    path.moveTo(firstInfo.x + firstInfo.outerRadius(outerRadius), firstInfo.y);
-
-    LineMetricsHelper previous = firstInfo;
-
-    for (final info in lineInfo) {
-      final next = lineInfo.elementAtOrNull(lineInfo.indexOf(info) + 1);
-
-      final outerRadius = info.outerRadius(this.outerRadius);
-      final innerRadius = info.innerRadius(this.innerRadius);
-
-      void drawTopLeftCorner(LineMetricsHelper info) {
-        final localOuterRadius = previous == info
-            ? outerRadius
-            : (previous.x - info.x).clamp(0, outerRadius);
-        final controlPoint = Offset(info.x, info.y);
-        final endPoint = Offset(info.x, info.y + localOuterRadius);
-
-        path.lineTo(info.x + localOuterRadius, info.y);
-        path.quadraticBezierTo(
-            controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
+          );
+          path.addRRect(rRect);
+        }
+        continue;
       }
 
-      void drawBottomLeftCorner(LineMetricsHelper info) {
-        path.lineTo(info.x, info.fullHeight - outerRadius);
-
-        final iControlPoint = Offset(info.x, info.fullHeight);
-        final iEndPoint = Offset(info.x + outerRadius, info.fullHeight);
-
-        path.quadraticBezierTo(
-            iControlPoint.dx, iControlPoint.dy, iEndPoint.dx, iEndPoint.dy);
+      // This ensures the normalization will be done for all lines in the paragraph
+      // and not only for the next one
+      for (final info in lineInfo) {
+        normalize(lineInfo.elementAtOrNull(lineInfo.indexOf(info) + 1), info);
       }
 
-      void drawInnerCorner(LineMetricsHelper info, [bool toLeft = true]) {
-        if (toLeft) {
-          final formattedHeight =
-              info.fullHeight - info._innerLinePadding.bottom;
+      final firstInfo = lineInfo.elementAt(0);
+      final lastInfo = lineInfo.elementAt(lineInfo.length - 1);
 
-          final localInnerRadius = (info.x - next!.x).clamp(0, innerRadius);
-          path.lineTo(info.x, info.fullHeight - localInnerRadius);
-          final iControlPoint = Offset(info.x, formattedHeight);
-          final iEndPoint = Offset(info.x - localInnerRadius, formattedHeight);
+      path.moveTo(
+          firstInfo.x + firstInfo.outerRadius(outerRadius), firstInfo.y);
 
+      LineMetricsHelper previous = firstInfo;
+
+      for (final info in lineInfo) {
+        final next = lineInfo.elementAtOrNull(lineInfo.indexOf(info) + 1);
+
+        final outerRadius = info.outerRadius(this.outerRadius);
+        final innerRadius = info.innerRadius(this.innerRadius);
+
+        void drawTopLeftCorner(LineMetricsHelper info) {
+          final localOuterRadius = previous == info
+              ? outerRadius
+              : (previous.x - info.x).clamp(0, outerRadius);
+          final controlPoint = Offset(info.x, info.y);
+          final endPoint = Offset(info.x, info.y + localOuterRadius);
+
+          path.lineTo(info.x + localOuterRadius, info.y);
           path.quadraticBezierTo(
-              iControlPoint.dx, iControlPoint.dy, iEndPoint.dx, iEndPoint.dy);
-        } else {
-          final formattedY = next!.y + info._innerLinePadding.bottom;
+              controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
+        }
 
-          final localInnerRadius = (next.x - info.x).clamp(0, innerRadius);
-          path.lineTo(next.x - localInnerRadius, formattedY);
-          final iControlPoint = Offset(next.x, formattedY);
-          final iEndPoint = Offset(next.x, formattedY + localInnerRadius);
+        void drawBottomLeftCorner(LineMetricsHelper info) {
+          path.lineTo(info.x, info.fullHeight - outerRadius);
+
+          final iControlPoint = Offset(info.x, info.fullHeight);
+          final iEndPoint = Offset(info.x + outerRadius, info.fullHeight);
 
           path.quadraticBezierTo(
               iControlPoint.dx, iControlPoint.dy, iEndPoint.dx, iEndPoint.dy);
         }
-      }
 
-      if (next != null) {
-        // If it's the first line OR the previous line is bigger than the current
-        // one, draw the top left corner
-        if (info == firstInfo || previous.x > info.x) {
+        void drawInnerCorner(LineMetricsHelper info, [bool toLeft = true]) {
+          if (toLeft) {
+            final formattedHeight =
+                info.fullHeight - info._innerLinePadding.bottom;
+
+            final localInnerRadius = (info.x - next!.x).clamp(0, innerRadius);
+            path.lineTo(info.x, info.fullHeight - localInnerRadius);
+            final iControlPoint = Offset(info.x, formattedHeight);
+            final iEndPoint =
+                Offset(info.x - localInnerRadius, formattedHeight);
+
+            path.quadraticBezierTo(
+                iControlPoint.dx, iControlPoint.dy, iEndPoint.dx, iEndPoint.dy);
+          } else {
+            final formattedY = next!.y + info._innerLinePadding.bottom;
+
+            final localInnerRadius = (next.x - info.x).clamp(0, innerRadius);
+            path.lineTo(next.x - localInnerRadius, formattedY);
+            final iControlPoint = Offset(next.x, formattedY);
+            final iEndPoint = Offset(next.x, formattedY + localInnerRadius);
+
+            path.quadraticBezierTo(
+                iControlPoint.dx, iControlPoint.dy, iEndPoint.dx, iEndPoint.dy);
+          }
+        }
+
+        if (next != null) {
+          // If it's the first line OR the previous line is bigger than the current
+          // one, draw the top left corner
+          if (info == firstInfo || previous.x > info.x) {
+            drawTopLeftCorner(info);
+          }
+          if (info.x > next.x) {
+            // If the current one is less than the next, draw the inner corner
+            drawInnerCorner(info);
+            // drawBottomLeftCorner(info);
+          } else
+          // If the next one is more to the right, draw the bottom left
+          if (info.x < next.x) {
+            // Draw bottom right corner
+            drawBottomLeftCorner(info);
+
+            // Otherwise draw the inverse inner corner
+            drawInnerCorner(info, false);
+          }
+        } else {
+          // If it's in the last one, draw the top and bottom corners
           drawTopLeftCorner(info);
-        }
-        if (info.x > next.x) {
-          // If the current one is less than the next, draw the inner corner
-          drawInnerCorner(info);
-          // drawBottomLeftCorner(info);
-        } else
-        // If the next one is more to the right, draw the bottom left
-        if (info.x < next.x) {
-          // Draw bottom right corner
           drawBottomLeftCorner(info);
-
-          // Otherwise draw the inverse inner corner
-          drawInnerCorner(info, false);
         }
-      } else {
-        // If it's in the last one, draw the top and bottom corners
-        drawTopLeftCorner(info);
-        drawBottomLeftCorner(info);
+
+        previous = info;
       }
 
-      previous = info;
-    }
+      // Draw the last line only to the half of it
+      path.lineTo(lastInfo.fullWidth / 2, lastInfo.fullHeight);
 
-    // Draw the last line only to the half of it
-    path.lineTo(lastInfo.fullWidth / 2, lastInfo.fullHeight);
+      final reversedInfo = lineInfo.reversed.toList(growable: false);
+      previous = reversedInfo.first;
 
-    final reversedInfo = lineInfo.reversed.toList(growable: false);
-    previous = reversedInfo.first;
+      // !Goes horizontal and up
+      for (final info in reversedInfo) {
+        final next =
+            reversedInfo.elementAtOrNull(reversedInfo.indexOf(info) + 1);
 
-    // !Goes horizontal and up
-    for (final info in reversedInfo) {
-      final next = reversedInfo.elementAtOrNull(reversedInfo.indexOf(info) + 1);
+        final outerRadius = info.outerRadius(this.outerRadius);
+        final innerRadius = info.innerRadius(this.innerRadius);
 
-      final outerRadius = info.outerRadius(this.outerRadius);
-      final innerRadius = info.innerRadius(this.innerRadius);
+        void drawTopRightCorner(
+          LineMetricsHelper info, [
+          double? factor,
+        ]) {
+          factor ??= outerRadius;
+          final controlPoint = Offset(info.fullWidth, info.y);
+          final endPoint = Offset(info.fullWidth - factor, info.y);
 
-      void drawTopRightCorner(
-        LineMetricsHelper info, [
-        double? factor,
-      ]) {
-        factor ??= outerRadius;
-        final controlPoint = Offset(info.fullWidth, info.y);
-        final endPoint = Offset(info.fullWidth - factor, info.y);
-
-        path.lineTo(info.fullWidth, info.y + factor);
-        path.quadraticBezierTo(
-            controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
-      }
-
-      void drawBottomRightCorner(LineMetricsHelper info) {
-        path.lineTo(info.fullWidth - outerRadius, info.fullHeight);
-
-        final iControlPoint = Offset(info.fullWidth, info.fullHeight);
-        final iEndPoint = Offset(info.fullWidth, info.fullHeight - outerRadius);
-
-        path.quadraticBezierTo(
-            iControlPoint.dx, iControlPoint.dy, iEndPoint.dx, iEndPoint.dy);
-      }
-
-      void drawInnerCorner(LineMetricsHelper info, [bool toRight = true]) {
-        // To left
-        if (!toRight) {
-          final formattedHeight =
-              info.fullHeight - info._innerLinePadding.bottom;
-          path.lineTo(info.fullWidth + innerRadius, formattedHeight);
-
-          final controlPoint = Offset(info.fullWidth, formattedHeight);
-          final endPoint =
-              Offset(info.fullWidth, formattedHeight - innerRadius);
-
-          path.quadraticBezierTo(
-              controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
-        } else {
-          final formattedY = info.y + info._innerLinePadding.bottom;
-          path.lineTo(info.fullWidth, formattedY + innerRadius);
-
-          final controlPoint = Offset(info.fullWidth, formattedY);
-          final endPoint = Offset(info.fullWidth + innerRadius, formattedY);
-
+          path.lineTo(info.fullWidth, info.y + factor);
           path.quadraticBezierTo(
               controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
         }
-      }
 
-      if (next != null) {
-        if (info == previous) {
-          // if it's the last line
-          drawBottomRightCorner(info);
-        } else if (info.fullWidth < previous.fullWidth) {
-          // if the current one is less than the previous one
-          drawTopRightCorner(previous);
-          drawInnerCorner(info, false);
-          // drawInnerCorner(info);
-        } else if (info.fullWidth > previous.fullWidth) {
-          // if the current one is bigger than the previous one
-          drawInnerCorner(previous, true);
-          drawBottomRightCorner(info);
+        void drawBottomRightCorner(LineMetricsHelper info) {
+          path.lineTo(info.fullWidth - outerRadius, info.fullHeight);
+
+          final iControlPoint = Offset(info.fullWidth, info.fullHeight);
+          final iEndPoint =
+              Offset(info.fullWidth, info.fullHeight - outerRadius);
+
+          path.quadraticBezierTo(
+              iControlPoint.dx, iControlPoint.dy, iEndPoint.dx, iEndPoint.dy);
+        }
+
+        void drawInnerCorner(LineMetricsHelper info, [bool toRight = true]) {
+          // To left
+          if (!toRight) {
+            final formattedHeight =
+                info.fullHeight - info._innerLinePadding.bottom;
+            path.lineTo(info.fullWidth + innerRadius, formattedHeight);
+
+            final controlPoint = Offset(info.fullWidth, formattedHeight);
+            final endPoint =
+                Offset(info.fullWidth, formattedHeight - innerRadius);
+
+            path.quadraticBezierTo(
+                controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
+          } else {
+            final formattedY = info.y + info._innerLinePadding.bottom;
+            path.lineTo(info.fullWidth, formattedY + innerRadius);
+
+            final controlPoint = Offset(info.fullWidth, formattedY);
+            final endPoint = Offset(info.fullWidth + innerRadius, formattedY);
+
+            path.quadraticBezierTo(
+                controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
+          }
+        }
+
+        if (next != null) {
+          if (info == previous) {
+            // if it's the last line
+            drawBottomRightCorner(info);
+          } else if (info.fullWidth < previous.fullWidth) {
+            // if the current one is less than the previous one
+            drawTopRightCorner(previous);
+            drawInnerCorner(info, false);
+            // drawInnerCorner(info);
+          } else if (info.fullWidth > previous.fullWidth) {
+            // if the current one is bigger than the previous one
+            drawInnerCorner(previous, true);
+            drawBottomRightCorner(info);
+          } else {
+            // if the current one is equal to the previous one, ignore it
+          }
         } else {
-          // if the current one is equal to the previous one, ignore it
+          // if it's the first line
+          if (previous.fullWidth < info.fullWidth) {
+            // if the current one is bigger than the previous one
+            drawInnerCorner(previous);
+            drawBottomRightCorner(info);
+          } else if (previous.fullWidth > info.fullWidth) {
+            drawTopRightCorner(previous);
+            drawInnerCorner(info, false);
+          }
+          drawTopRightCorner(info);
         }
-      } else {
-        // if it's the first line
-        if (previous.fullWidth < info.fullWidth) {
-          // if the current one is bigger than the previous one
-          drawInnerCorner(previous);
-          drawBottomRightCorner(info);
-        } else if (previous.fullWidth > info.fullWidth) {
-          drawTopRightCorner(previous);
-          drawInnerCorner(info, false);
-        }
-        drawTopRightCorner(info);
+
+        previous = info;
       }
 
-      previous = info;
+      // First line horizontal
+      path
+        ..lineTo(firstInfo.fullWidth / 2, firstInfo.y)
+        ..close();
     }
 
-    // First line horizontal
-    path
-      ..lineTo(firstInfo.fullWidth / 2, firstInfo.y)
-      ..close();
-    canvas.drawPath(path, Paint()..color = backgroundColor);
+    return path;
   }
 
   @override

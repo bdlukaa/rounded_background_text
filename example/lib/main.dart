@@ -176,20 +176,25 @@ class _MyAppState extends State<MyApp> {
                             outerRadius: outerRadius,
                           );
                         case _HighlightTextType.text:
-                          return RoundedBackgroundText(
-                            '''Rounded Background Text Showcase
+                          return GestureDetector(
+                            onTap: () {
+                              debugPrint('Text tapped');
+                            },
+                            child: RoundedBackgroundText(
+                              '''Rounded Background Text Showcase
 It handles well all font sizes and weights, as well as text alignments
 Contributions are welcome!
 Done with so much <3 by @bdlukaa''',
-                            backgroundColor: selectedColor,
-                            textAlign: textAlign,
-                            style: TextStyle(
-                              fontSize: fontSize,
-                              fontWeight: fontWeight,
-                              color: textColor,
+                              backgroundColor: selectedColor,
+                              textAlign: textAlign,
+                              style: TextStyle(
+                                fontSize: fontSize,
+                                fontWeight: fontWeight,
+                                color: textColor,
+                              ),
+                              innerRadius: innerRadius,
+                              outerRadius: outerRadius,
                             ),
-                            innerRadius: innerRadius,
-                            outerRadius: outerRadius,
                           );
                         case _HighlightTextType.selectableText:
                           return TextSelectionTheme(

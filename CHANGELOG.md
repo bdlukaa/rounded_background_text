@@ -5,6 +5,7 @@
   `RoundedBackgroundTextField` is used under the hood instead. It contains all the logic to make the text scrollable, adapts to the style and more.
 
   `RoundedBackgroundText.selectableRich` has been removed. Use `RoundedBackgroundTextField` with custom text controller instead.
+* feat: Enhance `RoundedBackgroundText` hit testing to accurately detect taps within the rounded background, including inner and outer curves. ([#22](https://github.com/bdlukaa/rounded_background_text/issues/22))
 
 ## 0.5.0
 
